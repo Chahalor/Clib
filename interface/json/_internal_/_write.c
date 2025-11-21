@@ -235,9 +235,6 @@ char	*_json_stringify(
 			memset(_pretty, ' ', pretty);
 	}
 	_json_string_add_tree(_json->content, &result, _pretty);
-
-	// fprintf(stderr, "%s: result.len=%d, result.content='%s'\n", __func__, result.len, result.content);	//rm
-	// write(1, result.content, result.len);	//rm
 	return (result.content);
 }
 

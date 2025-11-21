@@ -255,21 +255,30 @@ int	_json_unset(
 	const char *const restrict _field
 )
 {
-	t_json	*_target = _json_get_field(_json->content, _field, -1);
-	t_json	*_prev = _json_get_field(_json->content, _field, _json_tool_count_field(_field) - 1);
-	t_json	*_next = NULL;
+	const int	_nb_fields = _json_tool_count_field(_field);
+	t_json		*_target = _json_get_field(_json->content, _field, -1);
+	t_json		*_prev = _json_get_field(_json->content, _field, _nb_fields - 1);
 
-	printf("%s: _target=%p, _prev=%p\n", __func__, _target, _prev);
-	printf("%s: target.key='%s'\n", __func__, _target->key);
-	printf("%s: prev.key='%s'\n", __func__, _prev->key);
 	if (!_target)
 		return (error_none);
 	else
 	{
-		_next = _target->next;
+		// printf("%s: prev=%p(%s), _target=%p(%s), nb=%d\n", __func__,
+		// 													_prev, _prev ? _prev->key : NULL,
+		// 													_target, _target ? _target->key : NULL, 
+		// 													_nb_fields);
+		// printf("bob=%s\n", _target->next->key);	//_json->content->child->next->next->key
+		// print_json_tree(_json->content, 0);
+		if (_nb_fields == 1)
+		{
+			if (_target == _prev)
+				_json->content = _target->next;
+			else
+				_prev->next = _target->next;
+		}
+		else if (_prev)
+			_prev->child = _target->next;
 		_json_free_content(_target);
-		if (_prev)
-			_prev->next = _next;
 	}
 	return (error_none);
 }

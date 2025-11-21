@@ -493,14 +493,14 @@ void	print_json_tree(
 	switch (node->type)
 	{
 		case json_tok_obj:
-			printf("{\n");
+			printf("{(child)\n");
 			print_json_tree(node->child, depth + 1);
 			for (int i = 0; i < depth; ++i)
 				printf("    ");
 			printf("}\n");
 			break;
 		case json_tok_array:
-			printf("[\n");
+			printf("[(child)\n");
 			print_json_tree(node->child, depth + 1);
 			for (int i = 0; i < depth; ++i)
 				printf("    ");
@@ -522,5 +522,5 @@ void	print_json_tree(
 			printf("(unknown type)\n");
 			break;
 	}
-	print_json_tree(node->next, depth);
+	print_json_tree(node->next, depth + 1);
 }
