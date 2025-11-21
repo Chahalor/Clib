@@ -22,43 +22,57 @@
 
 /* ----| Internals  |----- */
 
-static int	_json_string_add(
+static int _json_string_add(
 	t_json_str *result,
-	char *restrict _str,
-	const int _has_quote
+	const char *restrict _str,
+	int _has_quote
 )
 {
-	int		_len_str = 0;
-	char	*_dummy = NULL;
+	int		_add_len = 0;
+	char	*_new = NULL;
+	int		_new_size = 0;
 
-	if (unlikely(!_str))
-		_str = "null";
-
-	_len_str = strlen(_str);
-	if (unlikely(result->len + _len_str + _has_quote * 2 > result->size))
+	if ((!_str))
 	{
-		_dummy = mem_realloc(result->content, result->size + INTERFACE_JSON_STRING_ALLOC_SIZE);
-		if (unlikely(!_dummy))
-			return (error_alloc_fail);
-		result->content = _dummy;
-		result->size += INTERFACE_JSON_STRING_ALLOC_SIZE;
+		_str = "null";
+		_has_quote = 0;
 	}
+
+	_add_len = strlen(_str) + (_has_quote ? 2 : 0);
+	if (result->len + _add_len + 1 > result->size)
+	{
+		_new_size = result->size
+						? result->size
+						: INTERFACE_JSON_STRING_ALLOC_SIZE;
+
+		while (result->len + _add_len + 1 > _new_size)
+			_new_size *= 2;
+
+		_new = mem_alloc(_new_size);
+		if (unlikely(!_new))
+			return (error_alloc_fail);
+		memcpy(_new, result->content, result->size);
+		mem_free(result->content);
+		result->content = _new;
+		result->size = _new_size;
+	}
+
 	if (_has_quote)
 	{
 		result->content[result->len++] = '"';
-		result->content[result->len] = '\0';
-		strcat(result->content, _str);
-		result->len += _len_str;
+		memcpy(result->content + result->len, _str, strlen(_str));
+		result->len += strlen(_str);
 		result->content[result->len++] = '"';
-		result->content[result->len] = '\0';
 	}
 	else
 	{
-		strcat(result->content, _str);
-		result->len += _len_str;
+		memcpy(result->content + result->len, _str, strlen(_str));
+		result->len += strlen(_str);
 	}
+	result->content[result->len] = '\0';
 	return (error_none);
 }
+
 
 void	_json_string_add_pretty(
 	const int _depth,
@@ -191,12 +205,11 @@ void	_json_string_add_tree(
 	const char *_pretty
 )
 {
-	_json_string_add(result, "{", false);
-	if (_pretty)
-		_json_string_add_tree_pretty(_node, 0, result, (void *)_pretty);
-	else
-		_json_string_add_tree_no_pretty(_node, (void *)result);
-	_json_string_add(result, "}", false);
+
+	return (_pretty
+			? _json_string_add_tree_pretty(_node, 0, result, (void *)_pretty)
+			: _json_string_add_tree_no_pretty(_node, (void *)result)
+		);
 }
 
 
@@ -213,6 +226,7 @@ char	*_json_stringify(
 	result.content = mem_alloc(INTERFACE_JSON_STRING_ALLOC_SIZE);
 	if (unlikely(!result.content))
 		return (NULL);
+	result.size = INTERFACE_JSON_STRING_ALLOC_SIZE;
 
 	if (pretty)
 	{
@@ -222,6 +236,8 @@ char	*_json_stringify(
 	}
 	_json_string_add_tree(_json->content, &result, _pretty);
 
+	// fprintf(stderr, "%s: result.len=%d, result.content='%s'\n", __func__, result.len, result.content);	//rm
+	// write(1, result.content, result.len);	//rm
 	return (result.content);
 }
 

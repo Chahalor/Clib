@@ -7,8 +7,7 @@
 /* ************************************************************************** */
 
 /* -----| Systems   |----- */
-#include <stddef.h>
-#include <sys/types.h>
+	//...
 
 /* -----| Globals   |----- */
 # include "config.h"
@@ -18,7 +17,7 @@
 # include "types.h"
 
 /* -----| Modules   |----- */
-#include "math/math.h"
+	//...
 
 /* ************************************************************************** */
 /*                                 Macros                                     */
@@ -26,25 +25,32 @@
 	//...
 
 /* ************************************************************************** */
-/*                                 Prototypes                                 */
+/*                                 Inlines                                    */
 /* ************************************************************************** */
 
-void	*mem_alloc(
-			const size_t _size
-			);
-
-void	*mem_realloc(
-			void *_ptr,
-			const size_t _size
-			);
-
-void	mem_free(
-			void *const restrict _ptr
-			);
-
-void	*mem_dup(
-		const void *const restrict _ptr,
-		const ssize_t _size
+static inline int	min(
+	const int _val1,
+	const int _val2
+)
+{
+	return (_val1 < _val2
+			? _val1
+			: _val2
 		);
+}
 
-void	mem_free_all(void);
+static inline int	max(
+	const int _val1,
+	const int _val2
+)
+{
+	return (_val1 > _val2
+			? _val1
+			: _val2
+		);
+}
+
+/* ************************************************************************** */
+/*                                 Prototypes                                 */
+/* ************************************************************************** */
+	//...

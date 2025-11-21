@@ -5,6 +5,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h> //rm
 	/* Internal */
 #include "_memory.h"
 	/* External */
@@ -163,7 +164,8 @@ int	_mem_realloc(
 
 	if (unlikely(!_node))
 		return (_mem_manager(mem_manager_access_alloc, _output, _size));
-	_new = realloc(_node, sizeof(_new) + _size);
+	_new = realloc(_node, sizeof(t_mem_node) + _size);
+	fprintf(stderr, "%s: _node=%p, new=%p\n", __func__, _node, _new);	//rm
 	if (unlikely(!_new))
 	{
 		*_output = NULL;
@@ -171,6 +173,7 @@ int	_mem_realloc(
 	}
 	if (_dummy != (size_t)_new)
 	{
+		fprintf(stderr, "%s: register/unregister logic\n", __func__);	//rm
 		_mem_unregister_node(_manager, (void *)_dummy, 0);
 		_mem_register_node(_manager, _new);
 	}
@@ -354,7 +357,6 @@ int	_mem_realloc(
 
 	if (unlikely(!_node))
 		return (_mem_manager(mem_manager_access_alloc, _output, _size));
-	rb_delete(_manager->T, _node, false);
 	_new = rb_create_node(_manager->T, _size);
 	if (unlikely(!_new))
 	{
@@ -363,7 +365,7 @@ int	_mem_realloc(
 	}
 	memcpy(_new->key, _node->key, min(_node->size, _size));
 	rb_insert(_manager->T, _new);
-	free(_node);
+	rb_delete(_manager->T, _node, true);
 	return (error_none);
 }
 // {
