@@ -18,7 +18,7 @@
 
 /* ----| Internals  |----- */
 
-int	_setup_log_file(
+static int	_setup_log_file(
 	const t_log_file *const restrict _file,
 	int	*const restrict _fd
 )
@@ -30,7 +30,7 @@ int	_setup_log_file(
 	return (error_none);
 }
 
-int	_init(
+static inline int	_init(
 	t_log_internal *const config,
 	t_log_init *data
 )
