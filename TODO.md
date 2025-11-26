@@ -32,8 +32,8 @@
 - [X] fix `json_dump()` it write nothing rigth (exept int)
 - [X] empty `json_dump()` add a single '}' at the end
 - [X] fix `json_unset()` that unset nothing
-- [ ] finish to test `json_unset()`
-- [ ] test all that shit
+- [X] finish to test `json_unset()`
+- [X] test all that shit
 
 #### logs
 - [X] change log_manager to va_args
