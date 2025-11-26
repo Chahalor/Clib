@@ -14,10 +14,10 @@
 # include "standards.h"
 
 /* -----| Internals |----- */
-# include "../_network.h"
+# include "types.h"
 
 /* -----| Modules   |----- */
-	//...
+# include "../_network.h"
 
 /* ************************************************************************** */
 /*                                 Macros                                     */
@@ -28,15 +28,7 @@
 /*                                 Prototypes                                 */
 /* ************************************************************************** */
 
-int	_net_server_start(
-		t_net_server *const restrict _server,
+int	_net_client_connect(
+		const char *const _ip,
 		const int _port
-		);
-
-int	_net_sever_accept(
-		t_net_server *const _server
-		);
-
-int	_net_server_close(
-		t_net_server *const _server
 		);
