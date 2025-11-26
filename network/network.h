@@ -1,8 +1,5 @@
 // Header
 
-#ifndef CONFIG_H
-# define CONFIG_H
-
 # pragma once
 
 /* ************************************************************************** */
@@ -10,7 +7,7 @@
 /* ************************************************************************** */
 
 /* -----| Systems   |----- */
-	//...
+#include <sys/types.h>
 
 /* -----| Globals   |----- */
 # include "config.h"
@@ -25,24 +22,42 @@
 /* ************************************************************************** */
 /*                                 Macros                                     */
 /* ************************************************************************** */
-
-# ifndef BUFFER_SIZE
-#  define BUFFER_SIZE	1024
-# endif //!BUFFER_SIZE
-
-# define MEM_BUCKET_SIZE	1021
-
-# define INTERFACE_JSON_STRING_ALLOC_SIZE	128//4096//128	//TODO: turn back to a lower alloc size (or not)
-
-# ifndef MEM_MANAGER_TYPE
-#  define MEM_MANAGER_TYPE	1
-# endif //!MEM_MANAGER_TYPE
-
-# define NET_MAX_LISTEN	16
+	//...
 
 /* ************************************************************************** */
 /*                                 Prototypes                                 */
 /* ************************************************************************** */
-	//...
 
-#endif	// !CONFIG_H
+int		net_server_start(
+			t_net_server *const restrict _server,
+			const int _port
+			);
+
+int		net_sever_accept(
+			t_net_server *const _server
+			);
+
+int		net_server_close(
+			t_net_server *const _server
+			);
+
+int		net_connect(
+			const char *const _ip,
+			const int _port
+			);
+
+ssize_t	net_send(
+			const int _fd,
+			const void *const restrict _buff,
+			const size_t _size
+			);
+
+ssize_t	net_recv(
+			const int _fd,
+			void *const restrict _buff,
+			const size_t _size
+			);
+
+void	net_close(
+			const int _fd
+			);
