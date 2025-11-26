@@ -17,6 +17,7 @@
 - [ ] reconnection on lost connection management
 - [ ] timeout management
 - [ ] anti flood management (aka on peut pas flood le manager/slaves/sentinel)
+- [ ] fix compilation
 
 ### interface
 

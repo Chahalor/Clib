@@ -27,4 +27,19 @@
 /* ************************************************************************** */
 /*                                 Prototypes                                 */
 /* ************************************************************************** */
-	//...
+
+ssize_t	_net_send(
+			const int _fd,
+			const void *const restrict _buff,
+			const size_t _size
+			);
+
+ssize_t	_net_recv(
+			const int _fd,
+			void *const restrict _buff,
+			const size_t _size
+			);
+
+void	_net_close(
+			const int _fd
+			);

@@ -33,7 +33,7 @@ int	_net_server_start(
 		const int _port
 		);
 
-int	_net_sever_accept(
+int	_net_server_accept(
 		t_net_server *const _server
 		);
 

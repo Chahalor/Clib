@@ -50,7 +50,7 @@ int		_net_server_start(
 	return (lib_network_error_none);
 }
 
-int		_net_sever_accept(
+int		_net_server_accept(
 	t_net_server *const _server
 )
 {

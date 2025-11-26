@@ -16,7 +16,7 @@
 
 /* ----| Public     |----- */
 
-ssize_t	net_send(
+ssize_t	_net_send(
 	const int _fd,
 	const void *const restrict _buff,
 	const size_t _size
@@ -35,7 +35,7 @@ ssize_t	net_send(
 	return ((ssize_t)_sent);
 }
 
-ssize_t	net_recv(
+ssize_t	_net_recv(
 	const int _fd,
 	void *const restrict _buff,
 	const size_t _size
@@ -54,7 +54,7 @@ ssize_t	net_recv(
 	return ((ssize_t)_recvd);
 }
 
-void	net_close(
+void	_net_close(
 	const int _fd
 )
 {

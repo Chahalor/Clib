@@ -24,9 +24,9 @@ DIR_INTERN	= _internal_
 DIR_MEMORY		:= memory
 DIR_INTERFACE	:= interface
 DIR_LOGS		:= $(DIR_INTERFACE)/log
+DIR_NETWORK		:= network
 
-INCLUDES	:= -I$(DIR_CONFIG) -I$(DIR_STAND) -I$(DIR_INTERN)
-
+INCLUDES	:= -I$(DIR_CONFIG) -I$(DIR_STAND) -I$(DIR_INTERN) -I$(DIR_NETWORK)
 
 _SRC_ALL	:=
 
@@ -47,9 +47,9 @@ all: header $(NAME)
 # *                  Compiling                        * #
 # ***************************************************** #
 
-.PHONY: interface memory
+.PHONY: interface memory network
 
-$(NAME): interface memory
+$(NAME): interface memory network
 	mkdir -p $(DIR_BUILD)
 
 	ld -r -o .build/fusion.o \
@@ -72,6 +72,9 @@ interface:
 
 memory:
 	$(MAKE) -C $(DIR_MEMORY) CFLAGS="$(CFLAGS)" DEBUGFLAGS="$(DEBUGFLAGS)"
+
+network:
+	$(MAKE) -C $(DIR_NETWORK) CFLAGS="$(CFLAGS)" DEBUGFLAGS="$(DEBUGFLAGS)"
 
 $(DIR_BUILD):
 	mkdir -p $@ $(DIR_BUILD)/_internal_
