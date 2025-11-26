@@ -54,18 +54,14 @@ int		_net_sever_accept(
 	t_net_server *const _server
 )
 {
-	if (unlikely(!_server))
-		return (-error_invalid_arg);
-	else
-		return (_net_server_accept(_server));
+	return (accept(_server->fd, NULL, NULL));
 }
 
 int		_net_server_close(
 	t_net_server *const _server
 )
 {
-	if (unlikely(!_server))
-		return (-error_invalid_arg);
-	else
-		return (_net_server_close(_server));
+	if (likely(_server->fd > 0))
+		return (close(_server->fd));
+	_server->fd = -1;
 }
