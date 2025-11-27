@@ -39,6 +39,7 @@
 # endif //!MEM_MANAGER_TYPE
 
 # define NET_MAX_LISTEN	16
+# define NET_MAX_RETRY	128
 
 /* ************************************************************************** */
 /*                                 Prototypes                                 */

@@ -28,14 +28,29 @@
 /*                                 Prototypes                                 */
 /* ************************************************************************** */
 
+int		_net_conn_init(
+			t_net_conn *_p,
+			const char *const restrict _ip,
+			const int _port,
+			const int _retry_delay_ms
+			);
+
+int		_net_fast_connect(
+			t_net_conn *_p
+			);
+
+int		_net_connect(
+			t_net_conn *_p
+			);
+
 ssize_t	_net_send(
-			const int _fd,
+			t_net_conn *const restrict _p,
 			const void *const restrict _buff,
 			const size_t _size
 			);
 
 ssize_t	_net_recv(
-			const int _fd,
+			t_net_conn *const restrict _p,
 			void *const restrict _buff,
 			const size_t _size
 			);

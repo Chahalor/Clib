@@ -28,6 +28,7 @@
 /*                                 Prototypes                                 */
 /* ************************************************************************** */
 
+__attribute_deprecated__
 int	_net_client_connect(
 		const char *const _ip,
 		const int _port
