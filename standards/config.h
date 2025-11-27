@@ -38,8 +38,9 @@
 #  define MEM_MANAGER_TYPE	1
 # endif //!MEM_MANAGER_TYPE
 
-# define NET_MAX_LISTEN	16
-# define NET_MAX_RETRY	128
+# define NET_MAX_LISTEN			16
+# define NET_MAX_RETRY			128
+# define NET_DEFAULT_NB_TRY	16
 
 /* ************************************************************************** */
 /*                                 Prototypes                                 */

@@ -7,17 +7,17 @@
 - [X] fix `mem_realloc()`, it is the dawa.
 
 ### server
-- [ ] server setup
+- [X] server setup
 - [ ] communication protocol
 	- [ ] connection
 	- [ ] communication
 	- [ ] deconnection
 	- [ ] shutdown
 	- [ ] timeout
-- [ ] reconnection on lost connection management
-- [ ] timeout management
+- [X] reconnection on lost connection management
+- [X] timeout management
 - [ ] anti flood management (aka on peut pas flood le manager/slaves/sentinel)
-- [ ] fix compilation
+- [X] fix compilation
 
 ### interface
 
@@ -52,6 +52,6 @@
 
 # Clib: TODO
 ## lib
+- [ ] add an option to reconfigue config variable with global variable like errno (sigelton cacher)
 #### json
 - [ ] change the data format for somethnig better, like a tree, no more linked list (red black tree ???)
-- [ ] `json_dump()` 

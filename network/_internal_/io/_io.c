@@ -137,9 +137,9 @@ ssize_t	_net_recv(
 }
 
 void	_net_close(
-	const int _fd
+	t_net_conn *_conn
 )
 {
-	if (likely(_fd > 0))
-		close(_fd);
+	if (likely(_conn->fd > 0))
+		close(_conn->fd);
 }

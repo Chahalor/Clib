@@ -53,49 +53,48 @@ int		net_server_close(
 #pragma region Client
 
 int		net_connect(
-	const char *const _ip,
-	const int _port
+	t_net_conn	*_conn
 )
 {
-	if (unlikely(!_ip))
-		return (-error_invalid_arg);
+	if (unlikely(!_conn))
+		return (error_invalid_arg);
 	else
-		return (_net_client_connect(_ip, _port));
+		return (_net_connect(_conn));
 }
 
 #pragma region IO
 
 ssize_t	net_send(
-	const int _fd,
+	t_net_conn *_conn,
 	const void *const restrict _buff,
 	const size_t _size
 )
 {
-	if (unlikely(_fd < 0 || !_buff))
+	if (unlikely(!_conn || _conn->fd < 0 || !_buff))
 		return (-error_invalid_arg);
 	else
-		return (_net_io_send(_fd, _buff, _size));
+		return (_net_send(_conn, _buff, _size));
 }
 
 ssize_t	net_recv(
-	const int _fd,
+	t_net_conn *_conn,
 	void *const restrict _buff,
 	const size_t _size
 )
 {
-	if (unlikely(_fd < 0 || !_buff))
+	if (unlikely(!_conn || _conn->fd < 0 || !_buff))
 		return (-error_invalid_arg);
 	else
-		return (_net_io_recv(_fd, _buff, _size));
+		return (_net_recv(_conn, _buff, _size));
 }
 
 
 void	net_close(
-	const int _fd
+	t_net_conn *_conn
 )
 {
-	if (unlikely(_fd < 0))
+	if (unlikely(!_conn || _conn->fd < 0))
 		return ;
 	else
-		return ((void)_net_io_recv(_fd));
+		return (_net_close(_conn));
 }

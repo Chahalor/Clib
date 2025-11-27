@@ -56,5 +56,5 @@ ssize_t	_net_recv(
 			);
 
 void	_net_close(
-			const int _fd
+			t_net_conn *_conn
 			);

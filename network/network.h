@@ -42,22 +42,21 @@ int		net_server_close(
 			);
 
 int		net_connect(
-			const char *const _ip,
-			const int _port
+			t_net_conn *_conn
 			);
 
 ssize_t	net_send(
-			const int _fd,
+			t_net_conn *_conn,
 			const void *const restrict _buff,
 			const size_t _size
 			);
 
 ssize_t	net_recv(
-			const int _fd,
+			t_net_conn *_conn,
 			void *const restrict _buff,
 			const size_t _size
 			);
 
 void	net_close(
-			const int _fd
+			t_net_conn *_conn
 			);
