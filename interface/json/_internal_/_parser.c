@@ -425,14 +425,14 @@ char	*read_file_to_buffer(
 /* ----| Public     |----- */
 
 int	_json_parser_string(
-	JSON *_json,
+	JSON **_json,
 	char *_str,
 	const size_t _len
 )
 {
+	t_json			*_root;
 	t_json_parser	_p;
-	int			_r;
-	t_json		*_root;
+	int				_r;
 
 	_p = (t_json_parser){
 		.buf = _str,
@@ -449,24 +449,28 @@ int	_json_parser_string(
 		_json_free_content(_root);
 		return (json_error_parsing);
 	}
-	if (_json->content)
-		_json_free_content(_json->content);
-	_json->content = _root;
-	_json->parsed = 1;
+	*_json = _root;
 	return (json_error_none);
 }
 
 int	_json_parser_file(
-	JSON *_json
+	JSON **_json,
+	const char *const restrict _filename
 )
 {
+	FILE	*_file = NULL;
 	size_t	len = 0;
 	char	*buf = NULL;
 	int		_r = 0;
 
-	buf = read_file_to_buffer(_json->file, &len);
-	fclose(_json->file);
-	_json->file = NULL;
+	_file = fopen(_filename, "r");
+	if (unlikely(!_file))
+	{
+		perror("_json_parser_file: fopen");
+		return (error_alloc_fail);
+	}
+	buf = read_file_to_buffer(_file, &len);
+	fclose(_file);
 	if (unlikely(!buf))
 		return (json_error_io);
 	_r = _json_parser_string(_json, buf, len);

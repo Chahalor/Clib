@@ -2,7 +2,7 @@
 
 /* ----| Headers    |----- */
 	/* Standard */
-		//...
+#include <stdlib.h>
 	/* Internal */
 #include "_json.h"
 	/* External */
@@ -15,6 +15,24 @@
 	//...
 
 /* ----| Public     |----- */
+
+
+static inline t_json	*_json_get_field_array(
+	t_json	*_node,
+	const int _index
+)
+{
+	int		_depth = 0;
+	t_json	*_current;
+
+	_current = _node;
+	while (_current->next && _depth < _index)
+	{
+		_current = _current->next;
+		_depth++;
+	}
+	return (_current);
+}
 
 t_json	*_json_get_field(
 	t_json *_json,
@@ -42,10 +60,25 @@ t_json	*_json_get_field(
 	else
 		_limits = _depth;
 
-	while (_current && _i < _limits)
+	while (_current && _i < _limits && _current->type != json_tok_array)
 	{
+		printf("%s: 1 key = '%s' <=> '%s' (%s) (%d)\n", __func__, _current->key, _split[_i], _field, _current->type);	//rm
+		if (_current->type == json_tok_array)
+		{
+			printf("array 1111\n");	//rm
+			int	_idx = atoi(_split[_i]);
+			_current = _json_get_field_array(_current, _idx);
+		}
+
 		while (_current && strcmp(_current->key, _split[_i]))
+		{
 			_current = _current->next;
+			if (_current)
+				printf("\\__current.type=%d\n", _current->type);
+			else
+				printf("\\__current.type=%p\n", _current);
+		}
+
 		if (unlikely(!_current))
 			break ;
 		else if (_i + 1 < _limits)
@@ -53,11 +86,16 @@ t_json	*_json_get_field(
 		_i++;
 	}
 
+	if (_current && _current->type == json_tok_array && _i != _limits)
+	{
+		printf("array detected");	//rm
+	}
+
 	mem_free(_split);
 	return (_current);
 }
 
-char	*_json_access_field(
+void	*_json_access_field(
 	t_json *_json,
 	const char *const restrict _field,
 	const int _depth
@@ -66,8 +104,10 @@ char	*_json_access_field(
 	t_json	*_node = NULL;
 
 	_node = _json_get_field(_json, _field, _depth);
-	if (likely(_node))
+	if (unlikely(!_node))
+		return (NULL);
+	else if (_node->type != json_tok_array)
 		return (_node->data);
 	else
-		return (NULL);
+		return (_node);
 }

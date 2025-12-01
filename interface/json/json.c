@@ -19,30 +19,28 @@
 
 #pragma region Loading
 
-/**
- * @brief	open the json file and do nothing other that setuping it
- */
-JSON	*json_open(
-	const char *const restrict _filename
-)
-{
-	return (_json_new_root(_filename));
-}
+// /**
+//  * @brief	open the json file and do nothing other that setuping it
+//  */
+// JSON	*json_open(
+// 	const char *const restrict _filename
+// )
+// {
+// 	return (_json_new_root(_filename));
+// }
 
-/**
- * @brief	parse the JSON file if not already done
-*/
-int		json_parse(
-	JSON *_json
-)
-{
-	if (_json->parsed == true)
-		return (error_none);
-	else if (unlikely(!_json->file))
-		return (json_error_no_file);
-	else
-		return (_json_parser_file(_json));
-}
+// /**
+//  * @brief	parse the JSON file if not already done
+// */
+// int		json_parse(
+// 	JSON *_json
+// )
+// {
+// 	if (unlikely(!_json))
+// 		return (error_none);
+// 	else
+// 		return (_json_parser_file(_json));
+// }
 
 /**
  * @brief	do json_open() and json_parse() in one call
@@ -53,16 +51,14 @@ JSON	*json_load(
 {
 	JSON	*result = NULL;
 
-	result = json_open(_filename);
-	if (unlikely(!result))
+	if (unlikely(!_filename))
 		return (NULL);
-	else if (json_parse(result) != error_none)
-	{
-		json_unload(result);
-		return (NULL);
-	}
-	else
-		return (result);
+
+	// // result = _json_new_content(NULL, json_tok_obj, NULL);
+	// if (unlikely(!result))
+	// 	return (NULL);
+	// else
+	return (_json_parser_file(&result, _filename), result);
 }
 
 /**
@@ -74,19 +70,13 @@ JSON	*json_load_str(
 {
 	JSON	*result = NULL;
 
-	result = _json_new_root(NULL);
-	if (unlikely(!result))
-		return (NULL);
-	else if (unlikely(_json_parser_string(result, (void *)_str, strlen(_str)) != error_none))
+	if (unlikely(_json_parser_string(&result, (void *)_str, strlen(_str)) != error_none))
 	{
-		_json_free_root(result);
+		_json_free_all(result);
 		return (NULL);
 	}
 	else
-	{
-		result->parsed = true;
 		return (result);
-	}
 }
 
 /**
@@ -94,7 +84,7 @@ JSON	*json_load_str(
  */
 JSON	*json_new(void)
 {
-	return (_json_new_root(NULL));
+	return (_json_new_content(NULL, json_tok_obj, NULL));
 }
 
 /**
@@ -104,10 +94,7 @@ int		json_unload(
 	JSON *_json
 )
 {
-	if (!_json->parsed)
-		return (_json_free_root(_json));
-	else
-		return (_json_free_all(_json));
+	return (_json_free_all(_json));
 }
 
 
@@ -130,10 +117,10 @@ void	*json_get(
 	const char *const restrict _field
 )
 {
-	if (unlikely(!_json || !_field || !_json->content))
+	if (unlikely(!_json || !_field))
 		return (NULL);
 	else
-		return (_json_access_field(_json->content, _field, -1));
+		return (_json_access_field(_json, _field, -1));
 }
 
 
@@ -162,7 +149,7 @@ int		json_set(
 	if (unlikely(!_json || !_field))
 		return (error_invalid_arg);
 	else
-		return (_json_set(_json, _field, _value, _type));
+		return (_json_set(&_json, _field, _value, _type));
 }
 
 /**
@@ -183,7 +170,7 @@ int		json_unset(
 	if (unlikely(!_json || !_field))
 		return (error_invalid_arg);
 	else
-		return (_json_unset(_json, _field));
+		return (_json_unset(&_json, _field));
 }
 
 
@@ -216,21 +203,21 @@ char	*json_stringify(
 
 #pragma region Checks
 
-// TODO: check that it work, cause we have two types of node
-/** */
-int		json_assert_type(
-	const JSON *const _node,
-	const int type
-)
-{
-	return (_node->content->type == type);
-}
+// // TODO: check that it work, cause we have two types of node
+// /** */
+// int		json_assert_type(
+// 	const JSON *const _node,
+// 	const int type
+// )
+// {
+// 	return (_node->content->type == type);
+// }
 
-// TODO: check that it work, cause we have two types of node
-/** */
-int		json_get_type(
-	const JSON *const _node
-)
-{
-	return (_node->content->type);
-}
+// // TODO: check that it work, cause we have two types of node
+// /** */
+// int		json_get_type(
+// 	const JSON *const _node
+// )
+// {
+// 	return (_node->content->type);
+// }

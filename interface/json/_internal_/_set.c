@@ -14,7 +14,7 @@
 /* ----| Internals  |----- */
 
 int	_json_set_nbr(
-	JSON *_json,
+	JSON **_json,
 	const char *const restrict _field,
 	const void *_value
 )
@@ -22,69 +22,69 @@ int	_json_set_nbr(
 	char	*_data = NULL;
 	int		_errnum = error_none;
 
-	if (!_json->content)
+	if (!*_json)
 	{
-		_json->content = _json_new_content(NULL, json_tok_obj, NULL);
-		if (unlikely(!_json->content))
+		*_json = _json_new_content(NULL, json_tok_obj, NULL);
+		if (unlikely(!_json))
 			return (error_alloc_fail);
 	}
 	if (_value)
 		_data = _json_tool_itoa((long long)(*(int *)(_value)));
 	else
 		return (error_invalid_arg);
-	printf("%s:%d : _data='%s'\n", __FILE__, __LINE__, _data);
-	_errnum = _json_set_field(_json->content, _field, _data, json_tok_nbr);
+	printf("%s:%d : _data='%s'\n", __FILE__, __LINE__, _data);	// RM
+	_errnum = _json_set_field(_json, _field, _data, json_tok_nbr);
 	mem_free(_data);
 	return (_errnum);
 }
 
 int	_json_set_str(
-	JSON *_json,
+	JSON **_json,
 	const char *const restrict _field,
 	const void *_value
 )
 {
-	if (!_json->content)
+	if (!*_json)
 	{
-		_json->content = _json_new_content(NULL, json_tok_obj, NULL);
-		if (unlikely(!_json->content))
+		*_json = _json_new_content(NULL, json_tok_obj, NULL);
+		if (unlikely(!*_json))
 			return (error_alloc_fail);
 	}
-	return (_json_set_field(_json->content, _field, _value, json_tok_str));
+	return (_json_set_field(_json, _field, _value, json_tok_str));
 }
 
 int	_json_set_array(
-	JSON *_json,
+	JSON **_json,
 	const char *const restrict _field,
 	const void *_value
 )
 {
-	if (!_json->content)
+	if (!*_json)
 	{
-		_json->content = _json_new_content(NULL, json_tok_obj, NULL);
-		if (unlikely(!_json->content))
+		*_json = _json_new_content(NULL, json_tok_obj, NULL);
+		if (unlikely(!*_json))
 			return (error_alloc_fail);
 	}
-	return (_json_set_field(_json->content, _field, _value, json_tok_array));
+	return (_json_set_field(_json, _field, _value, json_tok_array));
 }
 
 int	_json_set_obj(
-	JSON *_json,
+	JSON **_json,
 	const char *const restrict _field,
 	const void *_value
 )
 {
-	if (!_json->content)
+	if (!*_json)
 	{
-		_json->content = _json_new_content(NULL, json_tok_obj, NULL);
-		if (unlikely(!_json->content))
+		*_json = _json_new_content(NULL, json_tok_obj, NULL);
+		if (unlikely(!*_json))
 			return (error_alloc_fail);
 	}
-	return (_json_set_field(_json->content, _field, _value, json_tok_obj));
+	return (_json_set_field(_json, _field, _value, json_tok_obj));
 }
 
 int	_json_set_bool(
-	JSON *_json,
+	JSON **_json,
 	const char *const restrict _field,
 	const void *_value
 )
@@ -93,18 +93,18 @@ int	_json_set_bool(
 
 	if (likely(_value))
 		_bool = *(int *)(_value) != 0;
-	return (_json_set_field(_json->content, _field,
+	return (_json_set_field(_json, _field,
 			_bool
 				? "true"
 				: "false", json_tok_bool));
 }
 
 int	_json_set_null(
-	JSON *_json,
+	JSON **_json,
 	const char *const restrict _field
 )
 {
-	return (_json_set_field(_json->content, _field, NULL, json_tok_null));
+	return (_json_set_field(_json, _field, NULL, json_tok_null));
 }
 
 
@@ -164,13 +164,13 @@ int	_json_add_next(
 }
 
 int	_json_set_field(
-	t_json *_json,
+	t_json **_json,
 	const char *const restrict _field,
 	const char *const restrict _data,
 	const int _type
 )
 {
-	t_json	*_target = _json_get_field(_json, _field, -1);
+	t_json	*_target = _json_get_field(*_json, _field, -1);
 	char	**_split = NULL;
 	int		_i = 0;
 	t_json	*_dummy = NULL;
@@ -181,7 +181,7 @@ int	_json_set_field(
 		if (unlikely(!_split))
 			return (error_alloc_fail);
 
-		_target = _json;
+		_target = *_json;
 		while (_split[_i])
 		{
 			_dummy = _json_get_field(_target, _split[_i], -1);
@@ -225,7 +225,7 @@ int	_json_set_field(
 }
 
 int	_json_set(
-	JSON *_json,
+	JSON **_json,
 	const char *const restrict _field,
 	const void *_value,
 	const int _type
@@ -251,28 +251,22 @@ int	_json_set(
 }
 
 int	_json_unset(
-	JSON *_json,
+	JSON **_json,
 	const char *const restrict _field
 )
 {
 	const int	_nb_fields = _json_tool_count_field(_field);
-	t_json		*_target = _json_get_field(_json->content, _field, -1);
-	t_json		*_prev = _json_get_field(_json->content, _field, _nb_fields - 1);
+	t_json		*_target = _json_get_field(*_json, _field, -1);
+	t_json		*_prev = _json_get_field(*_json, _field, _nb_fields - 1);
 
 	if (!_target)
 		return (error_none);
 	else
-	{
-		// printf("%s: prev=%p(%s), _target=%p(%s), nb=%d\n", __func__,
-		// 													_prev, _prev ? _prev->key : NULL,
-		// 													_target, _target ? _target->key : NULL, 
-		// 													_nb_fields);
-		// printf("bob=%s\n", _target->next->key);	//_json->content->child->next->next->key
-		// print_json_tree(_json->content, 0);
+	{ 
 		if (_nb_fields == 1)
 		{
 			if (_target == _prev)
-				_json->content = _target->next;
+				*_json = _target->next;
 			else
 				_prev->next = _target->next;
 		}

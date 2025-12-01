@@ -234,7 +234,7 @@ char	*_json_stringify(
 		if (likely(_pretty))
 			memset(_pretty, ' ', pretty);
 	}
-	_json_string_add_tree(_json->content, &result, _pretty);
+	_json_string_add_tree(_json, &result, _pretty);
 	return (result.content);
 }
 

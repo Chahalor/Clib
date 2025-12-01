@@ -16,35 +16,6 @@
 
 /* ----| Public     |----- */
 
-JSON	*_json_new_root(
-	const char *const restrict _filename
-)
-{
-	FILE	*_file = NULL;
-	JSON	*result;
-
-	if (_filename)
-	{
-		_file = fopen(_filename, "rb");
-		if (unlikely(!_file))
-			return (NULL);
-	}
-
-	result = mem_alloc(sizeof(JSON));
-	if (unlikely(!result))
-	{
-		if (_file)
-			fclose(_file);
-		return (NULL);
-	}
-	result->file = _file;
-	result->filename = (void *)_filename;
-	result->dirty = false;
-	result->parsed = false;
-	result->content = NULL;
-	return (result);
-}
-
 t_json	*_json_new_content(
 	const char *_key,
 	int _type,
@@ -66,15 +37,15 @@ t_json	*_json_new_content(
 	return (result);
 }
 
-int	_json_free_root(
-	JSON *_json
-)
-{
-	if (_json->file)
-		fclose(_json->file);
-	mem_free(_json);
-	return (error_none);
-}
+// int	_json_free_root(	// TODO: remove all call
+// 	JSON *_json
+// )
+// {
+// 	if (_json->file)
+// 		fclose(_json->file);
+// 	mem_free(_json);
+// 	return (error_none);
+// }
 
 void	_json_free_content(
 	t_json *_target
@@ -132,8 +103,7 @@ int	_json_free_all(
 	if (unlikely(!_target))
 		return (error_invalid_arg);
 	else
-		_content = _target->content;
+		_content = _target;
 	_json_free_content(_content);
-	error += _json_free_root(_target);
 	return (error);
 }

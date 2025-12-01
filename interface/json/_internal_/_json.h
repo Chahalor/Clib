@@ -61,13 +61,14 @@ int		_json_free_all(
 /* -----| parser |----- */
 
 int		_json_parser_string(
-			JSON *_json,
+			JSON **_json,
 			char *_str,
 			const size_t _len
 			);
 
 int		_json_parser_file(
-			JSON *_json
+			JSON **_json,
+			const char *const restrict _filename
 			);
 
 /* -----| access |----- */
@@ -78,7 +79,7 @@ t_json	*_json_get_field(
 			const int _depth
 			);
 
-char	*_json_access_field(
+void	*_json_access_field(
 			t_json *_json,
 			const char *const restrict _field,
 			const int _depth
@@ -94,21 +95,21 @@ int		_json_add_child(
 
 
 int		_json_set_field(
-			t_json *_json,
+			t_json **_json,
 			const char *const restrict _field,
 			const char *const restrict _data,
 			const int _type
 			);
 
 int		_json_set(
-			JSON *_json,
+			JSON **_json,
 			const char *const restrict _field,
 			const void *_value,
 			const int _type
 			);
 
 int		_json_unset(
-			JSON *_json,
+			JSON **_json,
 			const char *const restrict _field
 			);
 

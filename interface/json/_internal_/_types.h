@@ -26,7 +26,8 @@
 typedef struct s_json_str		t_json_str;
 typedef struct s_json_parser	t_json_parser;
 typedef struct s_json			t_json;
-typedef struct s_json_root		JSON;
+typedef t_json					JSON;
+// typedef struct s_json_root		JSON;
 
 /* ************************************************************************** */
 /*                                 Enums                                      */
@@ -56,15 +57,15 @@ struct s_json_parser
 	size_t	i;
 };
 
-struct s_json_root
-{
-	char	*filename;
-	FILE	*file;
-	t_json	*content;
-	t_json	*hot_zone[JSON_HOT_SIZE];
-	int		parsed;
-	int		dirty;
-};
+// struct s_json_root
+// {
+// 	char	*filename;
+// 	FILE	*file;
+// 	t_json	*content;
+// 	t_json	*hot_zone[JSON_HOT_SIZE];
+// 	int		parsed;
+// 	int		dirty;
+// };
 
 struct s_json
 {
