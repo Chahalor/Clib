@@ -27,6 +27,10 @@
 
 #define JSON_HOT_SIZE	16
 
+#ifdef _JSON_FOEACH_ARRAY
+# define json_foreach(var, node) _JSON_FOEACH_ARRAY(var, node)
+#endif
+
 /* ************************************************************************** */
 /*                                 Prototypes                                 */
 /* ************************************************************************** */
