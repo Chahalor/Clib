@@ -26,7 +26,8 @@
 typedef struct s_json_str		t_json_str;
 typedef struct s_json_parser	t_json_parser;
 typedef struct s_json			t_json;
-typedef struct s_json_root		JSON;
+typedef struct s_json		JSON;
+// typedef struct s_json_root		JSON;
 
 /* ************************************************************************** */
 /*                                 Enums                                      */
