@@ -28,6 +28,13 @@
 /*                                 Prototypes                                 */
 /* ************************************************************************** */
 
+int		net_init_conn(
+			t_net_conn *_p,
+			const char *const restrict _ip,
+			const int _port,
+			const int _retry_delay_ms
+			);
+
 int		net_server_start(
 			t_net_server *const restrict _server,
 			const int _port
