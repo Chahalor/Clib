@@ -67,15 +67,15 @@ int	_net_connect(
 {
 	register int	_i = 0;
 
-	logs(log_debug, 0, "trying connection to %s:%d\n", _p->ip, _p->port);
+	logs(log_debug, 0, "trying connection to %s:%d", _p->ip, _p->port);
 	while (_i < NET_MAX_RETRY)
 	{
 		if (_net_try_connect(_p))
 		{
-			logs(log_debug, 1, "connected to %s:%d\n", _p->ip, _p->port);
+			logs(log_debug, 1, "connected to %s:%d", _p->ip, _p->port);
 			return (lib_network_error_none);
 		}
-		logs(log_debug, 1, "connection failed to %s:%d. retry in %dms\n", _p->ip, _p->port, _p->delay);
+		logs(log_debug, 1, "connection failed to %s:%d. retry in %dms", _p->ip, _p->port, _p->delay);
 		usleep(_p->delay * 1000 * (_i + 1) / 4);
 		_i++;
 	}

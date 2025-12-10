@@ -24,8 +24,25 @@
 /*                                 Macros                                     */
 /* ************************************************************************** */
 
-#define _JSON_FOEACH_ARRAY(_var, _node) _var = ((JSON *)_node)->child; \
-for (0; _var != NULL; _var = _var->next)
+// void	print_json_tree(
+// 	t_json *node,
+// 	int depth
+// );	// RM
+
+// static inline void	_tkt(JSON *_node)
+// {
+// 	print_json_tree((JSON *)_node->child, 0);
+// 	printf("type=%d, %p\n-----------------\n", _node->child->next->next->type, _node->child->next->next->next);
+// }
+
+// #define _JSON_FOEACH_ARRAY(_var, _node) \
+// _var = ((JSON *)_node)->child; \
+// for (0; _var != NULL; _var = _var->next)
+#define _JSON_FOEACH_ARRAY(var, array_node)                                   \
+    for (t_json *(var) = ((t_json *)array_node ? ((t_json *)(array_node))->child : NULL);           \
+         (var) != NULL;                                                       \
+         (var) = (var)->next)
+
 
 /* ************************************************************************** */
 /*                                 Prototypes                                 */

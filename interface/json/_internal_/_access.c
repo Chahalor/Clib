@@ -62,7 +62,7 @@ t_json	*_json_get_field(
 
 	while (_current && _i < _limits && _current->type != json_tok_array)
 	{
-		printf("%s: 1 key = '%s' <=> '%s' (%s) (%d)\n", __func__, _current->key, _split[_i], _field, _current->type);	//rm
+		// printf("%s: 1 key = '%s' <=> '%s' (%s) (%d)\n", __func__, _current->key, _split[_i], _field, _current->type);	//rm
 		if (_current->type == json_tok_array)
 		{
 			printf("array 1111\n");	//rm
@@ -73,10 +73,10 @@ t_json	*_json_get_field(
 		while (_current && strcmp(_current->key, _split[_i]))
 		{
 			_current = _current->next;
-			if (_current)
-				printf("\\__current.type=%d\n", _current->type);
-			else
-				printf("\\__current.type=%p\n", _current);
+			// if (_current)
+			// 	printf("\\__current.type=%d\n", _current->type);
+			// else
+			// 	printf("\\__current.type=%p\n", _current);
 		}
 
 		if (unlikely(!_current))
@@ -88,7 +88,7 @@ t_json	*_json_get_field(
 
 	if (_current && _current->type == json_tok_array && _i != _limits)
 	{
-		printf("array detected");	//rm
+		// printf("array detected");	//rm
 	}
 
 	mem_free(_split);
