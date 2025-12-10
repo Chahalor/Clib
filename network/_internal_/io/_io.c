@@ -6,7 +6,7 @@
 	/* Internal */
 #include "_io.h"
 	/* External */
-#include "log.h"
+#include "lib.h"
 
 /* ----| Prototypes |----- */
 	//...
@@ -23,7 +23,7 @@ int	_net_conn_init(
 	const int _retry_delay_ms
 )
 {
-	memset(_p, 0, sizeof(_p));
+	memset(_p, 0, sizeof(*_p));
 	strncpy(_p->ip, _ip, 15);
 	_p->port = _port;
 	_p->delay = _retry_delay_ms;
@@ -80,6 +80,7 @@ int	_net_connect(
 		_i++;
 	}
 	logs_perror(log_warning, 0, "NET_MAX_RETRY(%d) reach giving up on connecting %d:%d", NET_MAX_RETRY, _p->ip, _p->port);
+	return (-lib_network_error_timeout);
 }
 
 ssize_t	_net_send(
@@ -100,7 +101,7 @@ ssize_t	_net_send(
 		if (unlikely(result < 0))
 		{
 			logs_perror(log_warning, 0, "send failed, reconnecting");
-			_net_close(_p->fd);
+			_net_close(_p);
 			_p->fd = -1;
 			_net_connect(_p);
 			return -(lib_network_error_send_failed);
@@ -125,9 +126,9 @@ ssize_t	_net_recv(
 		if (result <= 0)
 		{
 			logs_perror(log_warning, 0, "send failed, reconnecting");
-			_net_close(_p->fd);
+			_net_close(_p);
 			_p->fd = -1;
-			_net_connect_persistant(_p);
+			_net_connect(_p);
 			return (lib_network_error_recv_failed);
 		}
 			return (result);

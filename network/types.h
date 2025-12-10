@@ -39,6 +39,7 @@ enum e_lib_network_error
 	lib_network_error_connection_failed,
 	lib_network_error_send_failed,
 	lib_network_error_recv_failed,
+	lib_network_error_timeout,
 };
 
 /* ************************************************************************** */

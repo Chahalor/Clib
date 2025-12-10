@@ -21,8 +21,8 @@ INTERNAL	?= _internal_
 
 DIR_BUILD	:= .build
 DIR_SERVER	:= $(INTERNAL)/server
-DIR_IO		:= $(DIR_INTERFACE)/io
-DIR_CLIENT	:= $(DIR_INTERFACE)/client
+DIR_IO		:= $(INTERNAL)/io
+DIR_CLIENT	:= $(INTERNAL)/client
 
 SRC			:= network.c $(DIR_SERVER)/_server.c $(DIR_IO)/_io.c $(DIR_CLIENT)/_client.c
 
