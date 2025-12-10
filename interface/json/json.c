@@ -203,21 +203,19 @@ char	*json_stringify(
 
 #pragma region Checks
 
-// // TODO: check that it work, cause we have two types of node
-// /** */
-// int		json_assert_type(
-// 	const JSON *const _node,
-// 	const int type
-// )
-// {
-// 	return (_node->content->type == type);
-// }
+/** */
+int		json_assert_type(
+	const JSON *const _node,
+	const int _type
+)
+{
+	return (_node->type == _type);
+}
 
-// // TODO: check that it work, cause we have two types of node
-// /** */
-// int		json_get_type(
-// 	const JSON *const _node
-// )
-// {
-// 	return (_node->content->type);
-// }
+/** */
+int		json_get_type(
+	const JSON *const _node
+)
+{
+	return (_node->type);
+}

@@ -56,6 +56,7 @@ $(NAME): interface memory network
 		--whole-archive \
 			memory/memory.a \
 			interface/interface.a \
+			$(DIR_NETWORK)/network.a \
 		--no-whole-archive
 
 
@@ -94,11 +95,13 @@ clean:
 	rm $(_OBJ)
 	make -C $(DIR_INTERFACE) clean
 	make -C $(DIR_MEMORY) clean
+	make -C $(DIR_NETWORK) clean
 
 fclean:
 	rm -rf $(DIR_BUILD) $(NAME)
 	make -C $(DIR_INTERFACE) fclean
 	make -C $(DIR_MEMORY) fclean
+	make -C $(DIR_NETWORK) fclean
 
 re: fclean all
 
