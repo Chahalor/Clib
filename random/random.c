@@ -30,16 +30,6 @@ static void	random_init_seed(void)
 
 /* ----| Public     |----- */
 
-/**
- * @brief	return a value between val1 and val2
- * 
- * @param	val1	first value
- * @param	val2	second value
- * 
- * @return a random value
- * 
- * @version 0.0.1
- */
 // __attribute__(())
 int	randint(
 	const int _val1,
@@ -53,9 +43,6 @@ int	randint(
 	return (_val % ((_max - _min) + _min));
 }
 
-/**
- * 
-*/
 __attribute__((malloc))
 int	*rand_range(
 	const unsigned int _size,
@@ -66,10 +53,11 @@ int	*rand_range(
 	int				*result = NULL;
 	unsigned int	_i = 0;
 
-	result = mem_alloc(_size * sizeof(int));
+	result = mem_alloc((_size + 1) * sizeof(int));
 	if (unlikely(!result))
 		return (NULL);
 	while (_i < _size)
 		result[_i] = randint(_val1, _val2);
+	result[_i] = NULL;
 	return (result);
 }
