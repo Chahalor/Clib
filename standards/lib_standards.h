@@ -13,11 +13,11 @@
 	//...
 
 /* -----| Globals   |----- */
-# include "config.h"
+# include "lib_config.h"
 // # include "standards.h"
 
 /* -----| Internals |----- */
-# include "types.h"
+	//...
 
 /* -----| Modules   |----- */
 	//...

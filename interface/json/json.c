@@ -19,29 +19,6 @@
 
 #pragma region Loading
 
-// /**
-//  * @brief	open the json file and do nothing other that setuping it
-//  */
-// JSON	*json_open(
-// 	const char *const restrict _filename
-// )
-// {
-// 	return (_json_new_root(_filename));
-// }
-
-// /**
-//  * @brief	parse the JSON file if not already done
-// */
-// int		json_parse(
-// 	JSON *_json
-// )
-// {
-// 	if (unlikely(!_json))
-// 		return (error_none);
-// 	else
-// 		return (_json_parser_file(_json));
-// }
-
 /**
  * @brief	do json_open() and json_parse() in one call
 */
@@ -53,12 +30,8 @@ JSON	*json_load(
 
 	if (unlikely(!_filename))
 		return (NULL);
-
-	// // result = _json_new_content(NULL, json_tok_obj, NULL);
-	// if (unlikely(!result))
-	// 	return (NULL);
-	// else
-	return (_json_parser_file(&result, _filename), result);
+	else
+		return (_json_parser_file(&result, _filename), result);
 }
 
 /**
@@ -165,16 +138,25 @@ int		json_set(
 */
 int		json_unset(
 	JSON *_json,
-	const char *const restrict _field,
-	const int _free
+	const char *const restrict _field
 )
 {
 	if (unlikely(!_json || !_field))
 		return (error_invalid_arg);
 	else
-		return (_json_unset(&_json, _field));
+		return (_json_unset(&_json, _field, false));
 }
 
+int	json_remove(
+	JSON *_json,
+	const char *const restrict _field
+)
+{
+	if (unlikely(!_json || !_field))
+		return (error_invalid_arg);
+	else
+		return (_json_unset(&_json, _field, true));
+}
 
 #pragma region Saving
 

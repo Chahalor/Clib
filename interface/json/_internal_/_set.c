@@ -273,7 +273,7 @@ int	_json_unset(
 		}
 		else if (_prev)
 			_prev->child = _target->next;
-		if (likely(_free))
+		if (_free)
 			_json_free_content(_target);
 	}
 	return (error_none);

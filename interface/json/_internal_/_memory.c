@@ -37,16 +37,6 @@ t_json	*_json_new_content(
 	return (result);
 }
 
-// int	_json_free_root(	// TODO: remove all call
-// 	JSON *_json
-// )
-// {
-// 	if (_json->file)
-// 		fclose(_json->file);
-// 	mem_free(_json);
-// 	return (error_none);
-// }
-
 void	_json_free_content(
 	t_json *_target
 )

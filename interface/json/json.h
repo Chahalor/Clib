@@ -137,8 +137,13 @@ int		json_set(
 */
 int		json_unset(
 			JSON *_json,
-			const char *const restrict _field,
-			const int _free
+			const char *const restrict _field
+			);
+
+/** */
+int		json_remove(
+			JSON *_json,
+			const char *const restrict _field
 			);
 
 
