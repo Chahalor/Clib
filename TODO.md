@@ -54,6 +54,8 @@
 ## lib
 - [ ] add an option to reconfigue config variable with global variable like errno (sigelton cacher)
 - [ ] create a config module to manage all the lib
+- [ ] update all return to return negative value on errors
+
 ### interface
 #### json
 - [ ] change the data format for somethnig better, like a tree, no more linked list (red black tree ???)

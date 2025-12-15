@@ -43,7 +43,9 @@ JSON	*json_load_str(
 {
 	JSON	*result = NULL;
 
-	if (unlikely(_json_parser_string(&result, (void *)_str, strlen(_str)) != error_none))
+	if (unlikely(!_str))
+		return (NULL);
+	else if (unlikely(_json_parser_string(&result, (void *)_str, strlen(_str)) != error_none))
 	{
 		_json_free_all(result);
 		return (NULL);
@@ -67,7 +69,10 @@ int		json_unload(
 	JSON *_json
 )
 {
-	return (_json_free_all(_json));
+	if (unlikely(!_json))
+		return (-(error_invalid_args));
+	else
+		return (_json_free_all(_json));
 }
 
 
