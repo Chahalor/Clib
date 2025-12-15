@@ -101,6 +101,40 @@ void	*json_get(
 		return (_json_access_field(_json, _field, -1));
 }
 
+/**
+ * @brief	return the size of all element of the json, it is the total number of byte allocated by the json
+ * 
+ * @param	_json	The targeted json variable
+ * 
+ * @return	the total size (bytes) of the object
+*/
+size_t	json_sizeof(
+	const JSON *const restrict _json
+)
+{
+	if (unlikely(!_json))
+		return (0);
+	else
+		return (_json_node_size(_json));
+}
+
+/**
+ * @brief	return the number of element of the json
+ * 
+ * @param	_json	the targeted json
+ * 
+ * @return	the numer of element of the json
+ */
+size_t	json_len(
+	const JSON *const restrict _json
+)
+{
+	if (unlikely(!_json))
+		return (0);
+	else
+		return (_json_access_len(_json));
+}
+
 
 #pragma region Writing
 

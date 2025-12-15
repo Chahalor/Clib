@@ -56,16 +56,6 @@ struct s_json_parser
 	size_t	i;
 };
 
-// struct s_json_root
-// {
-// 	char	*filename;
-// 	FILE	*file;
-// 	t_json	*content;
-// 	t_json	*hot_zone[JSON_HOT_SIZE];
-// 	int		parsed;
-// 	int		dirty;
-// };
-
 struct s_json
 {
 	char	*key;		// NULL if element of an array

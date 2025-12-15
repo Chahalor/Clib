@@ -86,6 +86,13 @@ void	*_json_access_field(
 			const int _depth
 			);
 
+size_t	_json_node_size(
+			const t_json *_node
+			);
+
+size_t	_json_access_len(
+			const t_json *_json
+			);
 
 /* -----| set    |----- */
 

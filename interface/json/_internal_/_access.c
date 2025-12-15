@@ -98,3 +98,51 @@ void	*_json_access_field(
 	else
 		return (_node);
 }
+
+size_t	_json_node_size(
+	const t_json *_node
+)
+{
+	size_t	size = 0;
+
+	if (!_node)
+		return (0);
+
+	size += sizeof(t_json);
+
+	if (_node->key)
+		size += strlen(_node->key) + 1;
+
+	if (_node->data)
+		size += strlen(_node->data) + 1;
+
+	size += _json_node_size(_node->child);
+	size += _json_node_size(_node->next);
+
+	return (size);
+}
+
+size_t	_json_access_len(
+	const t_json *_json
+)
+{
+	size_t	count;
+	t_json	*cur;
+
+	if (unlikely(!_json || !_json->data))
+		return (0);
+
+	if (_json->type != json_tok_array &&
+		_json->type != json_tok_obj)
+		return (0);
+
+	count = 0;
+	cur = _json->child;
+
+	while (cur)
+	{
+		count++;
+		cur = cur->next;
+	}
+	return (count);
+}
