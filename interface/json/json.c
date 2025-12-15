@@ -157,6 +157,7 @@ int		json_set(
  * 
  * @param	_json	the json element
  * @param	_field	the field to be set
+ * @param	_free	bool value to say if the function need to free the removed field
  * 
  * @return	the errnum of the action
  * 
@@ -164,7 +165,8 @@ int		json_set(
 */
 int		json_unset(
 	JSON *_json,
-	const char *const restrict _field
+	const char *const restrict _field,
+	const int _free
 )
 {
 	if (unlikely(!_json || !_field))

@@ -54,6 +54,10 @@
 ## lib
 - [ ] add an option to reconfigue config variable with global variable like errno (sigelton cacher)
 - [ ] create a config module to manage all the lib
+### interface
 #### json
 - [ ] change the data format for somethnig better, like a tree, no more linked list (red black tree ???)
 - [ ] add a `json_getf()` that get the argument based on a format (printf format)
+
+## other
+- [ ] add a `CLI` option to check that ne thing does not break every things

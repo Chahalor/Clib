@@ -252,7 +252,8 @@ int	_json_set(
 
 int	_json_unset(
 	JSON **_json,
-	const char *const restrict _field
+	const char *const restrict _field,
+	const int _free
 )
 {
 	const int	_nb_fields = _json_tool_count_field(_field);
@@ -262,7 +263,7 @@ int	_json_unset(
 	if (!_target)
 		return (error_none);
 	else
-	{ 
+	{
 		if (_nb_fields == 1)
 		{
 			if (_target == _prev)
@@ -272,7 +273,8 @@ int	_json_unset(
 		}
 		else if (_prev)
 			_prev->child = _target->next;
-		_json_free_content(_target);
+		if (likely(_free))
+			_json_free_content(_target);
 	}
 	return (error_none);
 }

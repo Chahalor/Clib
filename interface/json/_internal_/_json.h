@@ -129,7 +129,8 @@ int		_json_set(
 
 int		_json_unset(
 			JSON **_json,
-			const char *const restrict _field
+			const char *const restrict _field,
+			const int _free
 			);
 
 /* -----| Saving |----- */
