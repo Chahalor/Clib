@@ -10,8 +10,8 @@
 #include <sys/types.h>
 
 /* -----| Globals   |----- */
-# include "config.h"
-# include "standards.h"
+# include "lib_config.h"
+# include "lib_standards.h"
 
 /* -----| Internals |----- */
 # include "types.h"
@@ -40,7 +40,7 @@ int		net_server_start(
 			const int _port
 			);
 
-int		net_sever_accept(
+int		net_server_accept(
 			t_net_server *const _server
 			);
 

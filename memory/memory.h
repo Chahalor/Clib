@@ -11,14 +11,14 @@
 #include <sys/types.h>
 
 /* -----| Globals   |----- */
-# include "config.h"
-# include "standards.h"
+# include "lib_config.h"
+# include "lib_standards.h"
 
 /* -----| Internals |----- */
 # include "types.h"
 
 /* -----| Modules   |----- */
-#include "math/math.h"
+#include "../math/math.h"
 
 /* ************************************************************************** */
 /*                                 Macros                                     */

@@ -51,15 +51,12 @@ all: header $(NAME)
 
 $(NAME): interface memory network
 	mkdir -p $(DIR_BUILD)
-
 	ld -r -o .build/fusion.o \
 		--whole-archive \
 			memory/memory.a \
 			interface/interface.a \
 			$(DIR_NETWORK)/network.a \
 		--no-whole-archive
-
-
 	ar rcs $(NAME) $(DIR_BUILD)/fusion.o
 
 # 	mkdir -p $(DIR_BUILD)/fusion

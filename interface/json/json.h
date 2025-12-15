@@ -12,8 +12,8 @@
 #include <stdio.h>
 
 /* -----| Globals   |----- */
-# include "config.h"
-# include "standards.h"
+# include "lib_config.h"
+# include "lib_standards.h"
 
 /* -----| Internals |----- */
 # include "types.h"

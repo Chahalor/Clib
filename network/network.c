@@ -43,7 +43,7 @@ int		net_server_start(
 		return (_net_server_start(_server, _port));
 }
 
-int		net_sever_accept(
+int		net_server_accept(
 	t_net_server *const _server
 )
 {

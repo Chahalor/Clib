@@ -13,11 +13,11 @@
 	//...
 
 /* -----| Globals   |----- */
-# include "standards/config.h"
-# include "standards/standards.h"
+# include "standards/lib_config.h"
+# include "standards/lib_standards.h"
 
 /* -----| Internals |----- */
-// # include "debug/debug.h"	// TODO: full module
+// # include "debug/debug.h"
 # include "interface/interface.h"
 # include "memory/memory.h"
 # include "network/network.h"

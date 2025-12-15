@@ -1,7 +1,7 @@
 // Header
 
-#ifndef STANDARDS_H
-# define STANDARDS_H
+#ifndef CONFIG_H
+# define CONFIG_H
 
 # pragma once
 
@@ -14,7 +14,7 @@
 
 /* -----| Globals   |----- */
 # include "config.h"
-# include "standards.h"
+# include "lib_standards.h"
 
 /* -----| Internals |----- */
 # include "types.h"
@@ -26,23 +26,25 @@
 /*                                 Macros                                     */
 /* ************************************************************************** */
 
-# ifndef likely
-#  define likely(_expr)		__builtin_expect((!!(_expr)), 1)	/* this is likely to appen    */
-#  define unlikely(_expr)	__builtin_expect((!!(_expr)), 0)	/* this in unlikely to appen */
-# endif
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE	1024
+# endif //!BUFFER_SIZE
 
-# ifndef NULL
-#  define NULL ((void *)0)	/* you need doc for this ? */
-# endif
+# define MEM_BUCKET_SIZE	1021
 
-/* ************************************************************************** */
-/*                                 Inlines                                    */
-/* ************************************************************************** */
-	//...
+# define INTERFACE_JSON_STRING_ALLOC_SIZE	128
+
+# ifndef MEM_MANAGER_TYPE
+#  define MEM_MANAGER_TYPE	1
+# endif //!MEM_MANAGER_TYPE
+
+# define NET_MAX_LISTEN			16
+# define NET_MAX_RETRY			128
+# define NET_DEFAULT_NB_TRY	16
 
 /* ************************************************************************** */
 /*                                 Prototypes                                 */
 /* ************************************************************************** */
 	//...
 
-#endif	// !STANDARDS_H
+#endif	// !CONFIG_H

@@ -1,5 +1,8 @@
 // Header
 
+#ifndef STANDARDS_H
+# define STANDARDS_H
+
 # pragma once
 
 /* ************************************************************************** */
@@ -10,47 +13,36 @@
 	//...
 
 /* -----| Globals   |----- */
-	//...
+# include "config.h"
+// # include "standards.h"
 
 /* -----| Internals |----- */
-	//...
+# include "types.h"
 
 /* -----| Modules   |----- */
 	//...
 
 /* ************************************************************************** */
-/*                                 Typedefs                                   */
+/*                                 Macros                                     */
 /* ************************************************************************** */
 
-typedef unsigned int	uint;
-typedef unsigned char	uchar;
+# ifndef likely
+#  define likely(_expr)		__builtin_expect((!!(_expr)), 1)	/* this is likely to appen    */
+#  define unlikely(_expr)	__builtin_expect((!!(_expr)), 0)	/* this in unlikely to appen */
+# endif
 
-typedef enum e_bool		bool;
-
-/* ************************************************************************** */
-/*                                 Enums                                      */
-/* ************************************************************************** */
-
-enum e_error
-{
-	error_none = 0,
-	error_invalid_arg,
-	error_alloc_fail,
-	error_not_implemented
-};
-
-enum e_bool
-{
-	false,
-	true
-};
+# ifndef NULL
+#  define NULL ((void *)0)	/* you need doc for this ? */
+# endif
 
 /* ************************************************************************** */
-/*                                 Unions                                     */
+/*                                 Inlines                                    */
 /* ************************************************************************** */
 	//...
 
 /* ************************************************************************** */
-/*                                 Structs                                    */
+/*                                 Prototypes                                 */
 /* ************************************************************************** */
 	//...
+
+#endif	// !STANDARDS_H
