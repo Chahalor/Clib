@@ -57,3 +57,4 @@ dkms.conf
 .dev/
 .build/
 build/
+*.dir
