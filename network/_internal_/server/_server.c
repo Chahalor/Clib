@@ -17,7 +17,7 @@
 /* ----| Public     |----- */
 
 int		_net_server_start(
-	t_net_server *const restrict _server,
+	t_net_conn *const restrict _server,
 	const int _port
 )
 {
@@ -46,23 +46,21 @@ int		_net_server_start(
 	}
 
 	_server->fd = _fd;
-	_server->port = _port;
 	return (lib_network_error_none);
 }
 
 int		_net_server_accept(
-	t_net_server *const _server
+	t_net_conn *const restrict _server
 )
 {
 	return (accept(_server->fd, NULL, NULL));
 }
 
 int		_net_server_close(
-	t_net_server *const _server
+	t_net_conn *const restrict _server
 )
 {
-	if (likely(_server->fd > 0))
-		return (close(_server->fd));
+	close(_server->fd);
 	_server->fd = -1;
-	return (error_none);
+	return (lib_network_error_none);
 }

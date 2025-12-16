@@ -18,21 +18,28 @@
 
 int	_net_conn_init(
 	t_net_conn *_p,
-	const char *const restrict _ip,
-	const int _port,
-	const int _retry_delay_ms
+	char *const restrict _in_buff,
+	char *const restrict _out_buff,
+	const unsigned int _in_len,
+	const unsigned int _out_len
 )
 {
 	memset(_p, 0, sizeof(*_p));
-	strncpy(_p->ip, _ip, 15);
-	_p->port = _port;
-	_p->delay = _retry_delay_ms;
-	_p->fd = -1;
+
+	*_p = (t_net_conn){
+		.fd = -1,
+		.in_buff = _in_buff,
+		.in_len = _in_len,
+		.out_buff = _out_buff,
+		.out_len = _out_len,
+	};
 	return (lib_network_error_none);
 }
 
 static int	_net_try_connect(
-	t_net_conn *_p
+	t_net_conn *const restrict _p,
+	const char *const restrict _ip,
+	const int _port
 )
 {
 	struct sockaddr_in	_addr;
@@ -44,8 +51,8 @@ static int	_net_try_connect(
 
 	memset(&_addr, 0, sizeof(_addr));
 	_addr.sin_family = AF_INET;
-	_addr.sin_port = htons(_p->port);
-	inet_pton(AF_INET, _p->ip, &_addr.sin_addr);
+	_addr.sin_port = htons(_port);
+	inet_pton(AF_INET, _ip, &_addr.sin_addr);
 
 	if (unlikely(connect(_fd, (struct sockaddr *)&_addr, sizeof(_addr)) < 0))
 		return (close(_fd), lib_network_error_connection_failed);
@@ -55,92 +62,85 @@ static int	_net_try_connect(
 }
 
 int	_net_fast_connect(
-	t_net_conn *_p
+	t_net_conn *const restrict _p,
+	const char *const restrict _ip,
+	const int _port
 )
 {
-	return (_net_try_connect(_p));
+	return (_net_try_connect(_p, _ip, _port));
 }
 
 int	_net_connect(
-	t_net_conn *_p
+	t_net_conn *const restrict _p,
+	const char *const restrict _ip,
+	const int _port
 )
 {
 	register int	_i = 0;
 
-	logs(log_debug, 0, "trying connection to %s:%d", _p->ip, _p->port);
+	logs(log_debug, 0, "trying connection to %s:%d", _ip, _port);
 	while (_i < NET_MAX_RETRY)
 	{
-		if (_net_try_connect(_p))
+		if (_net_try_connect(_p, _i, _port))
 		{
-			logs(log_debug, 1, "connected to %s:%d", _p->ip, _p->port);
+			logs(log_debug, 1, "connected to %s:%d", _ip, _port);
 			return (lib_network_error_none);
 		}
-		logs(log_debug, 1, "connection failed to %s:%d. retry in %dms", _p->ip, _p->port, _p->delay);
-		usleep(_p->delay * 1000 * (_i + 1) / 4);
+		// logs(log_debug, 1, "connection failed to %s:%d. retry in %dms", _ip, _>port, delay);
+		// usleep(_p->delay * 1000 * (_i + 1) / 4);
 		_i++;
 	}
-	logs_perror(log_warning, 0, "NET_MAX_RETRY(%d) reach giving up on connecting %d:%d", NET_MAX_RETRY, _p->ip, _p->port);
+	logs_perror(log_warning, 0, "NET_MAX_RETRY(%d) reach giving up on connecting %d:%d", NET_MAX_RETRY, _ip, _port);
 	return (-lib_network_error_timeout);
 }
 
 ssize_t	_net_send(
-	t_net_conn *const restrict _p,
-	const void *const restrict _buff,
-	const size_t _size
+	t_net_conn *const restrict _p
 )
 {
-	size_t	_sent = 0;
-	ssize_t	result = -1;
+	unsigned int	_sent = 0;
+	ssize_t			result = 0;
 
-	if (unlikely(_p->fd < 0))
-		_net_connect(_p);
-
-	while (_sent < _size)
+	while (result < _p->out_len)
 	{
-		result = send(_p->fd, (char *)_buff + _sent, _size - _sent, 0);
-		if (unlikely(result < 0))
+		_sent = send(_p->fd, _p->out_buff + result, _p->out_len - result, 0);
+		if (unlikely(_sent < 0))
 		{
-			logs_perror(log_warning, 0, "send failed, reconnecting");
+			logs_perror(log_warning, 0, "send failed");
 			_net_close(_p);
 			_p->fd = -1;
-			_net_connect(_p);
-			return -(lib_network_error_send_failed);
+			return (-(lib_network_error_send_failed));
 		}
-		_sent += result;
+		result += _sent;
 	}
-	return ((ssize_t)_sent);
+	return ((ssize_t)result);
 }
 
 ssize_t	_net_recv(
-	t_net_conn *const restrict _p,
-	void *const restrict _buff,
-	const size_t _size
+	t_net_conn *const restrict _p
 )
 {
 	size_t	_recvd = 0;
 	ssize_t	result;
 
-	while (_recvd < _size)
+	while (result < _p->in_len)
 	{
-		result = recv(_p->fd, (char *)_buff + _recvd, _size - _recvd, 0);
-		if (result <= 0)
+		_recvd = recv(_p->fd, _p->in_buff + result, _p->in_len - result, 0);
+		if (_recvd <= 0)
 		{
-			logs_perror(log_warning, 0, "send failed, reconnecting");
+			logs_perror(log_warning, 0, "send failed");
 			_net_close(_p);
 			_p->fd = -1;
-			_net_connect(_p);
-			return (lib_network_error_recv_failed);
+			return (-(lib_network_error_recv_failed));
 		}
-			return (result);
-		_recvd += result;
+		result += _recvd;
 	}
-	return ((ssize_t)_recvd);
+	return ((ssize_t)result);
 }
 
 void	_net_close(
-	t_net_conn *_conn
+	t_net_conn *const restrict _conn
 )
 {
-	if (likely(_conn->fd > 0))
-		close(_conn->fd);
+	close(_conn->fd);
 }
