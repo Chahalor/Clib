@@ -1,0 +1,10 @@
+# file(GLOB_RECURSE IO_SRC
+# 	*.c
+# )
+
+# add_library(clib_interface_io OBJECT ${IO_SRC})
+
+# target_include_directories(clib_interface_io PRIVATE
+# 	${CMAKE_CURRENT_SOURCE_DIR}
+# 	${CMAKE_CURRENT_SOURCE_DIR}/..
+# )
