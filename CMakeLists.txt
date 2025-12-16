@@ -42,3 +42,17 @@ target_include_directories(clib_includes INTERFACE
 	${CMAKE_CURRENT_SOURCE_DIR}/random
 	${CMAKE_CURRENT_SOURCE_DIR}/standards
 )
+
+target_compile_options(clib
+	PUBLIC
+		-Wall
+		-Wextra
+		-Werror
+		-O2
+		$<$<CONFIG:Debug>: -g3>
+)
+
+target_compile_definitions(clib
+	PUBLIC
+		CLIB_DEBUG
+)
