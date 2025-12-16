@@ -58,6 +58,5 @@ int	*rand_range(
 		return (NULL);
 	while (_i < _size)
 		result[_i] = randint(_val1, _val2);
-	result[_i] = NULL;
 	return (result);
 }

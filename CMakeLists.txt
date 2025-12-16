@@ -31,3 +31,14 @@ target_sources(clib PRIVATE
 	$<TARGET_OBJECTS:clib_network>
 	$<TARGET_OBJECTS:clib_random>
 )
+
+add_library(clib_includes INTERFACE)
+
+target_include_directories(clib_includes INTERFACE
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}/interface
+	${CMAKE_CURRENT_SOURCE_DIR}/memory
+	${CMAKE_CURRENT_SOURCE_DIR}/network
+	${CMAKE_CURRENT_SOURCE_DIR}/random
+	${CMAKE_CURRENT_SOURCE_DIR}/standards
+)
