@@ -22,9 +22,8 @@
 /*                                 Typedefs                                   */
 /* ************************************************************************** */
 
-typedef struct s_net_connection	t_net_connection;
-typedef t_net_connection		t_net_conn;
-typedef struct s_net_server		t_net_server;
+typedef struct s_net_conn	t_net_conn;
+typedef struct s_net_server	t_net_server;
 
 /* ************************************************************************** */
 /*                                 Enums                                      */
@@ -51,21 +50,14 @@ enum e_lib_network_error
 /*                                 Structs                                    */
 /* ************************************************************************** */
 
-struct s_net_connection
+struct s_net_conn
 {
-	char	ip[16];
-	int		port;
-	int		fd;
-	int		delay;	// delay beteewn connection retry in case of disconnect
+	char			*in_buff;	// buffer for incoming recv()
+	char			*out_buff;	// buffer for send() & Co
+
+	unsigned int	in_len;		// length of the in_buff
+	unsigned int	out_len;	// length of the out_buff
+
+	int				fd;			// for or the connection
 };
 
-struct s_net_server
-{
-	int	fd;
-	int	port;
-};
-
-// struct s_net_packet
-// {
-	
-// };
