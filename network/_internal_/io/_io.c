@@ -81,7 +81,7 @@ int	_net_connect(
 	logs(log_debug, 0, "trying connection to %s:%d", _ip, _port);
 	while (_i < NET_MAX_RETRY)
 	{
-		if (_net_try_connect(_p, _i, _port))
+		if (_net_try_connect(_p, _ip, _port))
 		{
 			logs(log_debug, 1, "connected to %s:%d", _ip, _port);
 			return (lib_network_error_none);

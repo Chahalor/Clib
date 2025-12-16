@@ -3,6 +3,8 @@
 /* ----| Headers    |----- */
 	/* Standard */
 #include <stdio.h>
+#include <string.h>
+
 	/* Internal */
 #include "_internal_/_json.h"
 #include "json.h"
@@ -70,7 +72,7 @@ int		json_unload(
 )
 {
 	if (unlikely(!_json))
-		return (-(error_invalid_args));
+		return (-(error_invalid_arg));
 	else
 		return (_json_free_all(_json));
 }

@@ -3,6 +3,8 @@
 /* ----| Headers    |----- */
 	/* Standard */
 #include <unistd.h>
+#include <string.h>
+
 	/* Internal */
 #include "_json.h"
 	/* External */

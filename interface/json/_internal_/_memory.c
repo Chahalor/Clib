@@ -2,7 +2,8 @@
 
 /* ----| Headers    |----- */
 	/* Standard */
-		//...
+#include <string.h>
+
 	/* Internal */
 #include "_json.h"
 	/* External */
