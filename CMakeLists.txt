@@ -15,7 +15,6 @@ add_subdirectory(random)
 
 target_link_libraries(clib PRIVATE
 	clib_standards
-	clib_interface
 	clib_memory
 	clib_network
 	clib_random
@@ -26,7 +25,6 @@ target_include_directories(clib PUBLIC
 )
 
 target_sources(clib PRIVATE
-	$<TARGET_OBJECTS:clib_interface>
 	$<TARGET_OBJECTS:clib_memory>
 	$<TARGET_OBJECTS:clib_network>
 	$<TARGET_OBJECTS:clib_random>
