@@ -54,6 +54,7 @@ struct s_log_internal
 	unsigned int	logs[LOG_NB_LEVEL];			/* number of log write in every log io        */
 	int				last_depth[LOG_NB_LEVEL];	/* lastd epth for every logfile              */
 	int				display_limit;				/* the max level to be displayed to the cmd */
+	int				is_init;					/* check if the logs get init at some point*/
 };
 
 struct s_log_write

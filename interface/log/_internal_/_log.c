@@ -43,6 +43,7 @@ static inline int	_init(
 	_setup_log_file(&data->info, &config->fd[log_info]);
 	_setup_log_file(&data->debug, &config->fd[log_debug]);
 	_setup_log_file(&data->other, &config->fd[log_other]);
+	config->is_init = 1;
 
 	return (error_none);
 }
@@ -103,7 +104,9 @@ static int	_writer(
 	struct timeval	_s_time;
 	uint			_time = 0;
 
-	if (_level < 0)
+	if (unlikely(!_config->is_init))
+		return (-1);
+	else if (_level < 0)
 		return (log_error_invalid_logfile);
 	else if (_level > LOG_NB_LEVEL)
 		_level = log_debug;
@@ -143,7 +146,9 @@ static int _perror(
 
 	_need = strlen(_errmsg) + 2 + strlen(_format) + 1;
 
-	if (_need < sizeof(_errbuf))
+	if (unlikely(!_config->is_init))
+		return (-1);
+	else if (_need < sizeof(_errbuf))
 		_final = _errbuf;
 	else
 	{
