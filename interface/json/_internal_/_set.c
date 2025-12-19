@@ -13,6 +13,97 @@
 
 /* ----| Internals  |----- */
 
+static t_json	*_json_clone_node(
+	const t_json *src
+)
+{
+	t_json	*node;
+	char	*data = NULL;
+
+	if (!src)
+		return (NULL);
+	if (src->data)
+	{
+		data = mem_dup(src->data, strlen(src->data) + 1);
+		if (unlikely(!data))
+			return (NULL);
+	}
+	node = _json_new_content(src->key, src->type, data);
+	if (unlikely(!node))
+		return (mem_free(data), NULL);
+	if (src->child)
+	{
+		node->child = _json_clone_node(src->child);
+		if (unlikely(!node->child))
+			return (_json_free_content(node), NULL);
+	}
+	if (src->next)
+	{
+		node->next = _json_clone_node(src->next);
+		if (unlikely(!node->next))
+			return (_json_free_content(node), NULL);
+	}
+	return (node);
+}
+
+static int	_json_set_container(
+	JSON **_json,
+	const char *const restrict _field,
+	const void *_value,
+	const int _type
+)
+{
+	t_json			*_target;
+	const t_json	*_src = NULL;
+	t_json			*_clone = NULL;
+	int				_errnum;
+
+	if (_value)
+	{
+		_src = (const t_json *)_value;
+		if (unlikely(_src->type != _type))
+			return (error_invalid_arg);
+	}
+
+	if (!*_json)
+	{
+		*_json = _json_new_content(NULL, json_tok_obj, NULL);
+		if (unlikely(!*_json))
+			return (error_alloc_fail);
+	}
+	_errnum = _json_set_field(_json, _field, NULL, _type);
+	if (unlikely(_errnum != error_none))
+		return (_errnum);
+
+	_target = _json_get_field(*_json, _field, -1);
+	if (unlikely(!_target))
+		return (error_invalid_arg);
+
+	if (!_value)
+	{
+		if (_target->child)
+		{
+			_json_free_content(_target->child);
+			_target->child = NULL;
+		}
+		return (error_none);
+	}
+
+	if (_src->child)
+	{
+		_clone = _json_clone_node(_src->child);
+		if (unlikely(!_clone))
+			return (error_alloc_fail);
+	}
+	if (_target->child)
+	{
+		_json_free_content(_target->child);
+		_target->child = NULL;
+	}
+	_target->child = _clone;
+	return (error_none);
+}
+
 int	_json_set_nbr(
 	JSON **_json,
 	const char *const restrict _field,
@@ -59,13 +150,7 @@ int	_json_set_array(
 	const void *_value
 )
 {
-	if (!*_json)
-	{
-		*_json = _json_new_content(NULL, json_tok_obj, NULL);
-		if (unlikely(!*_json))
-			return (error_alloc_fail);
-	}
-	return (_json_set_field(_json, _field, _value, json_tok_array));
+	return (_json_set_container(_json, _field, _value, json_tok_array));
 }
 
 int	_json_set_obj(
@@ -74,13 +159,7 @@ int	_json_set_obj(
 	const void *_value
 )
 {
-	if (!*_json)
-	{
-		*_json = _json_new_content(NULL, json_tok_obj, NULL);
-		if (unlikely(!*_json))
-			return (error_alloc_fail);
-	}
-	return (_json_set_field(_json, _field, _value, json_tok_obj));
+	return (_json_set_container(_json, _field, _value, json_tok_obj));
 }
 
 int	_json_set_bool(
