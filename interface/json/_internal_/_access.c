@@ -95,10 +95,10 @@ void	*_json_access_field(
 	_node = _json_get_field(_json, _field, _depth);
 	if (unlikely(!_node))
 		return (NULL);
-	else if (_node->type != json_tok_array)
-		return (_node->data);
-	else
+	else if (_node->type == json_tok_array || _node->type == json_tok_obj)
 		return (_node);
+	else
+		return (_node->data);
 }
 
 size_t	_json_node_size(
