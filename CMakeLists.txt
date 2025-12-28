@@ -12,12 +12,14 @@ add_subdirectory(interface)
 add_subdirectory(memory)
 add_subdirectory(network)
 add_subdirectory(random)
+add_subdirectory(times)
 
 target_link_libraries(clib PRIVATE
 	clib_standards
 	clib_memory
 	clib_network
 	clib_random
+	clib_times
 )
 
 target_include_directories(clib PUBLIC
@@ -38,6 +40,7 @@ target_include_directories(clib_includes INTERFACE
 	${CMAKE_CURRENT_SOURCE_DIR}/memory
 	${CMAKE_CURRENT_SOURCE_DIR}/network
 	${CMAKE_CURRENT_SOURCE_DIR}/random
+	${CMAKE_CURRENT_SOURCE_DIR}/times
 	${CMAKE_CURRENT_SOURCE_DIR}/standards
 )
 

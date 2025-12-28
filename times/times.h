@@ -1,8 +1,5 @@
 // Header
 
-#ifndef LIB_H
-# define LIB_H
-
 # pragma once
 
 /* ************************************************************************** */
@@ -10,20 +7,14 @@
 /* ************************************************************************** */
 
 /* -----| Systems   |----- */
-	//...
+# include <time.h>
 
 /* -----| Globals   |----- */
-# include "standards/lib_config.h"
-# include "standards/lib_standards.h"
+# include "lib_config.h"
+# include "lib_standards.h"
 
 /* -----| Internals |----- */
-// # include "debug/debug.h"
-# include "interface/interface.h"
-# include "math/math.h"
-# include "memory/memory.h"
-# include "network/network.h"
-# include "random/random.h"
-# include "times/times.h"
+# include "types.h"
 
 /* -----| Modules   |----- */
 	//...
@@ -31,11 +22,13 @@
 /* ************************************************************************** */
 /*                                 Macros                                     */
 /* ************************************************************************** */
-	//...
+
+#define	TIME_MINUTES_PER_DAY		1440
+#define	TIME_SECONDS_PER_DAY		86400
+
+#define TIME_SECONDS_PER_HOUR		3600
 
 /* ************************************************************************** */
 /*                                 Prototypes                                 */
 /* ************************************************************************** */
 	//...
-
-#endif	// LIB_H
