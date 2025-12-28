@@ -49,7 +49,7 @@ time_t	time_convert(
 	const time_t	_src,
 	const __u_char	_base_src,
 	const __u_char	_base_dest
-)	
+)
 {
 	time_t	result = 0;
 
