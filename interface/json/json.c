@@ -160,6 +160,8 @@ int		json_set(
  * @return	the errnum of the action
  * 
  * @example json_set(json, "data.key.git.user1");
+ * 
+ * TODO: add va_args handling
 */
 int		json_unset(
 	JSON *_json,
@@ -172,6 +174,10 @@ int		json_unset(
 		return (_json_unset(&_json, _field, false));
 }
 
+/**
+ * TODO: add va_args handling
+ * 
+ */
 int	json_remove(
 	JSON *_json,
 	const char *const restrict _field
