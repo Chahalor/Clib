@@ -121,6 +121,32 @@ void	*json_get(
 			...
 			);
 
+/**
+ * @brief	return the size of all element of the json, it is the total number of byte allocated by the json
+ * 
+ * @param	json	The targeted json variable
+ * 
+ * @return	the total size (bytes) of the object
+ * 
+ * @version	1.0.0
+*/
+size_t	json_sizeof(
+			const JSON *const restrict _json
+			);
+
+/**
+ * @brief	return the number of element of the json
+ * 
+ * @param	json	the targeted json
+ * 
+ * @return	the numer of element of the json
+ * 
+ * @version	1.0.0
+ */
+size_t	json_len(
+			const JSON *const restrict _json
+			);
+
 /* *************** */
 /*     Writing     */
 /* *************** */
@@ -151,26 +177,6 @@ int		json_fset(
 			JSON *_json,
 			const char *const restrict _field,
 			const void *_value,
-			...
-			);
-
-/**
- * TODO
- * @brief	set the field of the json element with _value
- * 
- * @param	_json	the json element
- * @param	_field	the field to be set
- * @param	_value	the value to be writen
- * @param	_type	the type of the value
- * 
- * @return	the errnum of the action
- * 
- * @example json_set(json, "data.key.git.user1", var, json_str);
-*/
-int		json_fset(
-			JSON *_json,
-			const char *const restrict _field,
-			const void *_format,
 			...
 			);
 
