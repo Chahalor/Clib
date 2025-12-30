@@ -76,6 +76,16 @@ int		_json_fill_format(
 			va_list *const restrict _args
 			);
 
+/* -----| get    |----- */
+
+/** */
+int		_json_get(
+			JSON *const restrict _json,
+			const char *const restrict _format,
+			va_list *const restrict _args,
+			void *restrict *const restrict _result
+			);
+
 /* -----| parser |----- */
 
 /**
