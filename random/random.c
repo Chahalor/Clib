@@ -40,7 +40,7 @@ int	randint(
 	const int	_min = min(_val1, _val2);
 	const int	_max = max(_val1, _val2);
 
-	return (_val % ((_max - _min) + _min));
+	return (_min + (_val % ((_max - _min) + 1)));
 }
 
 __attribute__((malloc))
@@ -57,6 +57,7 @@ int	*rand_range(
 	if (unlikely(!result))
 		return (NULL);
 	while (_i < _size)
-		result[_i] = randint(_val1, _val2);
+		result[_i++] = randint(_val1, _val2);
+	result[_size] = 0;
 	return (result);
 }
