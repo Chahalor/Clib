@@ -31,7 +31,22 @@ typedef t_json					JSON;
 /* ************************************************************************** */
 /*                                 Enums                                      */
 /* ************************************************************************** */
-	//...
+
+/**
+ * @enum	_json_format_type
+ * 
+ * @brief	all handled type to add for format functions
+ * 
+ * @version	1.0.0
+ */
+enum e_json_format_type
+{
+	_json_format_type_char,
+	_json_format_type_str,
+	_json_format_type_int,
+	_json_format_type_long,
+	_json_format_type_hex,
+};
 
 /* ************************************************************************** */
 /*                                 Unions                                     */

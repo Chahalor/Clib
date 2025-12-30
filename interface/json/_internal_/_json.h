@@ -59,7 +59,39 @@ int		_json_free_all(
 			JSON *_target
 			);
 
+/* -----| format |----- */
+
+/**
+ * @brief	va remplir le string result en se basant sur le format _str
+ *
+ * @param	_str	format string
+ * @param	_result	output json string buffer
+ * @param	_args	va_list with format values
+ *
+ * @return	error_none on success, or an error code
+ */
+int		_json_fill_format(
+			const char *const restrict _str,
+			t_json_str *const restrict _result,
+			va_list *const restrict _args
+			);
+
 /* -----| parser |----- */
+
+/**
+ * @brief	parse and load a JSON variable based on the given format
+ * 
+ * @param	json	pointer to the JSON to fill
+ * @param	str		the format to load
+ * @param	args	the va list containing all args for the format
+ * 
+ * @return	err_none on succes, or the error code
+ */
+int		_json_parser_va_string(
+			JSON **_json,
+			const char *const restrict _str,
+			va_list *const restrict _args
+			);
 
 int		_json_parser_string(
 			JSON **_json,

@@ -424,6 +424,34 @@ char	*read_file_to_buffer(
 
 /* ----| Public     |----- */
 
+int	_json_parser_va_string(
+	JSON **_json,
+	const char *const restrict _str,
+	va_list *const restrict _args
+)
+{
+	t_json_str	_result = {0};
+	int			errnum = error_none;
+
+	_result.content = mem_alloc(sizeof(char) * INTERFACE_JSON_STRING_ALLOC_SIZE);
+	if (unlikely(!_result.content))
+	{
+		errnum = -error_alloc_fail;
+		goto error;
+	}
+	_result.size = INTERFACE_JSON_STRING_ALLOC_SIZE;
+
+	errnum = _json_fill_format(_str, &_result, _args);
+	if (unlikely(errnum < 0))
+		goto error;
+
+	errnum = _json_parser_string(_json, _result.content, _result.len);
+
+error:
+	mem_free(_result.content);
+	return (errnum);
+}
+
 int	_json_parser_string(
 	JSON **_json,
 	char *_str,
@@ -478,7 +506,7 @@ int	_json_parser_file(
 	return (_r);
 }
 
-# pragma region debug
+#pragma region debug
 
 void	print_json_tree(
 	t_json *node,

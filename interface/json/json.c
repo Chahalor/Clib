@@ -2,7 +2,6 @@
 
 /* ----| Headers    |----- */
 	/* Standard */
-#include <stdio.h>
 #include <string.h>
 
 	/* Internal */
@@ -36,24 +35,27 @@ JSON	*json_load(
 		return (_json_parser_file(&result, _filename), result);
 }
 
-/**
- * @brief	load the json variable from a char *
- */
 JSON	*json_load_str(
-	const char *const restrict _str
+	const char *const restrict _str,
+	...
 )
 {
 	JSON	*result = NULL;
+	va_list	_args;
 
 	if (unlikely(!_str))
 		return (NULL);
-	else if (unlikely(_json_parser_string(&result, (void *)_str, strlen(_str)) != error_none))
+
+	va_start(_args, _str);
+	// if (unlikely(_json_parser_string(&result, (void *)_str, strlen(_str)) != error_none))
+	if (unlikely(_json_parser_va_string(&result, _str, &_args) != error_none))
 	{
 		_json_free_all(result);
-		return (NULL);
+		result = NULL;
 	}
-	else
-		return (result);
+
+	va_end(_args);
+	return (result);
 }
 
 /**

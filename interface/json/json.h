@@ -1,6 +1,8 @@
-// Big Header
-
 // Header
+
+/**
+ * TODO: add a format version to all function that take a field as args
+ */
 
 # pragma once
 
@@ -10,6 +12,7 @@
 
 /* -----| Systems   |----- */
 #include <stdio.h>
+#include <stdarg.h>
 
 /* -----| Globals   |----- */
 # include "lib_config.h"
@@ -26,8 +29,6 @@
 /*                                 Macros                                     */
 /* ************************************************************************** */
 
-#define JSON_HOT_SIZE	16
-
 #ifdef _JSON_FOEACH_ARRAY
 # define json_foreach(var, node) _JSON_FOEACH_ARRAY(var, node)
 #endif
@@ -35,25 +36,10 @@
 /* ************************************************************************** */
 /*                                 Prototypes                                 */
 /* ************************************************************************** */
-	//...
 
 /* *************** */
 /*     loading     */
 /* *************** */
-
-/**
- * @brief	open the json file and do nothing other that setuping it
- */
-JSON	*json_open(
-			const char *const restrict _filename
-			);
-
-/**
- * @brief	parse the JSON file if not already done
-*/
-int		json_parse(
-			JSON *_json
-			);
 
 /**
  * @brief	do json_open() and json_parse() in one call
@@ -63,10 +49,22 @@ JSON	*json_load(
 			);
 
 /**
- * @brief	load the json variable from a char *
+ * @brief	load the json variable from the given format
+ * 
+ * use the same format than printf
+ * 
+ * @param	format	the format to be loaded
+ * 
+ * @return	the JSON variable or NULL in case of error
+ * 
+ * @example	JSON	*var = json_load_str("{\"bob\": 10}");
+ * @example	JSON	*var = json_load_str("{\"bob\": %d}", 10);
+ * 
+ * @version	2.0.0
  */
 JSON	*json_load_str(
-			const char *const restrict _str
+			const char *const restrict _format,
+			...
 			);
 
 /**
@@ -101,6 +99,15 @@ void	*json_get(
 			const char *const restrict _field
 			);
 
+/**
+ * TODO
+ */
+void	*json_fget(
+			JSON *_json,
+			const char *const restrict _field,
+			...
+			);
+
 /* *************** */
 /*     Writing     */
 /* *************** */
@@ -122,6 +129,36 @@ int		json_set(
 			const char *const restrict _field,
 			const void *_value,
 			const int _type
+			);
+
+/**
+ * TODO
+ */
+int		json_fset(
+			JSON *_json,
+			const char *const restrict _field,
+			const void *_value,
+			...
+			);
+
+/**
+ * TODO
+ * @brief	set the field of the json element with _value
+ * 
+ * @param	_json	the json element
+ * @param	_field	the field to be set
+ * @param	_value	the value to be writen
+ * @param	_type	the type of the value
+ * 
+ * @return	the errnum of the action
+ * 
+ * @example json_set(json, "data.key.git.user1", var, json_str);
+*/
+int		json_fset(
+			JSON *_json,
+			const char *const restrict _field,
+			const void *_format,
+			...
 			);
 
 /**
