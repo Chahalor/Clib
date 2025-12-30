@@ -123,7 +123,6 @@ int	_json_set_nbr(
 		_data = _json_tool_itoa((long long)(*(int *)(_value)));
 	else
 		return (error_invalid_arg);
-	printf("%s:%d : _data='%s'\n", __FILE__, __LINE__, _data);	// RM
 	_errnum = _json_set_field(_json, _field, _data, json_tok_nbr);
 	mem_free(_data);
 	return (_errnum);

@@ -254,7 +254,7 @@ int	_json_fill_format(
 
 		if (_str[_i + 1] == '%')
 		{
-			_errnum = _json_str_append_char(_result, '%');	// TODO: check if it append the two %
+			_errnum = _json_str_append_char(_result, '%');
 			if (unlikely(_errnum != error_none))
 				return (_errnum);
 			_i += 2;
