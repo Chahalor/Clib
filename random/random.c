@@ -22,7 +22,7 @@
  * 
  * @version	1.0
  */
-__attribute__((constructor))
+__attribute__((constructor, visibility("hidden")))
 static void	random_init_seed(void)
 {
 	srand(time(NULL));
