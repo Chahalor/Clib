@@ -129,30 +129,25 @@ size_t	json_len(
 
 #pragma region Writing
 
-
-/**
- * @brief	set the field of the json element with _value
- * 
- * @param	_json	the json element
- * @param	_field	the field to be set
- * @param	_value	the value to be writen
- * @param	_type	the type of the value
- * 
- * @return	the errnum of the action
- * 
- * @example json_set(json, "data.key.git.user1", var, json_str);
-*/
 int		json_set(
 	JSON *_json,
 	const char *const restrict _field,
 	const void *_value,
-	const int _type
+	...
 )
 {
+	va_list	_args;
+	int		result = error_none;
+
 	if (unlikely(!_json || !_field))
 		return (error_invalid_arg);
-	else
-		return (_json_set(&_json, _field, _value, _type));
+
+	va_start(_args, _value);
+
+	result = _json_set_va_args(&_json, _field, _value, &_args);
+
+	va_end(_args);
+	return (result);
 }
 
 /**

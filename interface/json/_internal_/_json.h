@@ -70,11 +70,46 @@ int		_json_free_all(
  *
  * @return	error_none on success, or an error code
  */
-int		_json_fill_format(
-			const char *const restrict _str,
-			t_json_str *const restrict _result,
-			va_list *const restrict _args
-			);
+	int		_json_fill_format(
+				const char *const restrict _str,
+				t_json_str *const restrict _result,
+				va_list *const restrict _args
+				);
+
+	/* -----| string |----- */
+
+	int		_json_str_reserve(
+				t_json_str *const restrict _dest,
+				const size_t _add
+				);
+
+	int		_json_str_append_n(
+				t_json_str *const restrict _dest,
+				const char *const restrict _src,
+				const size_t _len
+				);
+
+	int		_json_str_append_char(
+				t_json_str *const restrict _dest,
+				const char _c
+				);
+
+	int		_json_append_uint_base(
+				t_json_str *const restrict _dest,
+				unsigned long long _value,
+				const unsigned int _base
+				);
+
+	int		_json_append_int(
+				t_json_str *const restrict _dest,
+				long long _value
+				);
+
+	int		_json_add_value(
+				t_json_str *const restrict _dest,
+				const void *const restrict value,
+				const int type
+				);
 
 /* -----| get    |----- */
 
@@ -156,6 +191,13 @@ int		_json_set(
 			const char *const restrict _field,
 			const void *_value,
 			const int _type
+			);
+
+int		_json_set_va_args(
+			JSON **_json,
+			const char *const restrict _field,
+			const void *_value,
+			va_list *const restrict _args
 			);
 
 int		_json_unset(

@@ -154,26 +154,21 @@ size_t	json_len(
 /**
  * @brief	set the field of the json element with _value
  * 
- * @param	_json	the json element
- * @param	_field	the field to be set
- * @param	_value	the value to be writen
- * @param	_type	the type of the value
+ * if an "=<any format>" is added at the end of `field` the type of `value` will be taken from here.
+ * Other with the last argument of the function will have to be the type of args has to be added
+ * 
+ * @param	json	the json element
+ * @param	field	the field to be set
+ * @param	value	the value to be writen
  * 
  * @return	the errnum of the action
  * 
  * @example json_set(json, "data.key.git.user1", var, json_str);
+ * @example json_set(json, "data.key.git.user1=%s", var);
+ * 
+ * @version	2.0.0
 */
 int		json_set(
-			JSON *_json,
-			const char *const restrict _field,
-			const void *_value,
-			const int _type
-			);
-
-/**
- * TODO
- */
-int		json_fset(
 			JSON *_json,
 			const char *const restrict _field,
 			const void *_value,
