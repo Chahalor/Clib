@@ -178,6 +178,8 @@ int		json_set(
 /**
  * @brief	unset the field of the json element based on _field
  * 
+ * handle va args for field
+ * 
  * @param	_json	the json element
  * @param	_field	the field to be set
  * @param	_free	bool value to say if the function need to free the removed field
@@ -185,10 +187,14 @@ int		json_set(
  * @return	the errnum of the action
  * 
  * @example json_set(json, "data.key.git.user1");
+ * @example json_set(json, "data.key.%s.user1", "git");
+ * 
+ * @version	2.0.0
 */
 int		json_unset(
 			JSON *_json,
-			const char *const restrict _field
+			const char *const restrict _field,
+			...
 			);
 
 /** */

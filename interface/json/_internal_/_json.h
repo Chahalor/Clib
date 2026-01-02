@@ -202,8 +202,9 @@ int		_json_set_va_args(
 
 int		_json_unset(
 			JSON **_json,
-			const char *const restrict _field,
-			const int _free
+			const char *restrict _field,
+			const int _free,
+			va_list *const restrict _args
 			);
 
 /* -----| Saving |----- */

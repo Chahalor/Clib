@@ -165,13 +165,21 @@ int		json_set(
 */
 int		json_unset(
 	JSON *_json,
-	const char *const restrict _field
+	const char *restrict _field,
+	...
 )
 {
+	va_list	_args;
+	int		result = error_none;
+
 	if (unlikely(!_json || !_field))
 		return (error_invalid_arg);
-	else
-		return (_json_unset(&_json, _field, false));
+	
+	va_start(_args, _field);
+	result = _json_unset(&_json, _field, false, &_args);
+
+	va_end(_args);
+	return (result);
 }
 
 /**
@@ -186,7 +194,7 @@ int	json_remove(
 	if (unlikely(!_json || !_field))
 		return (error_invalid_arg);
 	else
-		return (_json_unset(&_json, _field, true));
+		return (_json_unset(&_json, _field, true, NULL));
 }
 
 #pragma region Saving

@@ -38,15 +38,18 @@ int	_json_str_reserve(
 
 	if (unlikely(!_dest))
 		return (error_invalid_arg);
+
 	_need = (size_t)_dest->len + _add + 1;
 	if (_dest->size >= (int)_need)
 		return (error_none);
+
 	_new_size = _dest->size > 0 ? (size_t)_dest->size : INTERFACE_JSON_STRING_ALLOC_SIZE;
 	while (_new_size < _need)
 		_new_size *= 2;
 	_new = mem_alloc(_new_size);
 	if (unlikely(!_new))
 		return (error_alloc_fail);
+
 	if (_dest->content && _dest->len > 0)
 		memcpy(_new, _dest->content, _dest->len);
 	mem_free(_dest->content);
