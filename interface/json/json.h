@@ -179,10 +179,10 @@ int		json_set(
  * @brief	unset the field of the json element based on _field
  * 
  * handle va args for field
+ * this function will **not** free what it unset
  * 
- * @param	_json	the json element
- * @param	_field	the field to be set
- * @param	_free	bool value to say if the function need to free the removed field
+ * @param	json	the json element
+ * @param	field	the field to be set
  * 
  * @return	the errnum of the action
  * 
@@ -197,10 +197,26 @@ int		json_unset(
 			...
 			);
 
-/** */
+/**
+ * @brief	remove the field of the json element based on _field
+ * 
+ * handle va args for field
+ * this function will free what it remove
+ * 
+ * @param	json	the json element
+ * @param	field	the field to be set
+ * 
+ * @return	the errnum of the action
+ * 
+ * @example json_remove(json, "data.key.git.user1");
+ * @example json_remove(json, "data.key.%s.user1", "git");
+ * 
+ * @version	2.0.0
+*/
 int		json_remove(
 			JSON *_json,
-			const char *const restrict _field
+			const char *const restrict _field,
+			...
 			);
 
 

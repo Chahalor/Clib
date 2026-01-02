@@ -150,19 +150,6 @@ int		json_set(
 	return (result);
 }
 
-/**
- * @brief	unset the field of the json element based on _field
- * 
- * @param	_json	the json element
- * @param	_field	the field to be set
- * @param	_free	bool value to say if the function need to free the removed field
- * 
- * @return	the errnum of the action
- * 
- * @example json_set(json, "data.key.git.user1");
- * 
- * TODO: add va_args handling
-*/
 int		json_unset(
 	JSON *_json,
 	const char *restrict _field,
@@ -182,19 +169,23 @@ int		json_unset(
 	return (result);
 }
 
-/**
- * TODO: add va_args handling
- * 
- */
 int	json_remove(
 	JSON *_json,
-	const char *const restrict _field
+	const char *restrict _field,
+	...
 )
 {
+	va_list	_args;
+	int		result = error_none;
+
 	if (unlikely(!_json || !_field))
 		return (error_invalid_arg);
-	else
-		return (_json_unset(&_json, _field, true, NULL));
+
+	va_start(_args, _field);
+	result = _json_unset(&_json, _field, true, &_args);
+
+	va_end(_args);
+	return (result);
 }
 
 #pragma region Saving
