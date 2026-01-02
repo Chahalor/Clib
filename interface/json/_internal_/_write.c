@@ -219,7 +219,8 @@ void	_json_string_add_tree(
 
 char	*_json_stringify(
 	JSON *_json,
-	const int pretty
+	const int pretty,
+	int *const restrict errnum
 )
 {
 	t_json_str	result = {0};
@@ -227,7 +228,10 @@ char	*_json_stringify(
 
 	result.content = mem_alloc(INTERFACE_JSON_STRING_ALLOC_SIZE);
 	if (unlikely(!result.content))
-		return (NULL);
+	{
+		*errnum = error_alloc_fail;
+		goto error;
+	}
 	result.size = INTERFACE_JSON_STRING_ALLOC_SIZE;
 
 	if (pretty)
@@ -235,30 +239,39 @@ char	*_json_stringify(
 		_pretty = mem_alloc(sizeof(char) * (pretty + 1));
 		if (likely(_pretty))
 			memset(_pretty, ' ', pretty);
+		else
+			*errnum = error_alloc_fail;
 	}
 	_json_string_add_tree(_json, &result, _pretty);
+
+error:
 	return (result.content);
 }
 
 int		_json_dump(
-	JSON *_json,
-	FILE *_file,
+	JSON *const restrict _json,
+	FILE *const _file,
 	const int pretty
 )
 {
 	char	*_str = NULL;
 	int		_fd = -1;
+	int		result = error_none;
 
 	_fd = fileno(_file);
 	if (unlikely(_fd < 0))
-		return (json_error_io);
-	_str = _json_stringify(_json, pretty);
-	if (unlikely(!_str))
 	{
-		write(_fd, "{(null)}", 9);
-		return (error_none);
+		result = json_error_io;
+		goto cleannup;
 	}
-	write(_fd, _str, strlen(_str));
+
+	_str = _json_stringify(_json, pretty, &result);
+	if (unlikely(!_str))
+		write(_fd, "{(null)}", 9);
+	else
+		write(_fd, _str, strlen(_str));
+
+cleannup:
 	mem_free(_str);
-	return (error_none);
+	return (result);
 }

@@ -1,7 +1,11 @@
-// Header
-
 /**
- * TODO: add a format version to all function that take a field as args
+ * @file json.h
+ * @brief API public for the json module
+ *
+ * This module manage all interaction with json file/struct.
+ * From reading thems, modifing thems and writing thems.
+ *
+ * @ingroup json
  */
 
 # pragma once
@@ -30,6 +34,18 @@
 /* ************************************************************************** */
 
 #ifdef _JSON_FOEACH_ARRAY
+/**
+ * @def	json_foreach
+ * 
+ * @brief	do a foreach loop with all element of a json node
+ * 
+ * should be use like a for in a for loop
+ * 
+ * @param	var		the name of the var ceated to acces json elements
+ * @param	node	the node to make the loop on
+ * 
+ * @version	1.1.0
+ */
 # define json_foreach(var, node) _JSON_FOEACH_ARRAY(var, node)
 #endif
 
@@ -79,6 +95,8 @@ JSON	*json_load_str(
  * @brief	alocate an empty JSON object
  * 
  * @return	the empty json object or NULL if the alloc failed
+ * 
+ * @example	JSON	*var = json_new();
  * 
  * @version	1.0.0
  */
@@ -224,12 +242,47 @@ int		json_remove(
 /*     Saving      */
 /* *************** */
 
+/**
+ * @brief	dump the content of the `json` to `file`
+ * 
+ * @param	json	the json struct to be dump
+ * @param	file	the FILE where to dump
+ * @param	pretty	number of space added to be humanly readable
+ * 
+ * @return	error_none or the error code of the failure
+ * @retval		`error_invalid_arg`: invalid args
+ * @retval		`json_error_io`: invalid/unreadable file
+ * @retval		`error_alloc_fail`: allocation failure
+ * 
+ * @example	json_dump(json, stdout, 4);	// will print the json in the stdout with 4 space has indent
+ * @example	json_dump(json, stdout, 0);	// will print the json in the stdout with no space has indent
+ * @example	json_dump(json, NULL, 0);	// will failed
+ * 
+ * @note	use `json_stringify` logic to create the string
+ * 
+ * @version	1.0.1
+ */
 int		json_dump(
-			JSON *_json,
-			FILE *_file,
-			const int pretty
+			JSON *const restrict _json,
+			FILE *const _file,
+			const int _pretty
 			);
 
+/**
+ * @brief	return a string of `json`
+ * 
+ * @param	json	the json struct to be stringify
+ * @param	pretty	number of space added to be humanly readable
+ * 
+ * @return	error_none or the error code of the failure
+ * @retval		`error_invalid_arg`: invalid args
+ * @retval		`error_alloc_fail`: allocation failure
+ * 
+ * @example	char	*str = json_stringify(json , 4);
+ * @example	char	*str = json_stringify(json , 0);
+ * 
+ * @version	1.0.1
+ */
 char	*json_stringify(
 			JSON *_json,
 			const int pretty
@@ -239,13 +292,30 @@ char	*json_stringify(
 /*     checks      */
 /* *************** */
 
-/** */
+/**
+ * @brief	assert the type of the current node
+ * 
+ * @param	node	the node to be tested
+ * @param	type	the type to be compared
+ * 
+ * @return	true or false depending of the result
+ * 
+ * @version	1.0.0
+*/
 int		json_assert_type(
 			const JSON *const _node,
 			const int type
 			);
 
-/** */
+/**
+ * @brief	return the type of the current node
+ * 
+ * @param	node	the node examined
+ * 
+ * @return	the node type
+ * 
+ * @version	1.0.0
+*/
 int		json_get_type(
 			const JSON *const _node
 			);

@@ -192,8 +192,8 @@ int	json_remove(
 
 
 int		json_dump(
-	JSON *_json,
-	FILE *_file,
+	JSON *const restrict _json,
+	FILE *const _file,
 	const int _pretty
 )
 {
@@ -208,10 +208,14 @@ char	*json_stringify(
 	const int _pretty
 )
 {
+	int		_errnum = error_none;
+	char	*result = NULL;
+
 	if (unlikely(!_json))
 		return (NULL);
-	else
-		return (_json_stringify(_json, _pretty));
+
+	result = _json_stringify(_json, _pretty, &_errnum);
+	return (result);
 }
 
 
@@ -223,7 +227,10 @@ int		json_assert_type(
 	const int _type
 )
 {
-	return (_node->type == _type);
+	return (_node ?
+				_node->type == _type :
+				0
+			);
 }
 
 /** */
@@ -231,5 +238,8 @@ int		json_get_type(
 	const JSON *const _node
 )
 {
-	return (_node->type);
+	return (_node ?
+				_node->type :
+				0
+			);
 }

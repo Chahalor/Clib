@@ -209,15 +209,16 @@ int		_json_unset(
 
 /* -----| Saving |----- */
 
-char	*_json_stringify(
-			JSON *_json,
+int		_json_dump(
+			JSON *const restrict _json,
+			FILE *const _file,
 			const int pretty
 			);
 
-int		_json_dump(
+char	*_json_stringify(
 			JSON *_json,
-			FILE *_file,
-			const int pretty
+			const int pretty,
+			int *const restrict errnum
 			);
 
 /* -----| tools  |----- */
