@@ -99,6 +99,27 @@ void	*mem_dup(
 			);
 
 /**
+ * @brief	join `ptr1` and `ptr2` inside one newly allocated memory area
+ * 
+ * if a size is < 0 the function will use the memory manager data to do the join
+ * 
+ * @param	ptr1	first ptr to the join
+ * @param	ptr2	second ptr to the join
+ * @param	size1	size of the first ptr
+ * @param	size2	size of the second ptr
+ * 
+ * @return	a pointer to the new memory area or NULL in case of error
+ * 
+ * @version	1.0.0
+*/
+void	*mem_join(
+			const void *const restrict _ptr1,
+			const void *const restrict _ptr2,
+			const ssize_t _size1,
+			const ssize_t _size2
+			);
+
+/**
  * @brief	free `all` the memory allocated and stored inside of the memory manager
  * 
  * @param	none

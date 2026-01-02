@@ -366,27 +366,6 @@ int	_mem_realloc(
 	rb_delete(_manager->T, _node, true);
 	return (error_none);
 }
-// {
-// 	rb_node		*_node = rb_search(_manager->T, _ptr);
-// 	size_t		_dummy = (size_t)_node;
-// 	rb_node		*_new = NULL;
-
-// 	if (unlikely(!_node))
-// 		return (_mem_manager(mem_manager_access_alloc, _output, _size));
-// 	_new = realloc(_node, sizeof(rb_node) + _size);
-// 	if (unlikely(!_new))
-// 	{
-// 		*_output = NULL;
-// 		return (mem_manager_error_alloc_failed);
-// 	}
-// 	if (_dummy != (size_t)_new)
-// 	{
-// 		rb_delete(_manager->T, (rb_node *)_dummy, false);
-// 		rb_insert(_manager->T, _new);
-// 	}
-// 	*_output = _new->key;
-// 	return (mem_manager_error_none);
-// }
 
 /**
  * @brief	duplicate _ptr based on _size or the stored size
@@ -441,6 +420,68 @@ int	_mem_dup(
 	rb_insert(_manager->T, _new);
 	*_output = _new->key;
 	return (mem_manager_error_none);
+}
+
+/**
+ * @brief	will join two memory area into one new one
+ * 
+ * if any size is negative, it will use the manager stored size instead
+ * 
+ * @param	manager	the memory manager
+ * @param	ptr1	the first pointer to be joined
+ * @param	ptr2	the seconde pointer to be joined
+ * @param	size1	the size of the first memory area
+ * @param	size2	the size of the second memory area
+ * @param	result	the pointer for the resulted allocation
+ * 
+ * @return	error_none or the corresponding error code
+ * @retval		`error_none`: no error
+ * @retval		`error_invalid_arg`: invalid size with NULL pointer
+ * @retval		all `_mem_alloc()` errors
+ * 
+ * @version	1.0.0
+*/
+int	_mem_join(
+	t_mem_manager *const _manager,
+	const void *const _ptr1,
+	const void *const _ptr2,
+	const ssize_t _size1,
+	const ssize_t _size2,
+	void **const result
+)
+{
+	const rb_node	*_node1 = rb_search(_manager->T, _ptr1);
+	const rb_node	*_node2 = rb_search(_manager->T, _ptr2);;
+	size_t			_s1 = 0;
+	size_t			_s2 = 0;
+	void			*_dummy = NULL;
+	int				error = error_none;
+
+	if (unlikely((!_node1 && _size1 < 0) || (!_node2 && _size2 < 0)))
+	{
+		error = error_invalid_arg;
+		goto cleannup;
+	}
+
+	if (_size1 < 0)
+		_s1 = _node1->size;
+	else
+		_s1 = _size1;
+	if (_size2 < 0)
+		_s2 = _node2->size;
+	else
+		_s2 = _size2;
+
+	error = _mem_alloc(_manager, _s1 + _s2, &_dummy);
+	if (unlikely(error))
+		goto cleannup;
+
+	memcpy(_dummy, _ptr1, _s1);
+	memcpy(_dummy + _s1, _ptr2, _s2);
+	*result = _dummy;
+
+cleannup:
+	return (error);
 }
 
 /**
@@ -573,6 +614,16 @@ int	_mem_manager(
 			out = _mem_realloc(&manager, _ptr, _size, (void **)_output);
 			break;
 		}
+		case (mem_manager_access_join):
+		{
+			const void *const _ptr1 = va_arg(_list, void *);
+			const void *const _ptr2  = va_arg(_list, void *);
+			const ssize_t _size1 = va_arg(_list, ssize_t);
+			const ssize_t _size2 = va_arg(_list, ssize_t);
+
+			out = _mem_join(&manager, _ptr1, _ptr2, _size1, _size2, _output);
+			break;
+		}
 		case (mem_manager_access_dup):
 		{
 			void	*_ptr = va_arg(_list, void *);
@@ -594,6 +645,7 @@ int	_mem_manager(
 		default:
 			out = error_invalid_arg;
 	}
+
 	va_end(_list);
 	return (out);
 }

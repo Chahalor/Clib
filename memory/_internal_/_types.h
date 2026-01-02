@@ -43,6 +43,7 @@ enum e_mem_manager_access
 	mem_manager_access_alloc,
 	mem_manager_access_realloc,
 	mem_manager_access_dup,
+	mem_manager_access_join,
 	mem_manager_access_free,
 	mem_manager_access_free_all,
 };

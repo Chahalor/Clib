@@ -95,6 +95,25 @@ void	*mem_dup(
 	return (result);
 }
 
+void	*mem_join(
+	const void *const restrict _ptr1,
+	const void *const restrict _ptr2,
+	const ssize_t _size1,
+	const ssize_t _size2
+)
+{
+	int		_error = error_none;
+	void	*result = NULL;
+
+	if (unlikely(!_ptr1 || !_ptr2))
+		return (NULL);
+
+	_error = _mem_manager(mem_manager_access_join, &result, _ptr1, _ptr2, _size1, _size2);
+	(void)_error;
+
+	return (result);
+}
+
 /**
  * @brief	free _area
  * 
