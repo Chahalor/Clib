@@ -47,6 +47,7 @@
 
 #### io
  - not for this version
+ - [ ] special printf format to print lib structs, like json or others structs
 
 ## other
 
