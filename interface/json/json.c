@@ -140,10 +140,10 @@ int		json_set(
 	va_list	_args;
 	int		result = error_none;
 
-	if (unlikely(!_json || !_field))
+	if (unlikely(!_json || !_field || _type > json_tok_obj))
 		return (error_invalid_arg);
 
-	va_start(_args, _value);
+	va_start(_args, _type);
 
 	result = _json_set_va_args(&_json, _field, _value, _type, &_args);
 

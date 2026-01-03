@@ -253,16 +253,22 @@ int	_json_set(
 	{
 		case (json_tok_nbr):
 			result = (_json_set_nbr(_json, _field, _value));
+			break;
 		case (json_tok_str):
 			result = (_json_set_str(_json, _field, _value));
+			break;
 		case (json_tok_array):
 			result = (_json_set_array(_json, _field, _value));
+			break;
 		case (json_tok_obj):
 			result = (_json_set_obj(_json, _field, _value));
+			break;
 		case (json_tok_bool):
 			result = (_json_set_bool(_json, _field, _value));
+			break;
 		case (json_tok_null):
 			result = (_json_set_null(_json, _field));
+			break;
 		default:
 			result = (error_invalid_arg);
 	}
@@ -302,14 +308,21 @@ int	_json_set_va_args(
 			errnum = -(error_alloc_fail);
 			goto error;
 		}
-		errnum = _json_fill_format(_field, _str_value, _args);
+		errnum = _json_fill_format((const char *const restrict)_value,
+									_str_value,
+									_args
+								);
 		if (unlikely(errnum != error_none))
 			goto error;
 	}
 
-	errnum = _json_set(_json, _str_field->content, _str_value ?
-														_str_value->content :
-														_value, _type);
+	errnum = _json_set(_json,
+						_str_field->content,
+						_str_value ?
+							_str_value->content :
+							_value,
+						_type
+					);
 
 error:
 	mem_free(_str_field);

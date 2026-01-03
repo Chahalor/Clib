@@ -28,7 +28,7 @@
 
 # ifndef likely
 #  define likely(_expr)		__builtin_expect((!!(_expr)), 1)	/* this is likely to appen    */
-#  define unlikely(_expr)	__builtin_expect((!!(_expr)), 0)	/* this in unlikely to appen */
+#  define unlikely(_expr)	__builtin_expect((!!(_expr)), 0)	/* this is unlikely to appen */
 # endif
 
 # ifndef NULL
