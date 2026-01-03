@@ -16,6 +16,7 @@
 /* -----| Internals |----- */
 # include "_types.h"
 # include "../json.h"
+# include "edit/_json_edit.h"
 
 /* -----| Modules   |----- */
 #include "../../../lib.h"
@@ -57,6 +58,13 @@ int		_json_remove_node(
 
 int		_json_free_all(
 			JSON *_target
+			);
+
+/**
+ * @brief	clone the current node by duplicating it recursivly
+ */
+t_json	*_json_clone_node(
+			const t_json *_src
 			);
 
 /* -----| format |----- */
@@ -110,6 +118,16 @@ int		_json_free_all(
 				const void *const restrict value,
 				const int type
 				);
+
+	/**
+	 * @brief	allocate a `t_json_str` of `size` len
+	 * 
+	 * add the null bit at the end of content
+	 * 
+	 */
+	t_json_str	*_json_new_str(
+					const int _size
+					);
 
 /* -----| get    |----- */
 
@@ -169,42 +187,6 @@ size_t	_json_node_size(
 
 size_t	_json_access_len(
 			const t_json *_json
-			);
-
-/* -----| set    |----- */
-
-int		_json_add_child(
-			t_json **_target,
-			t_json *_child
-			);
-
-
-int		_json_set_field(
-			t_json **_json,
-			const char *const restrict _field,
-			const char *const restrict _data,
-			const int _type
-			);
-
-int		_json_set(
-			JSON **_json,
-			const char *const restrict _field,
-			const void *_value,
-			const int _type
-			);
-
-int		_json_set_va_args(
-			JSON **_json,
-			const char *const restrict _field,
-			const void *_value,
-			va_list *const restrict _args
-			);
-
-int		_json_unset(
-			JSON **_json,
-			const char *restrict _field,
-			const int _free,
-			va_list *const restrict _args
 			);
 
 /* -----| Saving |----- */

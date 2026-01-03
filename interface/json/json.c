@@ -133,6 +133,7 @@ int		json_set(
 	JSON *_json,
 	const char *const restrict _field,
 	const void *_value,
+	const unsigned int _type,
 	...
 )
 {
@@ -144,7 +145,7 @@ int		json_set(
 
 	va_start(_args, _value);
 
-	result = _json_set_va_args(&_json, _field, _value, &_args);
+	result = _json_set_va_args(&_json, _field, _value, _type, &_args);
 
 	va_end(_args);
 	return (result);

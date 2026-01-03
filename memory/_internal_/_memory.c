@@ -450,8 +450,8 @@ int	_mem_join(
 	void **const result
 )
 {
-	const rb_node	*_node1 = rb_search(_manager->T, _ptr1);
-	const rb_node	*_node2 = rb_search(_manager->T, _ptr2);;
+	const rb_node	*_node1 = rb_search(_manager->T, (void *)_ptr1);
+	const rb_node	*_node2 = rb_search(_manager->T, (void *)_ptr2);;
 	size_t			_s1 = 0;
 	size_t			_s2 = 0;
 	void			*_dummy = NULL;

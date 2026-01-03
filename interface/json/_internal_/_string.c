@@ -216,3 +216,26 @@ int	_json_add_value(
 	else
 		return (error_invalid_arg);
 }
+
+/**
+ * @brief	allocate a `t_json_str` of `size` len
+ * 
+ * add the null bit at the end of content
+ * 
+ */
+t_json_str	*_json_new_str(
+	const int _size
+)
+{
+	t_json_str	*result = NULL;
+
+	result = mem_alloc(sizeof(t_json_str) + sizeof(char) * (_size + 1));
+	if (unlikely(!result))
+		goto error;
+	result->content = (char *)(result + 1);
+	result->size = _size;
+	result->len = 0;
+
+error:
+	return (result);
+}

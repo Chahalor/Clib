@@ -98,3 +98,52 @@ int	_json_free_all(
 	_json_free_content(_content);
 	return (error);
 }
+
+/**
+ * @brief	clone the current node by duplicating it recursivly
+ */
+t_json	*_json_clone_node(
+	const t_json *_src
+)
+{
+	t_json	*node = NULL;
+	char	*_data = NULL;
+
+	if (!_src)
+		goto error;
+	else if (_src->data)
+	{
+		_data = mem_dup(_src->data, strlen(_src->data) + 1);
+		if (unlikely(!_data))
+			goto error;
+	}
+
+	node = _json_new_content(_src->key, _src->type, _data);
+	if (unlikely(!node))
+		goto error;
+	else if (_src->child)
+	{
+		node->child = _json_clone_node(_src->child);
+		if (unlikely(!node->child))
+		{
+			node = NULL;
+			goto error;
+		}
+	}
+	else if (_src->next)
+	{
+		node->next = _json_clone_node(_src->next);
+		if (unlikely(!node->next))
+		{
+			node = NULL;
+			goto error;
+		}
+	}
+
+	return (node);
+
+error:
+	mem_free(_data);
+	_json_free_content(node);
+	return (node);
+}
