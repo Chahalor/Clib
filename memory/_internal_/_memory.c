@@ -390,6 +390,7 @@ int	_mem_dup(
 {
 	rb_node			*_target = NULL;
 	rb_node			*_new = NULL;
+	size_t			_copy_size = 0;
 
 	if (_size < 0)
 	{
@@ -415,7 +416,14 @@ int	_mem_dup(
 			*_output = NULL;
 			return (error_alloc_fail);
 		}
-		memcpy(_new->key, _ptr, _size);
+		_target = rb_search(_manager->T, _ptr);
+		if (_target)
+			_copy_size = min((size_t)_size, _target->size);
+		else
+			_copy_size = _size;
+		memcpy(_new->key, _ptr, _copy_size);
+		if (_copy_size < _new->size)
+			memset((char *)_new->key + _copy_size, 0, _new->size - _copy_size);
 	}
 	rb_insert(_manager->T, _new);
 	*_output = _new->key;
