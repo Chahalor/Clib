@@ -9,8 +9,8 @@
 #include "random.h"
 
 	/* External */
-#include "../math/math.h"
-#include "../memory/memory.h"
+#include "../math.h"
+#include "../memory.h"
 
 /* ----| Prototypes |----- */
 	//...

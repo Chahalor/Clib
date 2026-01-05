@@ -1,8 +1,5 @@
 // Header
 
-#ifndef LIB_H
-# define LIB_H
-
 # pragma once
 
 /* ************************************************************************** */
@@ -13,18 +10,11 @@
 	//...
 
 /* -----| Globals   |----- */
-# include "standards/lib_config.h"
-# include "standards/lib_standards.h"
+# include "lib_config.h"
+# include "lib_standards.h"
 
 /* -----| Internals |----- */
-// # include "debug/debug.h"
-# include "interface.h"
-# include "math.h"
-# include "memory.h"
-# include "network.h"
-# include "random.h"
-# include "times.h"
-# include "files.h"
+	//...
 
 /* -----| Modules   |----- */
 	//...
@@ -38,5 +28,3 @@
 /*                                 Prototypes                                 */
 /* ************************************************************************** */
 	//...
-
-#endif	// LIB_H
