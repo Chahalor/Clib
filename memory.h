@@ -22,10 +22,10 @@
 # include "lib_standards.h"
 
 /* -----| Internals |----- */
-# include "types.h"
+# include "memory/types.h"
 
 /* -----| Modules   |----- */
-#include "../math/math.h"
+#include "math.h"
 
 /* ************************************************************************** */
 /*                                 Macros                                     */
