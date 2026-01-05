@@ -8,6 +8,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_library(clib STATIC)
 
 add_subdirectory(standards)
+add_subdirectory(files)
 add_subdirectory(interface)
 add_subdirectory(memory)
 add_subdirectory(network)
@@ -36,6 +37,7 @@ add_library(clib_includes INTERFACE)
 
 target_include_directories(clib_includes INTERFACE
 	${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}/files
 	${CMAKE_CURRENT_SOURCE_DIR}/interface
 	${CMAKE_CURRENT_SOURCE_DIR}/memory
 	${CMAKE_CURRENT_SOURCE_DIR}/network

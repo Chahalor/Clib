@@ -4,9 +4,7 @@ add_subdirectory(json)
 
 if (TARGET clib)
 	target_sources(clib PRIVATE
-		files.h
-		# $<TARGET_OBJECTS:clib_files_csv>
+		${CMAKE_CURRENT_SOURCE_DIR}/../files.h
 		$<TARGET_OBJECTS:clib_files_json>
-		# $<TARGET_OBJECTS:clib_files_yml>
 	)
 endif()
