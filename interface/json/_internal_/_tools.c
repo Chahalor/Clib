@@ -53,6 +53,7 @@ char	*_json_tool_itoa(
 	char		*result;
 	long long	_dummy = _value;
 	int			_size = _dummy == 0;
+	char		_current;
 
 	while (_dummy)
 	{
@@ -65,7 +66,8 @@ char	*_json_tool_itoa(
 		return (NULL);
 	while (_value)
 	{
-		result[--_size] = (_value % 10) + '0';
+		_current = (_value % 10) + '0';
+		result[--_size] = _current;
 		_value /= 10;
 	}
 	return (result);
