@@ -15,7 +15,7 @@
 
 /* -----| Internals |----- */
 # include "_types.h"
-# include "../json.h"
+# include "../../json.h"
 # include "edit/_json_edit.h"
 
 /* -----| Modules   |----- */
