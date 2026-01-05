@@ -27,7 +27,7 @@
 
 /* -----| Modules   |----- */
 #include "memory.h"
-#include "_internal_/_json.h"
+#include "json/_internal_/_json.h"
 
 /* ************************************************************************** */
 /*                                 Macros                                     */
