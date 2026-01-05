@@ -23,7 +23,7 @@
 # include "lib_standards.h"
 
 /* -----| Internals |----- */
-# include "types.h"
+# include "json/types.h"
 
 /* -----| Modules   |----- */
 #include "memory.h"
