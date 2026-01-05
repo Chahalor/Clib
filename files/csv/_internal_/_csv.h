@@ -1,8 +1,5 @@
 // Header
 
-#ifndef STANDARDS_H
-# define STANDARDS_H
-
 # pragma once
 
 /* ************************************************************************** */
@@ -10,41 +7,28 @@
 /* ************************************************************************** */
 
 /* -----| Systems   |----- */
-#include <stdbool.h>
+#include <string.h>
 
 /* -----| Globals   |----- */
 # include "lib_config.h"
-// # include "standards.h"
+# include "lib_standards.h"
 
 /* -----| Internals |----- */
-	//...
+# include "_types.h"
+#include "../../csv.h"
 
 /* -----| Modules   |----- */
-	//...
+#include "../../../memory.h"
 
 /* ************************************************************************** */
 /*                                 Macros                                     */
-/* ************************************************************************** */
-
-# ifndef likely
-#  define likely(_expr)		__builtin_expect((!!(_expr)), 1)	/* this is likely to appen    */
-#  define unlikely(_expr)	__builtin_expect((!!(_expr)), 0)	/* this is unlikely to appen */
-# endif
-
-# ifndef NULL
-#  define NULL ((void *)0)	/* you need doc for this ? */
-# endif
-
-# define ERROR(val) (-(val))
-
-/* ************************************************************************** */
-/*                                 Inlines                                    */
 /* ************************************************************************** */
 	//...
 
 /* ************************************************************************** */
 /*                                 Prototypes                                 */
 /* ************************************************************************** */
-	//...
 
-#endif	// !STANDARDS_H
+const char	*_csv_strerror(
+				const CSV *_csv
+				);
