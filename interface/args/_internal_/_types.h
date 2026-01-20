@@ -40,19 +40,10 @@ typedef struct _s_args_config		_t_args_config;
 /*                                 Enums                                      */
 /* ************************************************************************** */
 
-enum e_param_type
+enum e_args_errors
 {
-	param_type_file,
-	param_type_int,
-	param_type_uint,
-	param_type_str,
-};
-
-enum e_param_args_type
-{
-	param_args_type_require = 0x1,	// this param is required
-	param_args_type_nargs = 0x10,	// this param take n args
-	// param_args_type_action = 0x111,	// this param need an action
+	args_error_none,
+	args_error_invalid_args,
 };
 
 /* ************************************************************************** */
@@ -71,8 +62,11 @@ enum e_param_args_type
  */
 struct _s_args_param
 {	
-	char				*name;		// naem of the parameter
+	char				*name;		// name of the parameter
 	char				*desc;		// description of the parameter
+	char				**values;	// value of the param
+	unsigned int		nb_values;	// numbers of values entered
+	bool				is_fill;	// is this param already filled
 	_t_args_param		*next;		// next param in the context
 	t_param_type		type;		// type of the expected data
 	t_param_args_type	args_type;	// type of the args content (requiered, nargs, ...)
@@ -89,6 +83,8 @@ struct _s_args_option
 	char			*desc;		// description of the option
 	_t_args_param	*params;	// params of the option
 	_t_args_option	*next;		// next possible option the context
+	unsigned int	nb_calls;	// numbers of call of this option
+	char			short_name;	// short name of the option
 };
 
 /**
@@ -110,6 +106,7 @@ struct _s_args_config
 {
 	/* behavior */
 	char	exit_on_error			: 1;
+	char	exit_on_help			: 1;
 	char	auto_help				: 1;
 	char	auto_usage				: 1;
 
@@ -130,7 +127,7 @@ struct _s_args_config
 
 	/* string checks */
 	char	check_str_empty			: 1;
-	char	check_str_length		: 1;	
+	char	check_str_length		: 1;
 
 	/* .errors managements */
 	int		errnum;							// last error of the module

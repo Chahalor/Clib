@@ -1,8 +1,8 @@
-file(GLOB_RECURSE LOG_SRC
+file(GLOB_RECURSE ARGS_SRC
 	*.c
 )
 
-add_library(clib_interface_args OBJECT ${LOG_SRC})
+add_library(clib_interface_args OBJECT ${ARGS_SRC})
 
 target_link_libraries(clib_interface_args PRIVATE clib_includes)
 

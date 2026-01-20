@@ -38,7 +38,12 @@
  *
  * @version	1.0.0
  */
-_t_args_config	*_args_get_config(void);
+_t_args_config	*_args_config_get(void);
+
+__attribute__((visibility("hidden")))
+void			_args_config_set_errnum(
+					const int _error
+					);
 
 /* -----| Memory    |----- */
 

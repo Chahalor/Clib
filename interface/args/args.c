@@ -2,14 +2,19 @@
 
 /* ----| Headers    |----- */
 	/* Standard */
-		//...
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include <unistd.h>
 
 	/* Internal */
 #include "../args.h"
 #include "_internal_/_args.h"
 
 	/* External */
-		//...
+#include "memory.h"
 
 /* ----| Prototypes |----- */
 	//...
@@ -22,7 +27,7 @@
 /** */
 t_args_parser	*args_new_parser(void)
 {
-
+	return (_args_mem_new_parser(NULL));
 }
 
 int	args_add_param(
@@ -32,7 +37,19 @@ int	args_add_param(
 	const t_param_args_type _spec
 )
 {
+	int	result;
 
+	if (unlikely(!_parser || !_name))
+	{
+		result = error_invalid_arg;
+		_args_config_set_errnum(result);
+		goto error;
+	}
+
+	result = _args_add_param(_parser, _name, _type, _spec);
+
+error:
+	return (result);
 }
 
 int	args_add_option(
@@ -42,7 +59,19 @@ int	args_add_option(
 	const t_param_args_type _args_spec
 )
 {
+	int	result;
 
+	if (unlikely(!_parser || !_name))
+	{
+		result = error_invalid_arg;
+		_args_config_set_errnum(result);
+		goto error;
+	}
+
+	result = _args_add_param(_parser, _name, _type, _args_spec);
+
+error:
+	return (result);
 }
 
 int	args_add_subparser(
@@ -50,7 +79,19 @@ int	args_add_subparser(
 	const char *const restrict _name
 )
 {
+	int	result;
 
+	if (unlikely(!_parser || !_name))
+	{
+		result = error_invalid_arg;
+		_args_config_set_errnum(result);
+		goto error;
+	}
+
+	result = _args_add_param(_parser, _name);
+
+error:
+	return (result);
 }
 
 int	args_param_add_desc(
@@ -59,7 +100,7 @@ int	args_param_add_desc(
 	...
 )
 {
-
+	
 }
 
 int	args_option_add_desc(
@@ -68,7 +109,7 @@ int	args_option_add_desc(
 	...
 )
 {
-
+	
 }
 
 int	args_parser_add_desc(
@@ -77,7 +118,7 @@ int	args_parser_add_desc(
 	...
 )
 {
-
+	
 }
 
 int	args_parse(
@@ -87,7 +128,7 @@ int	args_parse(
 	const char *argv[]
 )
 {
-
+	
 }
 
 void	args_destroy_parser(

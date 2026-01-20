@@ -2,7 +2,7 @@
 
 /* ----| Headers    |----- */
 	/* Standard */
-		//...
+#include <string.h>
 
 	/* Internal */
 #include "_args.h"
@@ -22,8 +22,8 @@ _t_args_param	*_args_mem_new_param(
 	const char *const restrict _name
 )
 {
-	const size_t	_alloc_size = sizeof(_t_args_param)
-									+ _name ? strlen(_name) : 0;
+	const size_t	_name_len = _name ? strlen(_name) + 1 : 0;
+	const size_t	_alloc_size = sizeof(_t_args_param) + _name_len;
 	_t_args_param	*result;
 
 	result = mem_alloc(_alloc_size);
@@ -33,20 +33,32 @@ _t_args_param	*_args_mem_new_param(
 		goto error;
 	}
 
-	result->name = (char *)(result + 1);
+	if (_name_len)
+	{
+		result->name = (char *)(result + 1);
+		result->name[0] = '\0';
+	}
+	else
+		result->name = NULL;
 	result->desc = NULL;
 	result->next = NULL;
+	result->type = 0;
+	result->values = NULL;
+	result->args_type = 0;
+	result->is_fill = false;
+	result->nb_values = 0;
 
 error:
 	return (result);
 }
 
 _t_args_option	*_args_mem_new_option(
-	const char *const restrict _name
+	const char *const restrict _name,
+	const char _short_name
 )
 {
-	const size_t	_alloc_size = sizeof(_t_args_option)
-									+ _name ? strlen(_name) : 0;
+	const size_t	_name_len = _name ? strlen(_name) + 1 : 0;
+	const size_t	_alloc_size = sizeof(_t_args_option) + _name_len;
 	_t_args_option	*result;
 
 	result = mem_alloc(_alloc_size);
@@ -56,9 +68,18 @@ _t_args_option	*_args_mem_new_option(
 		goto error;
 	}
 
-	result->long_name = (char *)(result + 1);
+	if (_name_len)
+	{
+		result->long_name = (char *)(result + 1);
+		result->long_name[0] = '\0';
+	}
+	else
+		result->long_name = NULL;
 	result->desc = NULL;
+	result->params = NULL;
 	result->next = NULL;
+	result->short_name = _short_name;
+	result->nb_calls = 0;
 
 error:
 	return (result);
@@ -68,8 +89,8 @@ _t_args_parser	*_args_mem_new_parser(
 	const char *const restrict _name
 )
 {
-	const size_t	_alloc_size = sizeof(_t_args_parser)
-									+ _name ? strlen(_name) : 0;
+	const size_t	_name_len = _name ? strlen(_name) + 1 : 0;
+	const size_t	_alloc_size = sizeof(_t_args_parser) + _name_len;
 	_t_args_parser	*result;
 
 
@@ -80,11 +101,19 @@ _t_args_parser	*_args_mem_new_parser(
 		goto error;
 	}
 
-	result->name = (char *)(result + 1);
+	if (_name_len)
+	{
+		result->name = (char *)(result + 1);
+		result->name[0] = '\0';
+	}
+	else
+		result->name = NULL;
 	result->desc = NULL;
 	result->options = NULL;
 	result->params = NULL;
 	result->sub_parsers = NULL;
+	result->next = NULL;
+
 
 error:
 	return (result);
@@ -95,6 +124,8 @@ void	_args_mem_free_param(
 	const char _recursiv
 )
 {
+	if (unlikely(!_param))
+		return ;
 	mem_free(_param->desc);
 	if (_recursiv && _param->next)
 		_args_mem_free_param(_param->next, true);
@@ -106,6 +137,8 @@ void	_args_mem_free_opt(
 	const char _recursiv
 )
 {
+	if (unlikely(!_param))
+		return ;
 	mem_free(_param->desc);
 	if (_recursiv && _param->next)
 		_args_mem_free_opt(_param->next, true);
@@ -117,8 +150,10 @@ void	_args_mem_free_parser(
 	const char _recursiv
 )
 {
+	if (unlikely(!_param))
+		return ;
 	mem_free(_param->desc);
-	if (_recursiv && _param->next);
+	if (_recursiv && _param->next)
 		_args_mem_free_parser(_param->next, true);
 	_args_mem_free_param(_param->params, true);
 	_args_mem_free_opt(_param->options, true);

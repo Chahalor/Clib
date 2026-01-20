@@ -10,14 +10,14 @@
 	//...
 
 /* -----| Globals   |----- */
-# include "lib_config.h"
-# include "lib_standards.h"
+# include "standards/lib_config.h"
+# include "standards/lib_standards.h"
 
 /* -----| Internals |----- */
 // # include "interface/types.h"
 
 /* -----| Modules   |----- */
-#include "log.h"
+#include "interface/log.h"
 // #include "io/io.h"
 
 /* ************************************************************************** */
