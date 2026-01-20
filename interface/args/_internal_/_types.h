@@ -35,6 +35,7 @@ typedef struct _s_args_param		_t_args_param;
 typedef struct _s_args_option		_t_args_option;
 typedef struct _s_args_parser		_t_args_parser;
 typedef struct _s_args_config		_t_args_config;
+typedef struct _s_args_parser_root	_t_args_parser_root;
 
 /* ************************************************************************** */
 /*                                 Enums                                      */
@@ -66,6 +67,7 @@ struct _s_args_param
 	char				*desc;		// description of the parameter
 	char				**values;	// value of the param
 	unsigned int		nb_values;	// numbers of values entered
+	unsigned int		max_values;	// number of allocated values
 	bool				is_fill;	// is this param already filled
 	_t_args_param		*next;		// next param in the context
 	t_param_type		type;		// type of the expected data
@@ -100,6 +102,14 @@ struct _s_args_parser
 	_t_args_option	*options;		// option of the parser/context
 	_t_args_parser	*sub_parsers;	// sub parser of the context
 	_t_args_parser	*next;			// next sub-parser for the current context
+};
+
+struct _s_args_parser_root
+{
+	char			**argv;
+	_t_args_parser	*parser;
+	int				argc;
+	int				index;
 };
 
 struct _s_args_config

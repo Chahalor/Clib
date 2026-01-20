@@ -31,9 +31,10 @@ typedef enum e_param_args_type		t_param_args_type;
 
 /* -----| Structs   |----- */
 
-typedef struct _s_args_param		t_args_param;
-typedef struct _s_args_option		t_args_option;
-typedef struct _s_args_parser		t_args_parser;
+// typedef struct _s_args_param		t_args_param;
+// typedef struct _s_args_option		t_args_option;
+// typedef struct _s_args_parser		t_args_parser_data;
+typedef struct _s_args_parser_root	t_args_parser;
 
 typedef struct s_args_output_param	t_args_output_param;
 typedef struct s_args_output_option	t_args_output_option;

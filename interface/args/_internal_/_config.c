@@ -54,6 +54,6 @@ void	_args_config_set_errnum(
 
 	_config->errnum = _error;
 
-	if (_error && _config->exit_on_error)
-		_args_exit(_args_strerror(_error));
+	// if (_error && _config->exit_on_error)
+	// 	_args_exit(_args_strerror(_error));
 }

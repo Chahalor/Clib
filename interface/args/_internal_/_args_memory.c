@@ -18,6 +18,17 @@
 
 /* ----| Public     |----- */
 
+_t_args_parser_root	*_args_mem_new_root(void)
+{
+	_t_args_parser_root	*result;
+
+	result = mem_alloc(sizeof(_t_args_parser_root));
+	if (unlikely(!result))
+		_args_config_set_errnum(error_alloc_fail);
+
+	return (result);
+}
+
 _t_args_param	*_args_mem_new_param(
 	const char *const restrict _name
 )
@@ -29,7 +40,7 @@ _t_args_param	*_args_mem_new_param(
 	result = mem_alloc(_alloc_size);
 	if (unlikely(!result))
 	{
-		_args_get_config()->errnum = error_alloc_fail;
+		_args_config_set_errnum(error_alloc_fail);
 		goto error;
 	}
 
@@ -64,7 +75,7 @@ _t_args_option	*_args_mem_new_option(
 	result = mem_alloc(_alloc_size);
 	if (unlikely(!result))
 	{
-		_args_get_config()->errnum = error_alloc_fail;
+		_args_config_set_errnum(error_alloc_fail);
 		goto error;
 	}
 
@@ -97,7 +108,7 @@ _t_args_parser	*_args_mem_new_parser(
 	result = mem_alloc(_alloc_size);
 	if (unlikely(!result))
 	{
-		_args_get_config()->errnum = error_alloc_fail;
+		_args_config_set_errnum(error_alloc_fail);
 		goto error;
 	}
 
