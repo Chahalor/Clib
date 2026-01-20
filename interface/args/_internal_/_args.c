@@ -1,0 +1,20 @@
+// Header
+
+/* ----| Headers    |----- */
+	/* Standard */
+		//...
+
+	/* Internal */
+		//...
+
+	/* External */
+		//...
+
+/* ----| Prototypes |----- */
+	//...
+
+/* ----| Internals  |----- */
+	//...
+
+/* ----| Public     |----- */
+	//...
