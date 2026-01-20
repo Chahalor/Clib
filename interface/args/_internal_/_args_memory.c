@@ -28,7 +28,10 @@ _t_args_param	*_args_mem_new_param(
 
 	result = mem_alloc(_alloc_size);
 	if (unlikely(!result))
+	{
+		_args_get_config()->errnum = error_alloc_fail;
 		goto error;
+	}
 
 	result->name = (char *)(result + 1);
 	result->desc = NULL;
@@ -48,7 +51,10 @@ _t_args_option	*_args_mem_new_option(
 
 	result = mem_alloc(_alloc_size);
 	if (unlikely(!result))
+	{
+		_args_get_config()->errnum = error_alloc_fail;
 		goto error;
+	}
 
 	result->long_name = (char *)(result + 1);
 	result->desc = NULL;
@@ -69,7 +75,10 @@ _t_args_parser	*_args_mem_new_parser(
 
 	result = mem_alloc(_alloc_size);
 	if (unlikely(!result))
+	{
+		_args_get_config()->errnum = error_alloc_fail;
 		goto error;
+	}
 
 	result->name = (char *)(result + 1);
 	result->desc = NULL;

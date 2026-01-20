@@ -122,7 +122,7 @@ struct _s_args_config
 	/* file checks */
 	char	check_file_exists		: 1;
 	char	check_file_read			: 1;
-	char	check_file_write		: 1;
+	char	check_file_write		: 1; 
 
 	/* numeric checks */
 	char	check_nbr_overflow		: 1;
@@ -130,5 +130,9 @@ struct _s_args_config
 
 	/* string checks */
 	char	check_str_empty			: 1;
-	char	check_str_length		: 1;
+	char	check_str_length		: 1;	
+
+	/* .errors managements */
+	int		errnum;							// last error of the module
+
 };
