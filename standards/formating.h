@@ -6,7 +6,7 @@
 /*   By: nduvoid <nduvoid@student.42mulhouse.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/04 10:16:49 by nduvoid           #+#    #+#             */
-/*   Updated: 2025/10/30 13:06:22 by nduvoid          ###   ########.fr       */
+/*   Updated: 2026/01/20 08:25:09 by nduvoid          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@
 
 // string
 
-# define ERROR	RED "Error: " RESET
+// # define ERROR	RED "Error: " RESET
 # define USAGE	"Usage: "
 /* "└──", "├──", "│" */
 
