@@ -18,11 +18,11 @@
 
 /* ----| Public     |----- */
 
-_t_args_parser_root	*_args_mem_new_root(void)
+_t_args_parser	*_args_mem_new_root(void)
 {
-	_t_args_parser_root	*result;
+	_t_args_parser	*result;
 
-	result = mem_alloc(sizeof(_t_args_parser_root));
+	result = mem_alloc(sizeof(_t_args_parser));
 	if (unlikely(!result))
 		_args_config_set_errnum(error_alloc_fail);
 

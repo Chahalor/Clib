@@ -35,7 +35,6 @@ typedef struct _s_args_param		_t_args_param;
 typedef struct _s_args_option		_t_args_option;
 typedef struct _s_args_parser		_t_args_parser;
 typedef struct _s_args_config		_t_args_config;
-typedef struct _s_args_parser_root	_t_args_parser_root;
 
 /* ************************************************************************** */
 /*                                 Enums                                      */
@@ -45,6 +44,13 @@ enum e_args_errors
 {
 	args_error_none,
 	args_error_invalid_args,
+};
+
+enum e_args_context_type
+{
+	args_context_parser,
+	args_context_opt,
+	args_context_param,
 };
 
 /* ************************************************************************** */

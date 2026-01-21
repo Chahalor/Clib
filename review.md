@@ -15,7 +15,7 @@
 - [ ] Moyenne: `t_args_param`/`t_args_option` ne sont pas définis dans l'API publique alors qu'ils sont utilisés dans `args.h`, ce qui rend l'interface instable/inutilisable `interface/args/types.h:34`, `interface/args/args.h:97`.
 
 **Questions**
-- Quel est le type public attendu pour le parser: `_t_args_parser` (définition fonctionnelle) ou `_t_args_parser_root` (wrapper runtime) ?
+- Quel est le type public attendu pour le parser: `_t_args_parser` (définition fonctionnelle) ou `_t_args_parser` (wrapper runtime) ?
 - Le design prévoit-il un parseur immuable (décrit par l'utilisateur) et un root séparé pour l'exécution, ou un seul type ?
 
 **Tests/validation**

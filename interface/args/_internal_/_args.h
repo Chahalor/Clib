@@ -51,7 +51,7 @@ void			_args_config_set_errnum(
 /**
  * TODO: Docs
  */
-_t_args_parser_root	*_args_mem_new_root(void);
+_t_args_parser	*_args_mem_new_root(void);
 
 /**
  * @brief	allocate and initialize a `_t_args_param` descriptor

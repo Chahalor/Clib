@@ -16,14 +16,7 @@
 
 /* ----| Internals  |----- */
 
-static inline int	_is_valid_char(
-	const char _c
-)
-{
-	return (isalnum(_c));
-}
-
-static inline int	_is_opt(
+static inline int	_is_long_opt(
 	const char *restrict _s
 )
 {
@@ -31,21 +24,41 @@ static inline int	_is_opt(
 	const unsigned char	_c1 = _s[1];
 	const unsigned char	_c2 = _s[2];
 
-	const int			is_short = (_c0 == '-') & _is_valid_char(_c1) & (_c2 == '\0');
-	const int			is_long  = (_c0 == '-') & (_c1 == '-') & _is_valid_char(_c2);
+	const int			is_long  = (_c0 == '-') & (_c1 == '-') & isalnum(_c2);
 	const int			is_delim = (_c0 == '-') & (_c1 == '-') & (_c2 == '\0');
 
-	return ((is_short | is_long) && !is_delim);
+	return (is_long && !is_delim);
 }
 
-static inline _t_args_parser	*_get_sub_parser_of(
-	const _t_args_parser *const restrict _parser,
+static inline int	_is_short_opt(
+	const char *restrict _s
+)
+{
+	const unsigned char	_c0 = _s[0];
+	const unsigned char	_c1 = _s[1];
+	const unsigned char	_c2 = _s[2];
+
+	const int			is_short = (_c0 == '-') & isalpha(_c1) & (_c2 == '\0');
+	const int			is_delim = (_c0 == '-') & (_c1 == '-') & (_c2 == '\0');
+
+	return (is_short && !is_delim);
+}
+
+static inline int	_is_opt(
+	const char *restrict _s
+)
+{
+	return (_is_short_opt(_s) || _is_long_opt(_s));
+}
+
+static _t_args_parser	*_get_sub_parser_of(
+	const _t_args_parser *const restrict _context,
 	const char *const restrict _s
 )
-{	// do a cache system that store the last result and last _s
-	_t_args_parser	*result = NULL;
+{
+	_t_args_parser			*result = NULL;
 
-	for (_t_args_parser *_this = _parser->sub_parsers;
+	for (_t_args_parser *_this = _context->sub_parsers;
 		_this != NULL && !result;
 		_this = _this->next
 	)
@@ -58,33 +71,36 @@ static inline _t_args_parser	*_get_sub_parser_of(
 	return (result);
 }
 
-static inline _t_args_option	*_get_opt_of(
-	const _t_args_parser *const restrict _opts,
+static _t_args_option	*_get_opt_of(
+	const _t_args_parser *const restrict _context,
 	const char *const restrict _s
 )
 {
-	const bool				_is_long = _s[1] != '\0';
-	_t_args_option			*result = NULL;
+	const bool		_is_long = _s && _is_long_opt(_s);
+	_t_args_option	*result = NULL;
 
-	for (_t_args_option *_this = _opts->next;
+	for (_t_args_option	*_this = _context->options;
 		_this != NULL && !result;
 		_this = _this->next
 	)
 	{
-		// TODO: check if _s is an option of the _opts context
+		if (_s && _this->long_name && _is_long && !strcmp(_this->long_name, _s + 2))
+			result = _this;
+		else if (_s[1] == _this->short_name)
+			result = _this;
 	}
 
 	return (result);
 }
 
 static inline _t_args_param	*_get_param_of(
-	const _t_args_param *const restrict _param,
+	const _t_args_parser *const restrict _context,
 	const char *const restrict _s
 )
 {
 	_t_args_param	*result = NULL;
 
-	for (_t_args_param *_this = _param->next;
+	for (_t_args_param	*_this = _context->params;
 		_this != NULL && !result;
 		_this = _this->next
 	)
@@ -98,7 +114,7 @@ static inline _t_args_param	*_get_param_of(
 }
 
 static inline char	*_root_get_next(
-	_t_args_parser_root *const restrict _root
+	_t_args_parser *const restrict _root
 )
 {
 	return (_root->index < _root->argc ?
@@ -108,13 +124,22 @@ static inline char	*_root_get_next(
 }
 
 static inline char	*_root_pop_next(
-	_t_args_parser_root *const restrict _root
+	_t_args_parser *const restrict _root
 )
 {
 	return (_root->index < _root->argc ?
 				_root->argv[_root->index++] :
 				NULL
 		);
+}
+
+static inline void	_root_push_back(
+	_t_args_parser *const restrict _root
+)
+{
+	_root->index -= _root->index > 0 ?
+						1 :
+						0;
 }
 
 static int	_add_param(
@@ -166,7 +191,7 @@ error:
 }
 
 static int	_parse_params(
-	_t_args_parser_root *const restrict _root,
+	_t_args_parser *const restrict _root,
 	_t_args_param *const restrict _params
 )
 {
@@ -179,7 +204,7 @@ static int	_parse_params(
 		_this = _this->next
 	)
 	{
-		_current = _root_pop_next(_root);
+		_current = _root_get_next(_root);
 		if (unlikely(!_current))
 		{
 			result = args_error_missing_param;
@@ -191,12 +216,14 @@ static int	_parse_params(
 			while (_current && _current[0] != '-' && !result)
 			{
 				result = _add_param(_this, _current);
-				_current = _root_pop_next(_root);
+				_root_pop_next(_root);
+				_current = _root_get_next(_root);
 			}
 		}
 		else
 		{
 			result = _add_param(_this, _current);
+			_root_pop_next(_root);
 		}
 	}
 
@@ -205,7 +232,7 @@ error:
 }
 
 static int	_parse_opt(
-	_t_args_parser_root *const restrict _root,
+	_t_args_parser *const restrict _root,
 	_t_args_parser *const restrict _context,
 	const char *const restrict _current
 )
@@ -230,63 +257,224 @@ error:
 }
 
 static inline int	_parse_sub_parser(
-	_t_args_parser_root *const restrict _root,
+	_t_args_parser *const restrict _root,
 	_t_args_parser *const restrict _context
 )
 {	// very usefull function (naan)
 	return (_parse_args(_root, _context));
 }
 
-static inline int	_parse_args(
-	_t_args_parser *const restrict _root,
-	_t_args_parser *restrict _context
+#pragma region workspace
+
+static inline int	_parse_context_parser(
+	_t_args_parser **_context,
+	_t_args_param **pos_cursor,
+	_t_args_param **opt_param,
+	int *const restrict context_type,
+	const bool opt_disabled,
+	char *current
 )
 {
-	bool	_opt_disabled = false;
-	char	*_current = _root_pop_next(_root);
-	int		result = error_none;
+	_t_args_option	*opt = NULL;
+	_t_args_parser	*sub = NULL;
+	int				result = error_none;
 
-	/* while (_current && !result)
+	/* Sub-parser switch (only meaningful in parser context) */
+	sub = _get_sub_parser_of(_context, current);
+	if (sub)
 	{
-		if (_is_opt(_current))
-			result = _parse_opt(_root, _context->options, _current);
-		else if (_get_sub_parser_of(_context, _current))
-			result = _parse_sub_parser(_root, _context, _current);
-		else
-			result = _parse_params(_root, _context->params);
+		*_context = sub;
+		*pos_cursor = (*_context)->params;
 
-		_current = _root_pop_next(_root);
-	} */
-	while (_root->index < _root->argc && !result)
+		/* Usually -- applies globally, so we DO NOT reset opt_disabled.
+			If you want it per-context, set opt_disabled=false here. */
+		return (result);
+	}
+
+	/* Option handling (disabled after "--") */
+	if (!opt_disabled && _is_opt(current))
 	{
-		_t_args_parser	*_tmp_ctxt = get_sub_parser_of(_context, _current);
-
-		if (_opt_disabled)
-			result = _parse_params(_root, _context->params);
-		else if (!strcmp(_current, "--"))
-			_opt_disabled = true;
-		else if (_get_opt_of(_root, _current))
-			result = _parse_opt(_root, _context, _current);
-		else if (_tmp_ctxt)
-			_context = _tmp_ctxt;
-		else
+		opt = _get_opt_of(*_context, current);
+		if (unlikely(!opt))
 		{
-			result = _add_param(_context, _current);
-			// result = _parse_params(_root, _context->params);
+			result = args_error_unknown_option;
+			_args_config_set_errnum(result);
+			return (result);
 		}
 
-		_current = _root_pop_next(_root);
+		/* Optional: enforce repeatability here if you have a flag */
+		opt->nb_calls++;
+		/* if (!(opt->flags & OPT_REPEATABLE) && opt->nb_calls > 1) ... */
+
+		*opt_param = opt->params;
+		if (*opt_param)
+			*context_type = args_context_opt;
+		return (result);
+	}
+
+	/* Positional parameter */
+	if (unlikely(!*pos_cursor))
+	{
+		result = args_error_extra_param;
+		_args_config_set_errnum(result);
+		return (result);
+	}
+
+	/* If this positional is nargs: consume this token into it and keep cursor */
+	if ((*pos_cursor)->args_type & param_args_type_nargs)
+	{
+		/* For positionals nargs, we typically consume everything remaining
+			(including things that look like options) once opt_disabled is true.
+			If you want "stop at next option" behavior for positionals nargs,
+			add a boundary check here. */
+		// TODO: consume all other token if opt_disabled == true
+		result = _add_param(*pos_cursor, current);
+		if (unlikely(result))
+		{
+			_args_config_set_errnum(result);
+			return (result);
+		}
+		/* stay on same pos_cursor */
+	}
+	else
+	{
+		result = _add_param(pos_cursor, current);
+		if (unlikely(result))
+		{
+			_args_config_set_errnum(result);
+			return (result);
+		}
+		pos_cursor = (*pos_cursor)->next;
 	}
 
 	return (result);
 }
 
+static inline int	_parse_context_opt(
+	_t_args_parser *const restrict _root,
+	_t_args_parser *const restrict _context,
+	_t_args_param **opt_param,
+	_t_args_option **opt,
+	int *const restrict context_type,
+	bool *const restrict opt_disabled,
+	char *current
+)
+{
+	int	result = error_none;
+
+	/* Defensive recovery */
+	if (unlikely(!opt_param || !*opt_param))
+	{
+		*context_type = args_context_parser;
+		*opt = NULL;
+		*opt_param = NULL;
+		return (result);
+	}
+
+	/* "--" always terminates option parsing */
+	if (!strcmp(current, "--"))
+	{
+		*opt_disabled = true;
+		*context_type = args_context_parser;
+		*opt = NULL;
+		*opt_param = NULL;
+		return (result);
+	}
+
+	/* Stop condition for nargs option parameter:
+	 * if this token looks like an option and options are enabled,
+	 * it does NOT belong to this option.
+	 */
+	if (
+		!(*opt_disabled) &&
+		((*opt_param)->args_type & param_args_type_nargs) &&
+		_is_opt(current)
+	)
+	{
+		/* give token back to main loop */
+		_root_push_back(_root);
+
+		*context_type = args_context_parser;
+		*opt = NULL;
+		*opt_param = NULL;
+		return (result);
+	}
+
+	/* Consume token as option argument */
+	result = _add_param(*opt_param, current);
+	if (unlikely(result))
+	{
+		_args_config_set_errnum(result);
+		return (result);
+	}
+
+	/* Advance param cursor only if this param is not nargs */
+	if (!((*opt_param)->args_type & param_args_type_nargs))
+		*opt_param = (*opt_param)->next;
+
+	/* Finished all params for this option */
+	if (!*opt_param)
+	{
+		*context_type = args_context_parser;
+		*opt = NULL;
+	}
+
+	return (result);
+}
+
+
+int	_parse_args(
+	_t_args_parser *const restrict _root,
+	_t_args_parser *restrict _context
+)
+{
+	int				context_type = args_context_parser;
+	bool			opt_disabled = false;
+
+	char			*current = NULL;
+
+	_t_args_parser	*sub = NULL;
+
+	/* Cursor for positional params in the current parser context */
+	_t_args_param	*pos_cursor = _context->params;
+
+	/* Current option (when parsing its arguments) */
+	_t_args_option	*opt = NULL;
+	_t_args_param	*opt_param = NULL;
+
+	int				result = error_none;
+
+	while (_root->index < _root->argc && !result)
+	{
+		current = _root_pop_next(_root);
+		if (!current)
+			break;
+
+		/* ---------- Global end-of-options handling ---------- */
+		if (context_type == args_context_parser && !strcmp(current, "--"))
+		{
+			opt_disabled = true;
+			continue;
+		}
+
+		/* ---------- Parser context ---------- */
+		if (context_type == args_context_parser)
+			result = _parse_context_parser(&_context, &pos_cursor, &opt_param, &context_type, opt_disabled, current);
+		/* ---------- Option-arguments context ---------- */
+		else /* context_type == args_context_opt */
+			result = _parse_context_opt(_root, _context, &opt_param, &opt, &context_type, &opt_disabled, current);
+	}
+
+	return (result);
+}
+
+
 static int	_build_output(
-	_t_args_parser_root *const restrict _root,
+	_t_args_parser *const restrict _root,
 	t_args_output *const restrict _output
 )
 {
-	// TODO: later
+
 }
 
 /* ----| Public     |----- */
@@ -310,35 +498,15 @@ int	_args_parse(
 	_root->argc = _argc;
 	_root->argv = _argv;
 
-	_current = _root_pop_next(_root);
-	_context = _get_sub_parser_of(_root, _current);
-	if (_context)
-	{
-		result = _parse_sub_parser(_root, _context);
-		goto error;
-	}
-	else
-		result = _parse_args(_root, _root);
-	/* while (_root->index < _root->argc && !result)
-	{
-		_t_args_parser	*_tmp_ctxt = get_sub_parser_of(_context, _current);
-
-		if (_opt_disabled)
-			result = _parse_params(_root, _context->params);
-		else if (!strcmp(_current, "--"))
-			_opt_disabled = true;
-		else if (_get_opt_of(_root, _current))
-			result = _parse_opt(_root, _context, _current);
-		else if (_tmp_ctxt)
-			_context = _tmp_ctxt;
-		else
-		{
-			result = _add_param(_context, _current);
-			// result = _parse_params(_root, _context->params);
-		}
-
-		_current = _root_pop_next(_root);
-	} */
+	// _current = _root_pop_next(_root);
+	// _context = _get_sub_parser_of(_root, _current);
+	// if (_context)
+	// {
+	// 	result = _parse_sub_parser(_root, _context);
+	// 	goto error;
+	// }
+	// else
+	result = _parse_args(_root, _root);
 
 	if (!result)
 		result = _build_output(_root, _output);
@@ -346,3 +514,10 @@ int	_args_parse(
 error:
 	return (result);
 }
+
+/*
+Required fixes (must do)
+	- Pass pos_cursor by pointer
+	- Pass _context by pointer
+	- Decide whether _parse_context_opt really needs _context
+*/
