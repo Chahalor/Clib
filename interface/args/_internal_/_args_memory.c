@@ -47,7 +47,7 @@ _t_args_param	*_args_mem_new_param(
 	if (_name_len)
 	{
 		result->name = (char *)(result + 1);
-		result->name[0] = '\0';
+		strcpy(result->name, _name);
 	}
 	else
 		result->name = NULL;
@@ -82,7 +82,7 @@ _t_args_option	*_args_mem_new_option(
 	if (_name_len)
 	{
 		result->long_name = (char *)(result + 1);
-		result->long_name[0] = '\0';
+		strcpy(result->name, _name);
 	}
 	else
 		result->long_name = NULL;
@@ -115,7 +115,7 @@ _t_args_parser	*_args_mem_new_parser(
 	if (_name_len)
 	{
 		result->name = (char *)(result + 1);
-		result->name[0] = '\0';
+		strcpy(result->name, _name);
 	}
 	else
 		result->name = NULL;

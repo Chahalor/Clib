@@ -3,6 +3,7 @@
 /* ----| Headers    |----- */
 	/* Standard */
 #include <string.h>
+#include <ctype.h>
 
 	/* Internal */
 #include "_args.h"
@@ -15,6 +16,13 @@
 
 /* ----| Internals  |----- */
 
+static inline int	_is_valid_char(
+	const char _c
+)
+{
+	return (isalnum(_c) && _c != '-');
+}
+
 static inline int	_is_opt(
 	const char *restrict _s
 )
@@ -23,10 +31,11 @@ static inline int	_is_opt(
 	const unsigned char	_c1 = _s[1];
 	const unsigned char	_c2 = _s[2];
 
-	const int			is_short = (_c0 == '-') & (_c1 != '\0') & (_c2 == '\0');
-	const int			is_long  = (_c0 == '-') & (_c1 == '-') & (_c2 != '\0');
+	const int			is_short = (_c0 == '-') & _is_valid_char(_c1) & (_c2 == '\0');
+	const int			is_long  = (_c0 == '-') & (_c1 == '-') & _is_valid_char(_c2);
+	const int			is_delim = (_c0 == '-') & (_c1 == '-') & (_c2 == '\0');
 
-	return (is_short | is_long);
+	return ((is_short | is_long) && !is_delim);
 }
 
 static inline _t_args_parser	*_get_sub_parser_of(
@@ -36,7 +45,7 @@ static inline _t_args_parser	*_get_sub_parser_of(
 {
 	_t_args_parser	*result = NULL;
 
-	for (_t_args_parser *_this = _parser->next;
+	for (_t_args_parser *_this = _parser->sub_parsers;
 		_this != NULL && !result;
 		_this = _this->next
 	)
@@ -73,7 +82,7 @@ static inline _t_args_param	*_get_param_of(
 	const char *const restrict _s
 )
 {
-	_t_args_param	*result = false;
+	_t_args_param	*result = NULL;
 
 	for (_t_args_param *_this = _param->next;
 		_this != NULL && !result;
@@ -107,7 +116,17 @@ static inline char	*_root_get_next(
 	_t_args_parser_root *const restrict _root
 )
 {
-	return (_root->index < _root->index ?
+	return (_root->index < _root->argc ?
+				_root->argv[_root->index] :
+				NULL
+		);
+}
+
+static inline char	*_root_pop_next(
+	_t_args_parser_root *const restrict _root
+)
+{
+	return (_root->index < _root->argc ?
 				_root->argv[_root->index++] :
 				NULL
 		);
@@ -147,9 +166,10 @@ static int	_add_param(
 
 		mem_free(_this->values);
 		_this->values = _new;
+		_this->max_values += _nb_alloc;
 	}
 
-	_this->values[_this->nb_values++] =_root_get_next(_root);
+	_this->values[_this->nb_values++] =_root_pop_next(_root);
 
 error:
 	return (result);
@@ -161,6 +181,7 @@ static int	_fill_param(
 )
 {
 	const _t_args_config *const restrict	_config = _args_config_get();
+	char									*_current = NULL;
 	int										result = error_none;
 
 	for (_t_args_param	*_this = _param;
@@ -176,8 +197,13 @@ static int	_fill_param(
 		}
 		else if (_this->args_type & param_args_type_nargs)
 		{
-			while (_root->index < _root->argc && _root->argv[_root->argc][0] != '-' && !result)
+			_current = _root_get_next(_root);
+			while (_current && _current[0] != '-' && !result)
 				result = _add_param(_root, _this);
+		}
+		else
+		{
+			result = _add_param(_root, _this);
 		}
 	}
 
@@ -233,18 +259,21 @@ static inline int	_parse_args(
 	_t_args_parser *const restrict _parser
 )
 {
-	int	result;
+	int		result = error_none;
+	char	*_current = _root_get_next(_root);
 
-	while (_root->index < _root->argc && !result)
+	while (_current && !result)
 	{
-		if (_is_opt(_root->argv[_root->index]))
-			result = _parse_opt(_root, _root->parser->options);
-		else if (_is_sub_parser_of(_parser, _root->argv[_root->index]))
+		if (_is_opt(_current))
+			result = _parse_opt(_root, _parser->options);
+		else if (_is_sub_parser_of(_parser, _current))
 			result = _parse_sub_parser(_root, _parser);
 		else
 			result = _parse_params(_root, _parser->params);
+		_current = _root_get_next(_root);
 	}
-	
+
+	return (result);
 }
 
 static inline int	_parse_sub_parser(
@@ -253,14 +282,14 @@ static inline int	_parse_sub_parser(
 )
 {
 	int			result = error_none;
-	const char	*_current = _root_get_next(_root);
+	const char	*_current = _root_pop_next(_root);
 
 	for (_t_args_parser	*_sub = _parser->sub_parsers;
 		_sub != NULL && !result;
 		_sub = _sub->next
 	)
 	{
-		if (strcmp(_sub->name, _current))
+		if (!strcmp(_sub->name, _current))
 		{
 			result = _parse_args(_root, _sub);
 			break ;
