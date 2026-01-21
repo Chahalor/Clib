@@ -137,3 +137,16 @@ void			_args_mem_free_parser(
 					_t_args_parser *const restrict _param,
 					const char _recursiv
 					);
+
+/* -----| Checks    |----- */
+
+/** */
+int				_args_check_parser(
+					const _t_args_parser *const restrict _parser
+				);
+
+/** */
+int				_args_check_output(
+					const _t_args_parser *const restrict _parser,
+					t_args_output *const restrict _output
+				);

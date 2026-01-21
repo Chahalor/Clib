@@ -96,16 +96,15 @@ struct _s_args_option
  */
 struct _s_args_parser
 {
+	/* data for the current context */
 	char			*name;			// name of the context/sub-parser
 	char			*desc;			// description of this context/app
 	_t_args_param	*params;		// params of the parser
 	_t_args_option	*options;		// option of the parser/context
 	_t_args_parser	*sub_parsers;	// sub parser of the context
 	_t_args_parser	*next;			// next sub-parser for the current context
-};
 
-struct _s_args_parser_root
-{
+	/* config (for the root one) */
 	char			**argv;
 	_t_args_parser	*parser;
 	int				argc;
@@ -141,5 +140,4 @@ struct _s_args_config
 
 	/* .errors managements */
 	int		errnum;							// last error of the module
-
 };

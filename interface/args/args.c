@@ -1,5 +1,25 @@
 // Header
 
+/**
+ * features:
+ * - handle options:
+ * 	- shorts options (-h/-c)
+ * 	- longs options (--help/--count)
+ * 	- multiple args options (--file file1 file2 ... fileN)
+ * 	- end-of-options ("--")
+ * - sub parser
+ * 	- can have params
+ * 	- can have option
+ * 	- can have other sub parser
+ * 	- it is identify by it name
+ * - paramettres
+ * 	- can be set has mandatory or not
+ * - other feature
+ * 	- automatique -h/--help option based on the configured params/options
+ * 	- for sub-parser you need to do `--help <sub-parser-name>` to get it help or `cmd sub-parser -h/--help`
+ * 	- automatique param check, depend of the config we can check (or not) the params validity by using a function passed has args of the config function
+ */
+
 /* ----| Headers    |----- */
 	/* Standard */
 #include <stdarg.h>
@@ -24,116 +44,100 @@
 
 /* ----| Public     |----- */
 
-/** */
-t_args_parser	*args_new_parser(void)
+ARGS_PARSER		*args_parser_new(void)
 {
-	return (_args_mem_new_parser(NULL));
+
 }
 
-int	args_add_param(
-	void *const restrict _parser,
-	const char *const restrict _name,
-	const t_param_type _type,
-	const t_param_args_type _spec
+ARGS_SUB_PARSER	*args_parser_add_subparser(
+	ARGS_PARSER *const parent,
+	const char *const name
 )
 {
-	int	result;
 
-	if (unlikely(!_parser || !_name))
-	{
-		result = error_invalid_arg;
-		_args_config_set_errnum(result);
-		goto error;
-	}
-
-	result = _args_add_param(_parser, _name, _type, _spec);
-
-error:
-	return (result);
 }
 
-int	args_add_option(
-	t_args_parser *const restrict _parser,
-	const char *const restrict _name,
-	const t_param_type _type,
-	const t_param_args_type _args_spec
+ARGS_PARAM		*args_parser_add_param(
+	ARGS_PARSER *const parser,
+	const char *const name,
+	const t_param_type type,
+	const t_param_args_type spec
 )
 {
-	int	result;
 
-	if (unlikely(!_parser || !_name))
-	{
-		result = error_invalid_arg;
-		_args_config_set_errnum(result);
-		goto error;
-	}
-
-	result = _args_add_param(_parser, _name, _type, _args_spec);
-
-error:
-	return (result);
 }
 
-int	args_add_subparser(
-	t_args_parser *const restrict _parser,
-	const char *const restrict _name
-)
-{
-	int	result;
-
-	if (unlikely(!_parser || !_name))
-	{
-		result = error_invalid_arg;
-		_args_config_set_errnum(result);
-		goto error;
-	}
-
-	result = _args_add_param(_parser, _name);
-
-error:
-	return (result);
-}
-
-int	args_param_add_desc(
-	t_args_param **const restrict _param,
-	const char *const restrict _format,
-	...
+ARGS_OPT		*args_parser_add_option(
+	ARGS_PARSER *const parser,
+	const char *const long_name,
+	const char short_name
 )
 {
 	
 }
 
-int	args_option_add_desc(
-	t_args_option **const restrict _opt,
-	const char *const restrict _format,
+ARGS_PARAM		*args_option_add_param(
+	ARGS_OPT *const option,
+	const char *const name,
+	const t_param_type type,
+	const t_param_args_type spec
+)
+{
+
+}
+
+int				args_param_set_desc(
+	ARGS_PARAM *const param,
+	const char *const fmt,
 	...
 )
 {
-	
+
 }
 
-int	args_parser_add_desc(
-	t_args_parser **const restrict _parser,
-	const char *const restrict _format,
+int				args_option_set_desc(
+	ARGS_OPT *const option,
+	const char *const fmt,
 	...
 )
 {
-	
+
 }
 
-int	args_parse(
-	const t_args_parser *const restrict _parser,
-	t_args_output *const restrict _output,
+int				args_parser_set_desc(
+	ARGS_PARSER *const parser,
+	const char *const fmt,
+	...
+)
+{
+
+}
+
+/*
+ TODO: see to link the config to one parser
+void			args_parser_set_config(
+					ARGS_PARSER *parser,
+					const t_args_config *config
+				);
+
+typedef int		(*t_args_param_check)(
+					const t_args_output_param *param,
+					void *user_data
+				);
+
+void			args_config_set_param_check(
+					t_args_config *config,
+					t_args_param_check fn,
+					void *user_data
+				);
+*/
+
+int				args_parse(
+	const ARGS_PARSER *const parser,
+	t_args_output *const output,
 	const int argc,
 	const char *argv[]
 )
 {
-	
-}
 
-void	args_destroy_parser(
-	t_args_parser *const restrict _parser
-)
-{
-	
 }

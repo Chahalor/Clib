@@ -70,6 +70,8 @@ static inline int	_check_params(
 	{
 		if (unlikely(!_this->name || !_this->name[0] || _this->name[0] == '-'))
 			result = args_error_ambiguous_option;
+		else if (_this->args_type & param_args_type_nargs && _this->next != NULL)
+			result = args_error_conflict;
 		else
 		{
 			for (_t_args_param	*_parm = params;

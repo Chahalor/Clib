@@ -20,7 +20,7 @@ static inline int	_is_valid_char(
 	const char _c
 )
 {
-	return (isalnum(_c) && _c != '-');
+	return (isalnum(_c));
 }
 
 static inline int	_is_opt(
@@ -42,7 +42,7 @@ static inline _t_args_parser	*_get_sub_parser_of(
 	const _t_args_parser *const restrict _parser,
 	const char *const restrict _s
 )
-{
+{	// do a cache system that store the last result and last _s
 	_t_args_parser	*result = NULL;
 
 	for (_t_args_parser *_this = _parser->sub_parsers;
@@ -97,21 +97,6 @@ static inline _t_args_param	*_get_param_of(
 	return (result);
 }
 
-static inline int	_check_output(
-	const _t_args_parser *const restrict _parser,
-	t_args_output *const restrict _output
-)
-{
-	// TODO
-}
-
-static inline int	_check_parser(
-	const _t_args_parser *const restrict _parser
-)
-{
-	// TODO
-}
-
 static inline char	*_root_get_next(
 	_t_args_parser_root *const restrict _root
 )
@@ -133,15 +118,20 @@ static inline char	*_root_pop_next(
 }
 
 static int	_add_param(
-	_t_args_parser_root *const restrict _root,
-	_t_args_param *const restrict _this
+	_t_args_param *const restrict _this,
+	char *_current
 )
 {
 	unsigned int	_nb_alloc;
 	char			**_new;
 	int				result = error_none;
 
-	if (!_this->values || _this->nb_values + 1 > _this->max_values)
+	if (unlikely(!_current))
+	{
+		result = args_error_missing_param;
+		goto error;
+	}
+	else if (!_this->values || _this->nb_values + 1 > _this->max_values)
 	{
 		if (_this->args_type & param_args_type_nargs)
 			_nb_alloc = _ARGS_PARSE_PARAM_ALLOC_SIZE;
@@ -169,7 +159,7 @@ static int	_add_param(
 		_this->max_values += _nb_alloc;
 	}
 
-	_this->values[_this->nb_values++] =_root_pop_next(_root);
+	_this->values[_this->nb_values++] = _current;
 
 error:
 	return (result);
@@ -189,7 +179,8 @@ static int	_fill_param(
 		_this = _this->next
 	)
 	{
-		if (_root->index > _root->argc)
+		_current = _root_pop_next(_root);
+		if (unlikely(!_current))
 		{
 			result = args_error_missing_param;
 			_args_config_set_errnum(result);
@@ -197,13 +188,15 @@ static int	_fill_param(
 		}
 		else if (_this->args_type & param_args_type_nargs)
 		{
-			_current = _root_get_next(_root);
 			while (_current && _current[0] != '-' && !result)
-				result = _add_param(_root, _this);
+			{
+				result = _add_param(_this, _current);
+				_current = _root_pop_next(_root);
+			}
 		}
 		else
 		{
-			result = _add_param(_root, _this);
+			result = _add_param(_this, _current);
 		}
 	}
 
@@ -218,7 +211,7 @@ static int	_parse_params(
 {
 	int	result = error_none;
 
-	for (_t_args_param *_this = _params;
+	for (_t_args_param	*_this = _params;
 		_this != NULL && !result;
 		_this = _this->next
 	)
@@ -232,13 +225,14 @@ error:
 
 static int	_parse_opt(
 	_t_args_parser_root *const restrict _root,
-	_t_args_option *const restrict _opt
+	_t_args_parser *const restrict _context,
+	const char *const restrict _current
 )
 {
 	_t_args_option	*_this;
 	int				result = error_none;
 
-	_this = _get_opt_of(_opt, _root->argv[_root->index]);
+	_this = _get_opt_of(_context, _current);
 	if (unlikely(!_this))
 	{
 		result = args_error_unknown_option;
@@ -254,6 +248,19 @@ error:
 	return (result);
 }
 
+static inline int	_parse_sub_parser(
+	_t_args_parser_root *const restrict _root,
+	_t_args_parser *const restrict _context,
+	char *_current
+)
+{
+	int	result = error_none;
+
+	result = _parse_args(_root, _context);
+
+	return (result);
+}
+
 static inline int	_parse_args(
 	_t_args_parser_root *const restrict _root,
 	_t_args_parser *const restrict _parser
@@ -265,35 +272,13 @@ static inline int	_parse_args(
 	while (_current && !result)
 	{
 		if (_is_opt(_current))
-			result = _parse_opt(_root, _parser->options);
-		else if (_is_sub_parser_of(_parser, _current))
-			result = _parse_sub_parser(_root, _parser);
+			result = _parse_opt(_root, _parser->options, _current);
+		else if (_get_sub_parser_of(_parser, _current))
+			result = _parse_sub_parser(_root, _parser, _current);
 		else
 			result = _parse_params(_root, _parser->params);
+
 		_current = _root_get_next(_root);
-	}
-
-	return (result);
-}
-
-static inline int	_parse_sub_parser(
-	_t_args_parser_root *const restrict _root,
-	_t_args_parser *const restrict _parser
-)
-{
-	int			result = error_none;
-	const char	*_current = _root_pop_next(_root);
-
-	for (_t_args_parser	*_sub = _parser->sub_parsers;
-		_sub != NULL && !result;
-		_sub = _sub->next
-	)
-	{
-		if (!strcmp(_sub->name, _current))
-		{
-			result = _parse_args(_root, _sub);
-			break ;
-		}
 	}
 
 	return (result);
@@ -304,53 +289,64 @@ static int	_build_output(
 	t_args_output *const restrict _output
 )
 {
-	// TODO
+	// TODO: later
 }
 
 /* ----| Public     |----- */
 
 int	_args_parse(
-	_t_args_parser_root *const restrict _root,
+	_t_args_parser *const restrict _root,
 	t_args_output *const restrict _output,
 	const int _argc,
 	const char *_argv[]
 )
 {
-	int	result;
-
-	_root->argc = _argc;
-	_root->argv = _argv;
+	char			*_current = NULL;
+	bool			_opt_disabled = false;
+	_t_args_parser	*_context = (_t_args_parser *)_root;
+	int				result;
 
 	result = _check_parser(_root);
 	if (unlikely(result))
 		goto error;
-	memset(_output, 0, sizeof(t_args_output));
 
-	if (unlikely(_argc == 1))
+	_root->index = 1;
+	_root->argc = _argc;
+	_root->argv = _argv;
+
+	_current = _root_pop_next(_root);
+	_context = _get_sub_parser_of(_root, _current);
+	if (_context)
 	{
-		// TODO: no args handling
-		// result = args_error_invalid_args;
+		result = _parse_sub_parser(_root, _context, _current);
 		goto error;
 	}
-	else if (_is_opt(_argv[1]))
+
+	while (_root->index < _root->argc && !result)
 	{
-		result = _parse_opt(_root, _root->parser->options);
+		_t_args_parser	*_tmp_ctxt = get_sub_parser_of(_context, _current);
+
+		if (_opt_disabled)
+			result = _parse_params(_root, _context->params);
+		else if (!strcmp(_current, "--"))
+			_opt_disabled = true;
+		else if (_get_opt_of(_root, _current))
+			result = _parse_opt(_root, _context, _current);
+		else if (_tmp_ctxt)
+			_context = _tmp_ctxt;
+		else
+		{
+			result = _add_param(_context, _current);
+			// result = _parse_params(_root, _context->params);
+		}
+
+		_current = _root_pop_next(_root);
 	}
 
-	if (!result && _root->parser->sub_parsers)
-	{
-		result = _parse_sub_parser(_root, _root->parser->sub_parsers);
-	}
+	if (result)
+		goto error;
 	else
-		result = _parse_args(_root, _root->parser->params);
-
-	if (likely(result))
-		result = _check_output(_root, _output);
-
-	if (unlikely(result))
-		_args_mem_free_parser(_root->parser, true);
-	else
-		_build_output(_root, _output);
+		result = _build_output(_root, _output);
 
 error:
 	return (result);
