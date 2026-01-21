@@ -165,16 +165,16 @@ error:
 	return (result);
 }
 
-static int	_fill_param(
+static int	_parse_params(
 	_t_args_parser_root *const restrict _root,
-	_t_args_param *const restrict _param
+	_t_args_param *const restrict _params
 )
 {
 	const _t_args_config *const restrict	_config = _args_config_get();
 	char									*_current = NULL;
 	int										result = error_none;
 
-	for (_t_args_param	*_this = _param;
+	for (_t_args_param	*_this = _params;
 		_this != NULL && !result;
 		_this = _this->next
 	)
@@ -198,25 +198,6 @@ static int	_fill_param(
 		{
 			result = _add_param(_this, _current);
 		}
-	}
-
-error:
-	return (result);
-}
-
-static int	_parse_params(
-	_t_args_parser_root *const restrict _root,
-	_t_args_param *const restrict _params
-)
-{
-	int	result = error_none;
-
-	for (_t_args_param	*_this = _params;
-		_this != NULL && !result;
-		_this = _this->next
-	)
-	{
-		result = _fill_param(_root, _this);
 	}
 
 error:
@@ -250,35 +231,51 @@ error:
 
 static inline int	_parse_sub_parser(
 	_t_args_parser_root *const restrict _root,
-	_t_args_parser *const restrict _context,
-	char *_current
+	_t_args_parser *const restrict _context
 )
-{
-	int	result = error_none;
-
-	result = _parse_args(_root, _context);
-
-	return (result);
+{	// very usefull function (naan)
+	return (_parse_args(_root, _context));
 }
 
 static inline int	_parse_args(
-	_t_args_parser_root *const restrict _root,
-	_t_args_parser *const restrict _parser
+	_t_args_parser *const restrict _root,
+	_t_args_parser *restrict _context
 )
 {
+	bool	_opt_disabled = false;
+	char	*_current = _root_pop_next(_root);
 	int		result = error_none;
-	char	*_current = _root_get_next(_root);
 
-	while (_current && !result)
+	/* while (_current && !result)
 	{
 		if (_is_opt(_current))
-			result = _parse_opt(_root, _parser->options, _current);
-		else if (_get_sub_parser_of(_parser, _current))
-			result = _parse_sub_parser(_root, _parser, _current);
+			result = _parse_opt(_root, _context->options, _current);
+		else if (_get_sub_parser_of(_context, _current))
+			result = _parse_sub_parser(_root, _context, _current);
 		else
-			result = _parse_params(_root, _parser->params);
+			result = _parse_params(_root, _context->params);
 
-		_current = _root_get_next(_root);
+		_current = _root_pop_next(_root);
+	} */
+	while (_root->index < _root->argc && !result)
+	{
+		_t_args_parser	*_tmp_ctxt = get_sub_parser_of(_context, _current);
+
+		if (_opt_disabled)
+			result = _parse_params(_root, _context->params);
+		else if (!strcmp(_current, "--"))
+			_opt_disabled = true;
+		else if (_get_opt_of(_root, _current))
+			result = _parse_opt(_root, _context, _current);
+		else if (_tmp_ctxt)
+			_context = _tmp_ctxt;
+		else
+		{
+			result = _add_param(_context, _current);
+			// result = _parse_params(_root, _context->params);
+		}
+
+		_current = _root_pop_next(_root);
 	}
 
 	return (result);
@@ -302,7 +299,6 @@ int	_args_parse(
 )
 {
 	char			*_current = NULL;
-	bool			_opt_disabled = false;
 	_t_args_parser	*_context = (_t_args_parser *)_root;
 	int				result;
 
@@ -318,11 +314,12 @@ int	_args_parse(
 	_context = _get_sub_parser_of(_root, _current);
 	if (_context)
 	{
-		result = _parse_sub_parser(_root, _context, _current);
+		result = _parse_sub_parser(_root, _context);
 		goto error;
 	}
-
-	while (_root->index < _root->argc && !result)
+	else
+		result = _parse_args(_root, _root);
+	/* while (_root->index < _root->argc && !result)
 	{
 		_t_args_parser	*_tmp_ctxt = get_sub_parser_of(_context, _current);
 
@@ -341,11 +338,9 @@ int	_args_parse(
 		}
 
 		_current = _root_pop_next(_root);
-	}
+	} */
 
-	if (result)
-		goto error;
-	else
+	if (!result)
 		result = _build_output(_root, _output);
 
 error:
