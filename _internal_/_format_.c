@@ -47,18 +47,18 @@ int	_json_fill_format(
 	{
 		if (_str[_i] != '%')
 		{
-			_errnum = _json_str_append_char(_result, _str[_i]);
+			_errnum = _string_append_char_(_result, _str[_i]);
 			if (unlikely(_errnum != error_none))
 				return (_errnum);
 			_i++;
 			continue;
 		}
 		if (_str[_i + 1] == '\0')
-			return (_json_str_append_char(_result, '%'));
+			return (_string_append_char_(_result, '%'));
 
 		if (_str[_i + 1] == '%')
 		{
-			_errnum = _json_str_append_char(_result, '%');
+			_errnum = _string_append_char_(_result, '%');
 			if (unlikely(_errnum != error_none))
 				return (_errnum);
 			_i += 2;
@@ -73,7 +73,7 @@ int	_json_fill_format(
 			{
 				long long	_value = va_arg(*_args, long);
 
-				_errnum = _json_add_value(_result, &_value, _internal_format_type_long);
+				_errnum = _string_add_value_(_result, &_value, _internal_format_type_long);
 				if (unlikely(_errnum != error_none))
 					return (_errnum);
 				_i += 3;
@@ -83,7 +83,7 @@ int	_json_fill_format(
 			{
 				unsigned long long	_value = va_arg(*_args, unsigned long);
 
-				_errnum = _json_add_value(_result, &_value, _internal_format_type_hex);
+				_errnum = _string_add_value_(_result, &_value, _internal_format_type_hex);
 				if (unlikely(_errnum != error_none))
 					return (_errnum);
 				_i += 3;
@@ -100,45 +100,45 @@ int	_json_fill_format(
 			{
 				int	_value = va_arg(*_args, int);
 
-				_errnum = _json_add_value(_result, &_value, _internal_format_type_int);
+				_errnum = _string_add_value_(_result, &_value, _internal_format_type_int);
 				break;
 			}
 			case 's':
 			{
 				char	*_s = va_arg(*_args, char *);
 
-				_errnum = _json_add_value(_result, _s, _internal_format_type_str);
+				_errnum = _string_add_value_(_result, _s, _internal_format_type_str);
 				break;
 			}
 			case 'p':
 			{
 				unsigned long long	_value = (unsigned long long)(uintptr_t)va_arg(*_args, void *);
 
-				_errnum = _json_str_append_n(_result, "0x", 2);
+				_errnum = _string_append_n_(_result, "0x", 2);
 				if (unlikely(_errnum != error_none))
 					return (_errnum);
-				_errnum = _json_add_value(_result, &_value, _internal_format_type_hex);
+				_errnum = _string_add_value_(_result, &_value, _internal_format_type_hex);
 				break;
 			}
 			case 'x':
 			{
 				unsigned long long	_value = va_arg(*_args, unsigned int);
 
-				_errnum = _json_add_value(_result, &_value, _internal_format_type_hex);
+				_errnum = _string_add_value_(_result, &_value, _internal_format_type_hex);
 				break;
 			}
 			case 'c':
 			{
 				char	_ch = (char)va_arg(*_args, int);
 
-				_errnum = _json_add_value(_result, &_ch, _internal_format_type_char);
+				_errnum = _string_add_value_(_result, &_ch, _internal_format_type_char);
 				break;
 			}
 			default:
-				_errnum = _json_str_append_char(_result, '%');
+				_errnum = _string_append_char_(_result, '%');
 				if (unlikely(_errnum != error_none))
 					return (_errnum);
-				_errnum = _json_str_append_char(_result, c);
+				_errnum = _string_append_char_(_result, c);
 				break;
 			}
 		}

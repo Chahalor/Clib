@@ -239,6 +239,8 @@ _t_string_	*_string_new_(
 	result->len = 0;
 	result->capacity = length;
 
+	memset(result->content, 0, result->capacity);
+
 error:
 	return (result);
 }
@@ -272,6 +274,7 @@ int	_string_append_(
 
 	memcpy(target->content + target->len, src, length);
 	target->len += length;
+	target->content[target->len] = 0;
 
 error:
 	return (result);
