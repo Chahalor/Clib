@@ -1,15 +1,5 @@
 // Header
 
-/**
- * name logic:	_module_action_target_sub-action_scope
- * example: 	_args_check_sub_exist_parser
- * 	- module: args
- * 	- action: check somethings
- * 	- target: sub-module, only check sub-modules
- * 	- sub-action: check the existance of
- * 	- scope: parser, from the struct parser
- */
-
 /* ----| Headers    |----- */
 	/* Standard */
 #include <string.h>
@@ -27,3 +17,92 @@
 	//...
 
 /* ----| Public     |----- */
+
+__attribute__((visibility("hidden")))
+int	_args_get_opt(
+	_t_args_option *const opts,
+	const char *name,
+	void **dest
+)
+{
+	const bool	_is_long = _is_long_opt(name);
+	const bool	_is_short = _is_short_opt(name);
+	char		_key = 0;
+	char		*_lname = NULL;
+
+	if (_is_long)
+		_lname = name + 2;
+	else if (_is_short)
+		_key = name[1];
+	else if (strlen(name) > 1)
+		_lname = name;
+	else
+		_key = name[0];
+
+	for (_t_args_option *_this = opts;
+		_this;
+		_this = _this->next
+	)
+	{
+		const bool	_match =
+			(_lname && _this->long_name && !strcmp(_this->long_name, _lname)) |
+			(_key   && _this->short_name == _key);
+
+		if (unlikely(_match))
+		{
+			*dest = _this;
+			return (error_none);
+		}
+	}
+
+	return (error_none);
+}
+
+
+__attribute__((visibility("hidden")))
+int	_args_get_sub(
+	_t_args_parser *const parsers,
+	const char *name,
+	void **dest
+)
+{
+	bool	_match = false;
+
+	for (_t_args_parser	*_this = parsers;
+		_this && !_match;
+		_this = _this->next
+	)
+	{
+		if (unlikely(_this->name && !strcmp(_this->name, name)))
+		{
+			*dest = _this;
+			_match = true;
+		}
+	}
+
+	return (error_none);
+}
+
+__attribute__((visibility("hidden")))
+int	_args_get_param(
+	_t_args_param *const params,
+	const char *name,
+	void **dest
+)
+{
+	bool	_match = false;
+
+	for (_t_args_param	*_this = params;
+		_this && !_match;
+		_this = _this->next
+	)
+	{
+		if (unlikely(_this->name && !strcmp(_this->name, name)))
+		{
+			*dest = _this;
+			_match = true;
+		}
+	}
+
+	return (error_none);
+}

@@ -86,7 +86,7 @@ int	args_get(
 			goto exit;
 		result = !result ?
 					result :
-					_args_get_sub(parser->data.parser, field, dest);
+					_args_get_sub(parser->data.parser->sub_parsers, field, dest);
 		result = !result ?
 			result :
 			_args_get_param(parser->data.parser->params, field, dest);

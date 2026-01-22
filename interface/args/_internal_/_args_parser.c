@@ -16,41 +16,6 @@
 
 /* ----| Internals  |----- */
 
-static inline int	_is_long_opt(
-	const char *restrict _s
-)
-{
-	const unsigned char	_c0 = _s[0];
-	const unsigned char	_c1 = _s[1];
-	const unsigned char	_c2 = _s[2];
-
-	const int			is_long  = (_c0 == '-') & (_c1 == '-') & isalnum(_c2);
-	const int			is_delim = (_c0 == '-') & (_c1 == '-') & (_c2 == '\0');
-
-	return (is_long && !is_delim);
-}
-
-static inline int	_is_short_opt(
-	const char *restrict _s
-)
-{
-	const unsigned char	_c0 = _s[0];
-	const unsigned char	_c1 = _s[1];
-	const unsigned char	_c2 = _s[2];
-
-	const int			is_short = (_c0 == '-') & isalpha(_c1) & (_c2 == '\0');
-	const int			is_delim = (_c0 == '-') & (_c1 == '-') & (_c2 == '\0');
-
-	return (is_short && !is_delim);
-}
-
-static inline int	_is_opt(
-	const char *restrict _s
-)
-{
-	return (_is_short_opt(_s) || _is_long_opt(_s));
-}
-
 static _t_args_parser	*_get_sub_parser_of(
 	const _t_args_parser *const restrict _context,
 	const char *const restrict _s

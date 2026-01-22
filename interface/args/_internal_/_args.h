@@ -66,7 +66,7 @@ _t_args_parser	*_args_mem_new_root(void);
 */
 _t_args_param	*_args_mem_new_param(
 					const char *const restrict _name
-					);
+				);
 
 /**
  * @brief	allocate and initialize a `_t_args_option` descriptor
@@ -81,7 +81,7 @@ _t_args_param	*_args_mem_new_param(
  */
 _t_args_option	*_args_mem_new_option(
 					const char *const restrict _name
-					);
+				);
 
 /**
  * @brief	allocate and initialize a `_t_args_parser` descriptor
@@ -96,7 +96,7 @@ _t_args_option	*_args_mem_new_option(
  */
 _t_args_parser	*_args_mem_new_parser(
 					const char *const restrict _name
-					);
+				);
 
 /**
  * @brief	free a parameter descriptor
@@ -109,7 +109,7 @@ _t_args_parser	*_args_mem_new_parser(
 void			_args_mem_free_param(
 					_t_args_param *const restrict _param,
 					const char _recursiv
-					);
+				);
 
 /**
  * @brief	free an option descriptor
@@ -122,7 +122,7 @@ void			_args_mem_free_param(
 void			_args_mem_free_opt(
 					_t_args_option *const restrict _param,
 					const char _recursiv
-					);
+				);
 
 /**
  * @brief	free a parser descriptor and its owned children
@@ -136,9 +136,73 @@ void			_args_mem_free_opt(
 void			_args_mem_free_parser(
 					_t_args_parser *const restrict _param,
 					const char _recursiv
-					);
+				);
 
-/* -----| Checks    |----- */
+/* -----| Extraction |----- */
+
+/** */
+__attribute__((visibility("hidden")))
+int	_args_get_opt(
+	_t_args_option *const opts,
+	const char *name,
+	void **dest
+);
+
+/** */
+__attribute__((visibility("hidden")))
+int	_args_get_sub(
+	_t_args_parser *const parsers,
+	const char *name,
+	void **dest
+);
+
+/** */
+__attribute__((visibility("hidden")))
+int	_args_get_param(
+	_t_args_param *const params,
+	const char *name,
+	void **dest
+);
+
+/* -----| Checks     |----- */
+
+/** */
+static inline int	_is_long_opt(
+	const char *restrict _s
+)
+{
+	const unsigned char	_c0 = _s[0];
+	const unsigned char	_c1 = _s[1];
+	const unsigned char	_c2 = _s[2];
+
+	const int			is_long  = (_c0 == '-') & (_c1 == '-') & isalnum(_c2);
+	const int			is_delim = (_c0 == '-') & (_c1 == '-') & (_c2 == '\0');
+
+	return (is_long && !is_delim);
+}
+
+/** */
+static inline int	_is_short_opt(
+	const char *restrict _s
+)
+{
+	const unsigned char	_c0 = _s[0];
+	const unsigned char	_c1 = _s[1];
+	const unsigned char	_c2 = _s[2];
+
+	const int			is_short = (_c0 == '-') & isalpha(_c1) & (_c2 == '\0');
+	const int			is_delim = (_c0 == '-') & (_c1 == '-') & (_c2 == '\0');
+
+	return (is_short && !is_delim);
+}
+
+/** */
+static inline int	_is_opt(
+	const char *restrict _s
+)
+{
+	return (_is_short_opt(_s) || _is_long_opt(_s));
+}
 
 /** */
 __attribute__((visibility("hidden")))
