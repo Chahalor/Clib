@@ -395,9 +395,6 @@ int	_args_parse(
 
 	result = _parse_args(_root, _root);
 
-	if (!result)
-		result = _build_output(_root, _output);
-
 error:
 	return (result);
 }

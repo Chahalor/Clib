@@ -126,14 +126,89 @@ static int	_check_parser(
 
 /* ----| Public     |----- */
 
-int	_args_check_output(
-	const _t_args_parser *const restrict _parser,
-	t_args_output *const restrict _output
+__attribute__((visibility("hidden")))
+bool	_args_check_sub_exist_parser(
+	const _t_args_parser *const restrict parser,
+	const char *const name
 )
 {
-	// TODO
+	int	result = false;
+
+	for (_t_args_parser	*_this = parser->sub_parsers;
+		_this != NULL && !result;
+		_this = _this->next
+	)
+	{
+		if (_this->name && !strcmp(_this->name, name))
+			result = true;
+	}
+
+	return (result);
 }
 
+__attribute__((visibility("hidden")))
+bool	_args_check_opt_exist_parser(
+	const _t_args_parser *const restrict parser,
+	const char *name
+)
+{
+	const bool	_is_long =	_args_opt_is_long(name);
+	int			result = false;
+
+	if (_is_long)
+	{
+		if (name[0] == '-')
+			name = name + 2;
+		for (_t_args_option	*_this = parser->options;
+			_this != NULL && !result;
+			_this = _this->next
+		)
+		{
+			if (_this->long_name && !strcmp(_this->long_name, name))
+				result = true;
+		}
+	}
+	else
+	{
+		if (name[0] == '-')
+			name = name + 1;
+		for (_t_args_option	*_this = parser->options;
+			_this != NULL && !result;
+			_this = _this->next
+		)
+		{
+			if (_this->short_name && _this->short_name == name[0])
+				result = true;
+		}
+	}
+
+	return (result);
+}
+
+__attribute__((visibility("hidden")))
+bool	_args_check_param_exist_parser(
+	const _t_args_parser *const restrict parser,
+	const char *name
+)
+{
+	int	result = false;
+
+	if (name[0] != '-')
+	{
+		for (_t_args_param	*_this = parser->params;
+			_this != NULL && !result;
+			_this = _this->next
+		)
+		{
+			if (unlikely(!strcmp(_this->name, name)))
+				result = true;
+		}
+	}
+
+	return (result);
+}
+
+__attribute__((visibility("hidden")))
 int	_args_check_parser(
 	const _t_args_parser *const restrict _parser
 )

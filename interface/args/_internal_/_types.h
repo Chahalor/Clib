@@ -53,6 +53,14 @@ enum e_args_context_type
 	args_context_param,
 };
 
+enum _e_args_data_type
+{
+	_e_args_data_type_root,
+	_e_args_data_type_parser,
+	_e_args_data_type_opt,
+	_e_args_data_type_param,
+};
+
 /* ************************************************************************** */
 /*                                 Unions                                     */
 /* ************************************************************************** */
@@ -115,6 +123,19 @@ struct _s_args_parser
 	_t_args_parser	*parser;
 	int				argc;
 	int				index;
+};
+
+union _u_parsers
+{
+	_t_args_option	*option;
+	_t_args_param	*param;
+	_t_args_parser	*parser;
+};
+
+struct _s_args_parser_root
+{
+	union _u_parsers		data;
+	enum _e_args_data_type	type;
 };
 
 struct _s_args_config

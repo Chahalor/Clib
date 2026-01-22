@@ -141,12 +141,28 @@ void			_args_mem_free_parser(
 /* -----| Checks    |----- */
 
 /** */
-int				_args_check_parser(
-					const _t_args_parser *const restrict _parser
+__attribute__((visibility("hidden")))
+bool			_args_check_sub_exist_parser(
+					const _t_args_parser *const restrict parser,
+					const char *const name
 				);
 
 /** */
-int				_args_check_output(
-					const _t_args_parser *const restrict _parser,
-					t_args_output *const restrict _output
+__attribute__((visibility("hidden")))
+bool			_args_check_opt_exist_parser(
+					const _t_args_parser *const restrict parser,
+					const char *name
+				);
+
+/** */
+__attribute__((visibility("hidden")))
+bool			args_check_param_exist_parser(
+					const _t_args_parser *const restrict parser,
+					const char *name
+				);
+
+/** */
+__attribute__((visibility("hidden")))
+int				_args_check_parser(
+					const _t_args_parser *const restrict _parser
 				);
