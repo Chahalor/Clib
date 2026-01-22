@@ -40,11 +40,11 @@ typedef struct _s_args_config		_t_args_config;
 /*                                 Enums                                      */
 /* ************************************************************************** */
 
-enum e_args_errors
-{
-	args_error_none,
-	args_error_invalid_args,
-};
+// enum e_args_errors
+// {
+// 	args_error_none,
+// 	args_error_invalid_args,
+// };
 
 enum e_args_context_type
 {

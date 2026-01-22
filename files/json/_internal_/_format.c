@@ -28,7 +28,7 @@
  *
  * @return	error_none on success, or an error code
  */
-int	_json_fill_format(
+int	_format_fill_format(
 	const char *const restrict _str,
 	t_json_str *const restrict _result,
 	va_list *const restrict _args

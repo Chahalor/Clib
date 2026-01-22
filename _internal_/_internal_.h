@@ -42,22 +42,3 @@ void	_mem_free_(
 );
 
 /* -----| Strings  |----- */
-
-/** */
-__attribute__((visibility("hidden")))
-_t_string_	*_string_new_(
-	size_t length
-);
-
-/** */
-__attribute__((visibility("hidden")))
-int	_string_append(
-	_t_string_ *const target,
-	const char *const src
-);
-
-/** */
-__attribute__((visibility("hidden")))
-void	_string_free_(
-	_t_string_ *const target
-);

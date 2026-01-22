@@ -37,7 +37,15 @@ typedef struct _s_string_	_t_string_;
 /* ************************************************************************** */
 /*                                 Enums                                      */
 /* ************************************************************************** */
-	//...
+
+enum _e_internal_format_type
+{
+	_internal_format_type_char,
+	_internal_format_type_str,
+	_internal_format_type_int,
+	_internal_format_type_long,
+	_internal_format_type_hex,
+};
 
 /* ************************************************************************** */
 /*                                 Unions                                     */
@@ -50,7 +58,7 @@ typedef struct _s_string_	_t_string_;
 
 struct _s_string_
 {
-	char	*buffer;
-	size_t	length;
+	char	*content;
+	size_t	len;
 	size_t	capacity;
 };

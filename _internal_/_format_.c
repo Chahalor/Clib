@@ -4,6 +4,7 @@
 	/* Standard */
 #include <string.h>
 #include <stdarg.h>
+#include <stdint.h>
 
 	/* Internal */
 #include "_config_.h"
@@ -41,6 +42,7 @@ int	_json_fill_format(
 
 	if (unlikely(!_str || !_result || !_args))
 		return (error_invalid_arg);
+
 	while (_str[_i])
 	{
 		if (_str[_i] != '%')
@@ -71,7 +73,7 @@ int	_json_fill_format(
 			{
 				long long	_value = va_arg(*_args, long);
 
-				_errnum = _json_add_value(_result, &_value, _json_format_type_long);
+				_errnum = _json_add_value(_result, &_value, _internal_format_type_long);
 				if (unlikely(_errnum != error_none))
 					return (_errnum);
 				_i += 3;
@@ -81,7 +83,7 @@ int	_json_fill_format(
 			{
 				unsigned long long	_value = va_arg(*_args, unsigned long);
 
-				_errnum = _json_add_value(_result, &_value, _json_format_type_hex);
+				_errnum = _json_add_value(_result, &_value, _internal_format_type_hex);
 				if (unlikely(_errnum != error_none))
 					return (_errnum);
 				_i += 3;
@@ -98,14 +100,14 @@ int	_json_fill_format(
 			{
 				int	_value = va_arg(*_args, int);
 
-				_errnum = _json_add_value(_result, &_value, _json_format_type_int);
+				_errnum = _json_add_value(_result, &_value, _internal_format_type_int);
 				break;
 			}
 			case 's':
 			{
 				char	*_s = va_arg(*_args, char *);
 
-				_errnum = _json_add_value(_result, _s, _json_format_type_str);
+				_errnum = _json_add_value(_result, _s, _internal_format_type_str);
 				break;
 			}
 			case 'p':
@@ -115,21 +117,21 @@ int	_json_fill_format(
 				_errnum = _json_str_append_n(_result, "0x", 2);
 				if (unlikely(_errnum != error_none))
 					return (_errnum);
-				_errnum = _json_add_value(_result, &_value, _json_format_type_hex);
+				_errnum = _json_add_value(_result, &_value, _internal_format_type_hex);
 				break;
 			}
 			case 'x':
 			{
 				unsigned long long	_value = va_arg(*_args, unsigned int);
 
-				_errnum = _json_add_value(_result, &_value, _json_format_type_hex);
+				_errnum = _json_add_value(_result, &_value, _internal_format_type_hex);
 				break;
 			}
 			case 'c':
 			{
 				char	_ch = (char)va_arg(*_args, int);
 
-				_errnum = _json_add_value(_result, &_ch, _json_format_type_char);
+				_errnum = _json_add_value(_result, &_ch, _internal_format_type_char);
 				break;
 			}
 			default:
