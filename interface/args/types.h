@@ -94,43 +94,4 @@ enum e_args_error
 /* ************************************************************************** */
 /*                                 Structs                                    */
 /* ************************************************************************** */
-
-/**
- * @struct	args_param
- * 
- * @brief	struct to store data for param like a filename or a value
- */
-struct s_args_output_param
-{	
-	char				*name;		// name of the parameter
-	char				*data;		// data get for the argc/v, store has a string
-	t_args_output_param	*next;		// next param in the context
-	t_param_type		type;		// type of the expected data
-	unsigned int		nb_data;	// number fo data passed to the args
-};
-
-/**
- * @struct	args_option
- * 
- * @brief	struct to store data for a option (like --help/-h)
- */
-struct s_args_output_option
-{
-	char					*long_name;	// long name of the option (only one char == only short option)
-	t_args_output_param		*params;	// params of the option
-	t_args_output_option	*next;		// next possible option the context
-	unsigned int			nb_call;	// number of time this option has been call
-};
-
-/**
- * @brief	args_parser
- * 
- * @brief	store data for the app parser
- */
-struct s_args_output
-{
-	char					*name;		// name of the context
-	t_args_output_param		*params;	// params of the parser
-	t_args_output_option	*options;	// option of the parser/context
-	t_args_output			*sub;		// sub parser of the context
-};
+	//...

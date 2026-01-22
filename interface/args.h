@@ -28,7 +28,29 @@
 /*                                 Prototypes                                 */
 /* ************************************************************************** */
 
+#pragma region Memory
+
 ARGS_PARSER		*args_parser_new(void);
+
+// TODO: check for this
+// #if __has_include ("json.h") || __has_include("files/json.h")
+
+// ARGS_PARSER		*args_parser_load_json(
+// 					JSON *const restrict json
+// 				);
+
+// #endif
+
+
+// ARGS_PARSER		*args_parser_load_yaml(
+// 					YAML *const restrict json
+// 				);
+
+void			args_destroy_parser(
+					ARGS_PARSER *const restrict parser
+				);
+
+#pragma region Editing
 
 ARGS_SUB_PARSER	*args_parser_add_subparser(
 					ARGS_PARSER *const parent,
@@ -92,9 +114,151 @@ void			args_config_set_param_check(
 				);
 */
 
+#pragma region Parsing
+
 int				args_parse(
 					const ARGS_PARSER *const parser,
 					t_args_output *const output,
 					const int argc,
 					const char *argv[]
 				);
+
+#pragma region Extration
+
+/**
+ * @brief	return if a field exist in the parsed args. could be an option or param
+ * 
+ * @param	parser	the parser args
+ * @param	field	the field name
+ * 
+ * @return bool, true or false
+ * 
+ * @example:
+ * 	args_has(parser, "file") -> check for the option and param named file
+ * 	args_has(parser, "--file") -> only check for an option named like that
+ * 	args_has(parser, "-f") -> only check for an option named like that
+*/
+int				args_has(
+					const ARGS_PARSER *const restrict parser,
+					const char *const restrict field
+				);
+
+/**
+ * @brief	return if the option named exist in the parser and has been recvd
+ * 
+ * @param	parser	the parser args
+ * @param	field	the field name
+ * 
+ * @return bool, true or false
+ * 
+ * @example:
+ * 	args_has_opt(parser, "file") -> check for the option named file
+ * 	args_has_opt(parser, "--file") -> check for the option named file
+ * 	args_has_opt(parser, "-f") -> check for the option named file
+*/
+int				args_has_opt(
+					const ARGS_PARSER *const restrict parser,
+					const char *const restrict field
+				);
+
+/**
+ * @brief	return if the param named exist in the parser and has been recvd
+ * 
+ * @param	parser	the parser args
+ * @param	field	the field name
+ * 
+ * @return bool: true or false
+ * 
+ * @example:
+ * 	args_has_param(parser, "file") -> check for the param file is recved
+*/
+int				args_has_param(
+					const ARGS_PARSER *const restrict parser,
+					const char *const restrict field
+				);
+
+/**
+ * @brief	get the value of the option, param or sub-parser named `field`
+ * in case of unrecvd or unregister param/option, the function will return the corresponding error
+ * If the field is a sub-parser, return a pointer to the sub-parser. This pointer can be used 
+ * 
+ * @param	parser	the parser to extract data from
+ * @param	field	the field of the extraction
+ * @param	dest	the destination whre to put the values
+ * 
+ * @return	error_none in case of success or the error code
+ * 
+ * @example:
+ * 	args_get(parser, "file", &filename) -> return `error_none` if "file" exist or the error code if not
+ * 	args_get(parser, "--file", &filename) -> only search for the option named "file"
+ * 	args_get(parser, "-f", &filename) -> only search for the option named with a short name 'f'
+*/
+int				args_get(
+					const ARGS_PARSER *const restrict parser,
+					const char *const restrict field,
+					void *const restrict dest
+				);
+
+/**
+ * @brief	return the value stored inside of the option named `field`
+ * 
+ * @param	parser	the pasrer
+ * @param	field	the option name
+ * @param	dest	the value destination
+ * 
+ * @return	error_none in case of success or the error code
+ * 
+ * @example:
+ * 	args_get_opt(parser, "file", &filename) -> return the content of the option file  if any thing has been passed
+ * 	args_get_opt(parser, "--file", &filename) -> same has the previous one
+ * 	args_get_opt(parser, "-f", &filename) -> return the content of the option where the short_name == 'f'
+*/
+int				args_get_opt(
+					const ARGS_PARSER *const restrict parser,
+					const char *const restrict field,
+					char *const restrict dest
+				);
+
+/**
+ * @brief	return the value stored inside of the param named `field`
+ * 
+ * @param	parser	the pasrer
+ * @param	field	the option name
+ * @param	dest	the value destination
+ * 
+ * @return	error_none in case of success or the error code
+ * 
+ * @example
+ * 	args_get_opt(parser, "file", &filename) -> return the content of the param file if any thing has been passed
+ * 	args_get_opt(parser, "--file", &filename) -> invalid, no param should be named like that
+*/
+int				args_get_param(
+					const ARGS_PARSER *const restrict parser,
+					const char *const restrict field,
+					char *const restrict dest
+				);
+
+/**
+ * @brief	return the value stored inside of the param named `field`
+ * 
+ * @param	parser	the pasrer
+ * @param	field	the option name
+ * @param	dest	the value destination
+ * 
+ * @return	error_none in case of success or the error code
+ * 
+ * @example
+ * 	args_get_opt(parser, "add", &sub_parser) -> return a pointer to the sub-parser `add`
+ * 	args_get_opt(parser, "--add", &sub_parser) -> invalid, no sub-parser should be named like that
+*/
+int				args_get_sub_parser(
+					const ARGS_PARSER *const restrict parser,
+					const char *const restrict field,
+					ARGS_SUB_PARSER *const restrict dest
+				);
+
+#pragma region Config
+
+/**
+ * TODO: all function to edit the args config
+ */
