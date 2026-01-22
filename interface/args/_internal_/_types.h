@@ -61,6 +61,12 @@ enum _e_args_data_type
 	_e_args_data_type_param,
 };
 
+enum _e_args_set_desc_actions
+{
+	_args_set_desc_add,
+	_args_set_desc_rm,
+};
+
 /* ************************************************************************** */
 /*                                 Unions                                     */
 /* ************************************************************************** */

@@ -2,7 +2,7 @@
 
 /* ----| Headers    |----- */
 	/* Standard */
-		//...
+#include <stdarg.h>
 
 	/* Internal */
 #include "_args.h"
@@ -126,7 +126,8 @@ error:
 __attribute__((visibility("hidden")))
 int	_args_add_option(
 	_t_args_parser *const parent,
-	const char *const name,
+	const char *const lname,
+	const char sname,
 	_t_args_option **const dest
 )
 {
@@ -134,7 +135,7 @@ int	_args_add_option(
 	_t_args_option	*_last;
 	int				result;
 
-	_new = _args_mem_new_option(name);
+	_new = _args_mem_new_option(lname, sname);
 	if (unlikely(!_new))
 	{
 		result = _args_config_get()->errnum;
@@ -155,5 +156,29 @@ int	_args_add_option(
 		parent->options = _new;
 
 error:
+	return (result);
+}
+
+__attribute__((visibility("hidden")))
+int	_args_set_desc_parser(
+	_t_args_parser *const target,
+	const enum _e_args_set_desc_actions _action,
+	const char *const _fmt,
+	va_list *const _list
+)
+{
+	char	*_extanded = NULL;
+	int		result = error_none;
+
+	if (_action == _args_set_desc_add)
+	{
+		_extanded = _
+
+	}
+	else
+	{
+		mem_free(target->desc);
+	}
+
 	return (result);
 }

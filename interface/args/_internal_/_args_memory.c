@@ -82,7 +82,7 @@ _t_args_option	*_args_mem_new_option(
 	if (_name_len)
 	{
 		result->long_name = (char *)(result + 1);
-		strcpy(result->name, _name);
+		strcpy(result->long_name, _name);
 	}
 	else
 		result->long_name = NULL;

@@ -82,7 +82,8 @@ _t_args_param	*_args_mem_new_param(
  * @version	1.0.0
  */
 _t_args_option	*_args_mem_new_option(
-					const char *const restrict _name
+					const char *const restrict _name,
+					const char _short_name
 				);
 
 /**
@@ -171,7 +172,8 @@ int	_args_add_param_to_option(
 __attribute__((visibility("hidden")))
 int	_args_add_option(
 	_t_args_parser *const parent,
-	const char *const name,
+	const char *const lname,
+	const char sname,
 	_t_args_option **const dest
 );
 
