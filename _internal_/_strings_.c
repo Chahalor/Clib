@@ -246,6 +246,24 @@ error:
 }
 
 __attribute__((visibility("hidden")))
+_t_string_	*_string_new_form_char_(
+	const char *const _src
+)
+{
+	const size_t	_length = strlen(_src);
+	_t_string_		*result;
+
+	result = _string_new_(_length);
+	if (unlikely(!result))
+		goto error;
+
+	_string_append_(result, _src, _length);
+
+error:
+	return (result);
+}
+
+__attribute__((visibility("hidden")))
 int	_string_append_(
 	_t_string_ *const target,
 	const char *const src,

@@ -77,23 +77,12 @@ ARGS_PARAM		*args_option_add_param(
 					const t_param_args_type spec
 				);
 
-int				args_param_set_desc(
-					ARGS_PARAM *const param,
-					const char *const fmt,
-					...
-				);
-
-int				args_option_set_desc(
-					ARGS_OPT *const option,
-					const char *const fmt,
-					...
-				);
-
-int				args_parser_set_desc(
-					ARGS_PARSER *const parser,
-					const char *const fmt,
-					...
-				);
+/** */
+int	args_set_desc(
+	ARGS_PARSER *const target,
+	const char *const fmt,
+	...
+);
 
 /*
  TODO: see to link the config to one parser

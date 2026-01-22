@@ -42,6 +42,7 @@ void	_mem_free_(
 );
 
 /* -----| Strings  |----- */
+#pragma region Strings
 
 /**
  * @brief	ensure _dest can append _add bytes (plus NUL)
@@ -135,6 +136,12 @@ _t_string_	*_string_new_(
 
 /** */
 __attribute__((visibility("hidden")))
+_t_string_	*_string_new_form_char_(
+	const char *const _src
+);
+
+/** */
+__attribute__((visibility("hidden")))
 int	_string_append_(
 	_t_string_ *const target,
 	const char *const src,
@@ -145,4 +152,14 @@ int	_string_append_(
 __attribute__((visibility("hidden")))
 void	_string_free_(
 	_t_string_ *const target
+);
+
+/* -----|  Formats   |----- */
+#pragma region Formats
+
+/** */
+int	_fill_format_(
+	const char *const restrict _str,
+	_t_string_ *const restrict _result,
+	va_list *const restrict _args
 );

@@ -177,7 +177,35 @@ int	_args_add_option(
 	_t_args_option **const dest
 );
 
+/** */
+__attribute__((visibility("hidden")))
+int	_args_set_desc_parser(
+	_t_args_parser *const target,
+	const enum _e_args_set_desc_actions _action,
+	const char *const _fmt,
+	va_list *const _list
+);
+
+/** */
+__attribute__((visibility("hidden")))
+int	_args_set_desc_option(
+	_t_args_parser *const target,
+	const enum _e_args_set_desc_actions _action,
+	const char *const _fmt,
+	va_list *const _list
+);
+
+/** */
+__attribute__((visibility("hidden")))
+int	_args_set_desc_param(
+	_t_args_parser *const target,
+	const enum _e_args_set_desc_actions _action,
+	const char *const _fmt,
+	va_list *const _list
+);
+
 /* -----| Extraction |----- */
+#pragma region Extraction
 
 /** */
 __attribute__((visibility("hidden")))

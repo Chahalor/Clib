@@ -31,7 +31,7 @@
  *
  * @return	error_none on success, or an error code
  */
-int	_json_fill_format(
+int	_fill_format_(
 	const char *const restrict _str,
 	_t_string_ *const restrict _result,
 	va_list *const restrict _args

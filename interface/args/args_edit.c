@@ -112,13 +112,13 @@ int	args_set_desc(
 	{
 	case (_e_args_data_type_root):
 	case (_e_args_data_type_parser):
-		result = _args_add_desc_parser(target->data.parser, fmt, &_list);
+		result = _args_set_desc_parser(target->data.parser, _args_set_desc_add, fmt, &_list);
 		break ;
 	case (_e_args_data_type_param):
-		result = _args_add_desc_param(target->data.param, fmt, &_list);
+		result = _args_set_desc_param(target->data.param, _args_set_desc_add, fmt, &_list);
 		break ;
 	case (_e_args_data_type_opt):
-		result = _args_add_desc_option(target->data.option, fmt, &_list);
+		result = _args_set_desc_option(target->data.option, _args_set_desc_add, fmt, &_list);
 		break ;
 	
 	default:

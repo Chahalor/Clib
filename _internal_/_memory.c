@@ -9,7 +9,7 @@
 #include "_internal_.h"
 
 	/* External */
-		//...
+#include "memory.h"	// TODO: find a a way to make the memory module allocator and this allocator work togather
 
 /* ----| Prototypes |----- */
 	//...
@@ -26,7 +26,7 @@ void	*_mem_alloc_(
 {
 	void	*result;
 
-	result = malloc(size);
+	result = mem_alloc(size);
 	if (unlikely(!result))
 		_internal_get_config_()->errnum = error_alloc_fail;
 	return (result);
@@ -37,5 +37,5 @@ void	_mem_free_(
 	void *const restrict ptr
 )
 {
-	free(ptr);
+	mem_free(ptr);
 }
