@@ -93,26 +93,6 @@ static _t_args_option	*_get_opt_of(
 	return (result);
 }
 
-static inline _t_args_param	*_get_param_of(
-	const _t_args_parser *const restrict _context,
-	const char *const restrict _s
-)
-{
-	_t_args_param	*result = NULL;
-
-	for (_t_args_param	*_this = _context->params;
-		_this != NULL && !result;
-		_this = _this->next
-	)
-	{
-		result = _this->name && !strcmp(_this->name, _s) ?
-					_this :
-					NULL;
-	}
-
-	return (result);
-}
-
 static inline char	*_root_get_next(
 	_t_args_parser *const restrict _root
 )
@@ -189,82 +169,6 @@ static int	_add_param(
 error:
 	return (result);
 }
-
-static int	_parse_params(
-	_t_args_parser *const restrict _root,
-	_t_args_param *const restrict _params
-)
-{
-	const _t_args_config *const restrict	_config = _args_config_get();
-	char									*_current = NULL;
-	int										result = error_none;
-
-	for (_t_args_param	*_this = _params;
-		_this != NULL && !result;
-		_this = _this->next
-	)
-	{
-		_current = _root_get_next(_root);
-		if (unlikely(!_current))
-		{
-			result = args_error_missing_param;
-			_args_config_set_errnum(result);
-			goto error;
-		}
-		else if (_this->args_type & param_args_type_nargs)
-		{
-			while (_current && _current[0] != '-' && !result)
-			{
-				result = _add_param(_this, _current);
-				_root_pop_next(_root);
-				_current = _root_get_next(_root);
-			}
-		}
-		else
-		{
-			result = _add_param(_this, _current);
-			_root_pop_next(_root);
-		}
-	}
-
-error:
-	return (result);
-}
-
-static int	_parse_opt(
-	_t_args_parser *const restrict _root,
-	_t_args_parser *const restrict _context,
-	const char *const restrict _current
-)
-{
-	_t_args_option	*_this;
-	int				result = error_none;
-
-	_this = _get_opt_of(_context, _current);
-	if (unlikely(!_this))
-	{
-		result = args_error_unknown_option;
-		_args_config_set_errnum(result);
-		goto error;
-	}
-
-	_this->nb_calls++;
-	if (_this->params)
-		result = _parse_params(_root, _this->params);
-
-error:
-	return (result);
-}
-
-static inline int	_parse_sub_parser(
-	_t_args_parser *const restrict _root,
-	_t_args_parser *const restrict _context
-)
-{	// very usefull function (naan)
-	return (_parse_args(_root, _context));
-}
-
-#pragma region workspace
 
 static inline int	_parse_context_parser(
 	_t_args_parser **_context,
@@ -352,7 +256,7 @@ static inline int	_parse_context_parser(
 
 static inline int	_parse_context_opt(
 	_t_args_parser *const restrict _root,
-	_t_args_parser *const restrict _context,
+	// _t_args_parser *const restrict _context,
 	_t_args_param **opt_param,
 	_t_args_option **opt,
 	int *const restrict context_type,
@@ -462,19 +366,10 @@ int	_parse_args(
 			result = _parse_context_parser(&_context, &pos_cursor, &opt_param, &context_type, opt_disabled, current);
 		/* ---------- Option-arguments context ---------- */
 		else /* context_type == args_context_opt */
-			result = _parse_context_opt(_root, _context, &opt_param, &opt, &context_type, &opt_disabled, current);
+			result = _parse_context_opt(_root, &opt_param, &opt, &context_type, &opt_disabled, current);
 	}
 
 	return (result);
-}
-
-
-static int	_build_output(
-	_t_args_parser *const restrict _root,
-	t_args_output *const restrict _output
-)
-{
-
 }
 
 /* ----| Public     |----- */
@@ -498,14 +393,6 @@ int	_args_parse(
 	_root->argc = _argc;
 	_root->argv = _argv;
 
-	// _current = _root_pop_next(_root);
-	// _context = _get_sub_parser_of(_root, _current);
-	// if (_context)
-	// {
-	// 	result = _parse_sub_parser(_root, _context);
-	// 	goto error;
-	// }
-	// else
 	result = _parse_args(_root, _root);
 
 	if (!result)
@@ -514,10 +401,3 @@ int	_args_parse(
 error:
 	return (result);
 }
-
-/*
-Required fixes (must do)
-	- Pass pos_cursor by pointer
-	- Pass _context by pointer
-	- Decide whether _parse_context_opt really needs _context
-*/
