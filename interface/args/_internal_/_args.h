@@ -31,6 +31,7 @@
 /* ************************************************************************** */
 
 /* -----| Config    |----- */
+#pragma region Config
 
 /**
  * @brief	return the args parser configuration singleton
@@ -47,6 +48,7 @@ void			_args_config_set_errnum(
 					);
 
 /* -----| Memory    |----- */
+#pragma region Memory
 
 /**
  * TODO: Docs
@@ -138,6 +140,41 @@ void			_args_mem_free_parser(
 					const char _recursiv
 				);
 
+/* -----| Editions   |----- */
+#pragma region Editions
+
+/** */
+__attribute__((visibility("hidden")))
+int	_args_add_sub_parser(
+	_t_args_parser *const parent,
+	const char *const name,
+	_t_args_parser **const dest
+);
+
+/** */
+__attribute__((visibility("hidden")))
+int	_args_add_param_to_parser(
+	_t_args_parser *const parent,
+	const char *const name,
+	_t_args_param **const dest
+);
+
+/** */
+__attribute__((visibility("hidden")))
+int	_args_add_param_to_option(
+	_t_args_option *const parent,
+	const char *const name,
+	_t_args_param **const dest
+);
+
+/** */
+__attribute__((visibility("hidden")))
+int	_args_add_option(
+	_t_args_parser *const parent,
+	const char *const name,
+	_t_args_option **const dest
+);
+
 /* -----| Extraction |----- */
 
 /** */
@@ -165,6 +202,7 @@ int	_args_get_param(
 );
 
 /* -----| Checks     |----- */
+#pragma region Checks
 
 /** */
 static inline int	_is_long_opt(
