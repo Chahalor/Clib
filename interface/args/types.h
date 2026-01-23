@@ -26,14 +26,17 @@
 	//...
 
 /* -----| Enums     |----- */
-typedef enum e_param_type			t_param_type;		// TODO: docs
-typedef enum e_param_args_type		t_param_args_type;	//
+typedef enum e_param_type			t_param_type;			// TODO: docs
+typedef enum e_param_args_type		t_param_args_type;		//
 
 /* -----| Structs   |----- */
-typedef struct _s_args_parser_root	ARGSP;				//
-typedef ARGSP						ARGS_PARAM;			//
-typedef ARGSP						ARGS_OPT;			//
-typedef ARGSP						ARGS_SUB_PARSER;	//
+typedef struct _s_args_parser			t_args_parser;
+
+typedef struct _s_args_param			t_args_param;
+typedef struct _s_args_option			t_args_option;
+typedef struct _s_args_parser			t_args_parser;
+
+typedef struct _s_args_output_parser	t_args_output;
 
 /* ************************************************************************** */
 /*                                 Enums                                      */
