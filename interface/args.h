@@ -34,17 +34,19 @@
 t_args_parser	*args_parser_new(void);
 
 /** */
-t_args_output	*args_parse(
-	const t_args_parser *const parser
-);
-
-/** */
 void			args_parser_free(
 	t_args_parser *const _parser
 );
 
 void			args_output_free(
 	t_args_output *const _out
+);
+
+#pragma region Parsing
+
+/** */
+t_args_output	*args_parse(
+	const t_args_parser *const parser
 );
 
 #pragma region Sub-parsers
@@ -74,11 +76,6 @@ t_args_param	*args_parser_add_param(
 
 #pragma region Setter
 
-int args_parser_set_name(
-	t_args_parser *const parser,
-	const char *const name
-);
-
 int args_parser_set_desc(
 	t_args_parser *const parser,
 	const char *const desc
@@ -86,6 +83,11 @@ int args_parser_set_desc(
 
 int	args_param_set_desc(
 	t_args_param *const _param,
+	const char *const _desc
+);
+
+int	args_option_set_desc(
+	t_args_option *const _option,
 	const char *const _desc
 );
 

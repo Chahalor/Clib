@@ -18,134 +18,93 @@
 
 /* ----| Public     |----- */
 
-bool	args_has(
-	const ARGSP *const restrict parser,
-	const char *const restrict field
+char	args_has_param(
+	t_args_output *const _parser,
+	const char *const _name
 )
 {
-	int	result = false;
-
-	if (unlikely(!parser || !field))
-		result = false;
-	else if (parser->type == _e_args_data_type_parser || parser->type == _e_args_data_type_root)
-		result = _args_check_sub_exist_parser(parser->data.parser, field);
+	if (unlikely(!_parser || !_name))
+		return (error_invalid_arg);
 	else
-		result = false;
-
-	return (result);
+		return (_args_check_parser_has_param(_parser, _name));
 }
 
-bool	args_has_opt(
-	const ARGSP *const restrict parser,
-	const char *const restrict field
+char	args_has_option(
+	t_args_output *const _parser,
+	const char *const _name
 )
 {
-	int	result = false;
-
-	if (unlikely(!parser || !field))
-		result = false;
-	else if (parser->type == _e_args_data_type_parser || parser->type == _e_args_data_type_root)
-		result = _args_check_opt_exist_parser(parser->data.parser, field);
+	if (unlikely(!_parser || !_name))
+		return (error_invalid_arg);
 	else
-		result = false;
-
-	return (result);
+		return (_args_check_parser_has_option(_parser, _name));
 }
 
-bool	args_has_param(
-	const ARGSP *const restrict parser,
-	const char *const restrict field
+char	args_has_sub(
+	t_args_output *const _parser,
+	const char *const _name
 )
 {
-	int	result;
-
-	if (unlikely(!parser || !field))
-		result = false;
-	else if (parser->type == _e_args_data_type_parser || parser->type == _e_args_data_type_root)
-		result = _args_check_param_exist_parser(parser->data.parser, field);
+	if (unlikely(!_parser || !_name))
+		return (error_invalid_arg);
 	else
-		result = false;
-
-	return (result);
+		return (_args_check_parser_has_sub(_parser, _name));
 }
 
-int	args_get(
-	const ARGSP *const restrict parser,
-	const char *const restrict field,
-	void *const restrict dest
+char	args_option_has_param(
+	t_args_output_option *const _option,
+	const char *const _name
 )
 {
-	int	result;
-
-	if (unlikely(!parser || !field || !dest))
-		result = error_invalid_arg;
-	else if (parser->type == _e_args_data_type_root || parser->type == _e_args_data_type_parser)
-	{
-		result = _args_get_opt(parser->data.parser->options->data.option, field, dest);
-		if (field[0] == '-')
-			goto exit;
-		result = !result ?
-					result :
-					_args_get_sub(parser->data.parser->sub_parsers->data.parser, field, dest);
-		result = !result ?
-			result :
-			_args_get_param(parser->data.parser->params->data.param, field, dest);
-	}
-	else if (parser->type == _e_args_data_type_opt)
-		result = _args_get_opt(parser->data.option, field, dest);
-	else if (parser->type == _e_args_data_type_param)
-		result = _args_get_param(parser->data.param, field, dest);
+	if (unlikely(!_option || !_name))
+		return (error_invalid_arg);
 	else
-		result = error_invalid_arg;
-
-exit:
-	return (result);
+		return (_args_check_option_has_param(_option, _name));
 }
 
-int	args_get_opt(
-	const ARGSP *const restrict parser,
-	const char *const restrict field,
-	char **const dest
+char	*args_get_param(
+	t_args_output *const _output,
+	const char *const _name,
+	char **const *const _values,
+	unsigned int *const _count
 )
 {
-	int	result;
-
-	if (unlikely(!parser || !field || !dest))
-		result = error_invalid_arg;
+	if (unlikely(!_output || !_name || !_values || !_count))
+		return (error_invalid_arg);
 	else
-		result = _args_get_opt(parser->data.parser->options->data.option, field, (void **)dest);
-
-	return (result);
+		return (_args_get_param(_output, _name, _values, _count));
 }
 
-int	args_get_param(
-	const ARGSP *const restrict parser,
-	const char *const restrict field,
-	char **const dest
+char	args_get_option(
+	t_args_output *const _output,
+	const char *const _name,
+	char **const *const _values,
+	unsigned int *const _count
 )
 {
-	int	result;
-
-	if (unlikely(!parser || !field || !dest))
-		result = error_invalid_arg;
+	if (unlikely(!_output || !_name || !_values || !_count))
+		return (error_invalid_arg);
 	else
-		result = _args_get_param(parser->data.parser->params->data.param, field, (void **)dest);
-
-	return (result);
+		return (_args_get_param(_output, _name, _values, _count));
 }
 
-int	args_get_sub_parser(
-	const ARGSP *const restrict parser,
-	const char *const restrict field,
-	ARGS_SUB_PARSER **const dest
+const char	*args_active_subcommand(
+	const t_args_output *_out
 )
 {
-	int	result;
-
-	if (unlikely(!parser || !field || !dest))
-		result = error_invalid_arg;
+	if (unlikely(!_out))
+		return (error_invalid_arg);
 	else
-		result = _args_get_sub(parser->data.parser->sub_parsers->data.parser, field, (void **)dest);
+		return (_args_get_sub_name(_out));
+}
 
-	return (result);
+t_args_output	*args_get_sub_output(
+	const t_args_output *_out,
+	const char *_name
+)
+{
+	if (unlikely(!_out || !_name))
+		return (error_invalid_arg);
+	else
+		return (_args_get_output_(_out, _name));
 }

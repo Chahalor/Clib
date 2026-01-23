@@ -18,18 +18,19 @@
 
 /* ----| Public     |----- */
 
-int	args_parse(
-	ARGSP *const parser,
-	const int argc,
-	const char *argv[]
+/** */
+t_args_output	*args_parse(
+	const t_args_parser *const _parser,
+	const int _argc,
+	const char *const _argv[]
 )
 {
-	int	result;
+	int	result = error_none;
 
-	if (unlikely(!parser || !argv || argc < 1))
+	if (unlikely(!_parser))
 		result = error_invalid_arg;
 	else
-		result = _args_parse(parser, argc, argv);
+		result = _args_parse(_parser, _argc, _argv);
 
 	return (result);
 }

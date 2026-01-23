@@ -19,87 +19,82 @@
 
 /* ----| Public     |----- */
 
-
-ARGSP		*args_parser_new(void)
+/** */
+t_args_parser	*args_parser_new(void)
 {
-	return (_args_mem_new_parser(NULL));
+	return (_args_mem_new_parser());
 }
 
-void	args_free_elt(
-	ARGSP *const _elt
+#pragma region Sub-parsers
+
+/** */
+t_args_parser	*args_parser_add_sub(
+	t_args_parser *const _parent,
+	const char *const _name,
+	const char *const _desc
 )
 {
 	int	result = error_none;
 
-	if (unlikely(!_elt))
-	{
+	if (unlikely(!_parent || !_name || !_desc))
 		result = error_invalid_arg;
-		goto error;
-	}
+	else
+		result = _args_parser_add_sub(_parent, _name, _desc);
 
-	switch (_elt->type)
-	{
-	case (_e_args_data_type_parser):
-	case (_e_args_data_type_root):
-	{
-		_args_mem_free_param(_elt, true);
-		break;
-	}
-	case (_e_args_data_type_opt):
-		_args_mem_free_opt(_elt, true);
-		break;
-	case (_e_args_data_type_param):
-		_args_mem_free_param(_elt, true);
-		break;
-	default:
+	return (result);
+}
+
+#pragma region Options
+
+t_args_option	*args_parser_add_option(
+	t_args_parser *const _parser,
+	const char *const _name,
+	const char *const _desc
+)
+{
+	int	result = error_none;
+
+	if (unlikely(!_parser || !_name || !_desc))
 		result = error_invalid_arg;
-	}
-
-error:
-	return /* (result) */;
-}
-
-void	args_remove_sub(
-	ARGSP *const _main,
-	ARGS_SUB_PARSER *const _sub
-)
-{
-	if (unlikely(!_main || !_sub ||
-		(_main->type != _e_args_data_type_parser && _main->type != _e_args_data_type_root)))
-		_args_config_set_errnum(error_invalid_arg);
 	else
-		_args_remove_sub(_main, _sub);
+		result = _args_parser_add_sub(_parser, _name, _desc);
 
+	return (result);
 }
 
-void	args_remove_option(
-	ARGSP *const _main,
-	ARGS_OPT *const _opt
+
+#pragma region Parameters
+
+t_args_param	*args_parser_add_param(
+	t_args_parser *const _parser,
+	const char *const _name,
+	const char *const _desc
 )
 {
-	if (unlikely(!_main || !_opt ||
-		(_main->type != _e_args_data_type_parser && _main->type != _e_args_data_type_root)))
-		_args_config_set_errnum(error_invalid_arg);
+	int	result = error_none;
+
+	if (unlikely(!_parser || !_name || !_desc))
+		result = error_invalid_arg;
 	else
-		_args_remove_opt(_main, _opt);
+		result = _args_parser_add_sub(_parser, _name, _desc);
+
+	return (result);
 }
 
-void	args_remove_param(
-	ARGSP *const _main,
-	ARGS_PARAM *const _param
+
+/** */
+void			args_parser_free(
+	t_args_parser *const _parser
 )
 {
-	if (unlikely(!_main || !_param || _main->type == _e_args_data_type_param))
-		_args_config_set_errnum(error_invalid_arg);
-	else if (_main->type == _e_args_data_type_opt)
-		_args_remove_param_from_opt(_main, _param);
-	else
-		_args_remove_param_from_parser(_main, _param);
+	if (likely(_parser))
+		_args_mem_free_parser(_parser, true);
 }
 
-void			args_destroy_parser(
-	ARGSP *const restrict parser
+void			args_output_free(
+	t_args_output *const _out
 )
 {
-	_args_mem_free_parser(parser, true);
+	if (likely(_out))
+		_args_mem_free_output(_out, true);
 }

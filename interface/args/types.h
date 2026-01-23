@@ -36,6 +36,9 @@ typedef struct _s_args_param			t_args_param;
 typedef struct _s_args_option			t_args_option;
 typedef struct _s_args_parser			t_args_parser;
 
+// typedef struct _s_args_output_value		t_args_output_value;
+// typedef struct _s_args_output_param		t_args_output_param;
+typedef struct _s_args_output_option	t_args_output_option;
 typedef struct _s_args_output_parser	t_args_output;
 
 /* ************************************************************************** */
