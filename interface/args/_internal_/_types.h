@@ -31,6 +31,9 @@
 
 /* -----| Structs   |----- */
 
+typedef struct _s_args_map_entry		_t_args_map_entry;
+typedef struct _s_args_map				_t_args_map;
+
 typedef struct _s_args_config			_t_args_config;
 
 typedef struct _s_args_param			_t_args_param;
@@ -68,6 +71,20 @@ enum _e_args_set_desc_actions
 /* ************************************************************************** */
 /*                                 Structs                                    */
 /* ************************************************************************** */
+
+// struct _s_args_map_entry
+// {
+// 	char				*key;
+// 	char				*value;
+// 	_t_args_map_entry	*next;
+// };
+
+// struct _s_args_map
+// {
+// 	_t_args_map_entry	**bucket;
+// 	size_t				nb_entry;
+// 	size_t				capacity;
+// };
 
 struct _s_args_config
 {
