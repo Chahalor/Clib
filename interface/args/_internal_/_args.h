@@ -43,7 +43,7 @@
  */
 _t_args_config	*_args_config_get(void);
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 void			_args_config_set_errnum(
 					const int _error
 					);
@@ -180,40 +180,40 @@ int				_args_parse(
 #pragma region Editions
 
 /** */
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int	_args_add_sub_parser(
 	_t_args_parser *const parent,
 	const char *const name,
-	_t_args_parser **const dest
+	ARGSP **const dest
 );
 
 /** */
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int	_args_add_param_to_parser(
 	_t_args_parser *const parent,
 	const char *const name,
-	_t_args_param **const dest
+	ARGSP **const dest
 );
 
 /** */
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int	_args_add_param_to_option(
 	_t_args_option *const parent,
 	const char *const name,
-	_t_args_param **const dest
+	ARGSP **const dest
 );
 
 /** */
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int	_args_add_option(
 	_t_args_parser *const parent,
 	const char *const lname,
 	const char sname,
-	_t_args_option **const dest
+	ARGSP **const dest
 );
 
 /** */
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int	_args_set_desc_parser(
 	_t_args_parser *const target,
 	const enum _e_args_set_desc_actions _action,
@@ -222,7 +222,7 @@ int	_args_set_desc_parser(
 );
 
 /** */
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int	_args_set_desc_option(
 	_t_args_option *const target,
 	const enum _e_args_set_desc_actions _action,
@@ -231,7 +231,7 @@ int	_args_set_desc_option(
 );
 
 /** */
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int	_args_set_desc_param(
 	_t_args_param *const target,
 	const enum _e_args_set_desc_actions _action,
@@ -243,7 +243,7 @@ int	_args_set_desc_param(
 #pragma region Extraction
 
 /** */
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int	_args_get_opt(
 	_t_args_option *const opts,
 	const char *name,
@@ -251,7 +251,7 @@ int	_args_get_opt(
 );
 
 /** */
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int	_args_get_sub(
 	_t_args_parser *const parsers,
 	const char *name,
@@ -259,7 +259,7 @@ int	_args_get_sub(
 );
 
 /** */
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int	_args_get_param(
 	_t_args_param *const params,
 	const char *name,
@@ -308,28 +308,28 @@ static inline int	_args_is_opt(
 }
 
 /** */
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 bool			_args_check_sub_exist_parser(
 					const _t_args_parser *const restrict parser,
 					const char *const name
 				);
 
 /** */
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 bool			_args_check_opt_exist_parser(
 					const _t_args_parser *const restrict parser,
 					const char *name
 				);
 
 /** */
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 bool			_args_check_param_exist_parser(
 					const _t_args_parser *const restrict parser,
 					const char *name
 				);
 
 /** */
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int				_args_check_parser(
 					const _t_args_parser *const _parser
 				);

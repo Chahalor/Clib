@@ -4,6 +4,9 @@ project(clib C)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+if (NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
+endif()
 
 add_library(clib STATIC)
 
@@ -19,6 +22,7 @@ add_subdirectory(times)
 target_link_libraries(clib PRIVATE
 	clib_internal
 	clib_standards
+	clib_interface
 	clib_memory
 	clib_network
 	clib_random
@@ -54,11 +58,13 @@ target_compile_options(clib
 		-Wall
 		-Wextra
 		-Werror
-		-O2
-		$<$<CONFIG:Debug>: -g3>
+		$<$<CONFIG:Debug>:-O0>
+		$<$<CONFIG:Debug>:-g3>
+		$<$<CONFIG:Release>:-O2>
+		$<$<CONFIG:RelWithDebInfo>:-O2>
 )
 
 target_compile_definitions(clib
 	PUBLIC
-		CLIB_DEBUG
+		$<$<CONFIG:Debug>:CLIB_DEBUG>
 )

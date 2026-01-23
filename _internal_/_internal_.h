@@ -31,12 +31,12 @@
 /* -----| Memory   |----- */
 #pragma region Memory
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 void	*_mem_alloc_(
 	const size_t size
 );
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 void	_mem_free_(
 	void *const restrict ptr
 );
@@ -129,19 +129,19 @@ int	_string_add_value_(
 );
 
 /** */
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 _t_string_	*_string_new_(
 	size_t length
 );
 
 /** */
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 _t_string_	*_string_new_form_char_(
 	const char *const _src
 );
 
 /** */
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int	_string_append_(
 	_t_string_ *const target,
 	const char *const src,
@@ -149,7 +149,7 @@ int	_string_append_(
 );
 
 /** */
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 void	_string_free_(
 	_t_string_ *const target
 );

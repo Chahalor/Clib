@@ -41,15 +41,15 @@ error:
 
 /* ----| Public     |----- */
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int	_args_add_sub_parser(
 	_t_args_parser *const parent,
 	const char *const name,
-	_t_args_parser **const dest
+	ARGSP **const dest
 )
 {
 	ARGSP			*_new = NULL;
-	_t_args_parser	*_last = NULL;
+	ARGSP			*_last = NULL;
 	int				result = error_none;
 
 	_new = _args_mem_new_parser(name);
@@ -59,32 +59,34 @@ int	_args_add_sub_parser(
 		goto error;
 	}
 
-	for (_t_args_parser	*_this = parent->sub_parsers->data.parser;
+	for (ARGSP	*_this = parent->sub_parsers;
 		_this;
-		_this = _this->next->data.parser
+		_this = _this->data.parser->next
 	)
 	{
 		_last = _this;
 	}
 
 	if (_last)
-		_last->next = _new;
+		_last->data.parser->next = _new;
 	else
 		parent->sub_parsers = _new;
+	if (dest)
+		*dest = _new;
 
 error:
 	return (result);
 }
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int	_args_add_param_to_parser(
 	_t_args_parser *const parent,
 	const char *const name,
-	_t_args_param **const dest
+	ARGSP **const dest
 )
 {
 	ARGSP			*_new;
-	_t_args_param	*_last;
+	ARGSP			*_last;
 	int				result;
 
 	_new = _args_mem_new_param(name);
@@ -94,32 +96,34 @@ int	_args_add_param_to_parser(
 		goto error;
 	}
 
-	for (_t_args_param	*_this = parent->params->data.param;
+	for (ARGSP	*_this = parent->params;
 		_this;
-		_this = _this->next->data.param
+		_this = _this->data.param->next
 	)
 	{
 		_last = _this;
 	}
 
 	if (_last)
-		_last->next = _new;
+		_last->data.param->next = _new;
 	else
 		parent->params = _new;
+	if (dest)
+		*dest = _new;
 
 error:
 	return (result);
 }
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int	_args_add_param_to_option(
 	_t_args_option *const parent,
 	const char *const name,
-	_t_args_param **const dest
+	ARGSP **const dest
 )
 {
 	ARGSP			*_new;
-	_t_args_param	*_last;
+	ARGSP			*_last;
 	int				result;
 
 	_new = _args_mem_new_param(name);
@@ -129,33 +133,35 @@ int	_args_add_param_to_option(
 		goto error;
 	}
 
-	for (_t_args_param	*_this = parent->params->data.param;
+	for (ARGSP	*_this = parent->params;
 		_this;
-		_this = _this->next->data.param
+		_this = _this->data.param->next
 	)
 	{
 		_last = _this;
 	}
 
 	if (_last)
-		_last->next = _new;
+		_last->data.param->next = _new;
 	else
 		parent->params = _new;
+	if (dest)
+		*dest = _new;
 
 error:
 	return (result);
 }
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int	_args_add_option(
 	_t_args_parser *const parent,
 	const char *const lname,
 	const char sname,
-	_t_args_option **const dest
+	ARGSP **const dest
 )
 {
 	ARGSP			*_new;
-	_t_args_option	*_last;
+	ARGSP			*_last;
 	int				result;
 
 	_new = _args_mem_new_option(lname, sname);
@@ -165,24 +171,26 @@ int	_args_add_option(
 		goto error;
 	}
 
-	for (_t_args_option	*_this = parent->options->data.option;
+	for (ARGSP	*_this = parent->options;
 		_this;
-		_this = _this->next->data.option
+		_this = _this->data.option->next
 	)
 	{
 		_last = _this;
 	}
 
 	if (_last)
-		_last->next = _new;
+		_last->data.option->next = _new;
 	else
 		parent->options = _new;
+	if (dest)
+		*dest = _new;
 
 error:
 	return (result);
 }
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int	_args_set_desc_parser(
 	_t_args_parser *const target,
 	const enum _e_args_set_desc_actions _action,
@@ -208,7 +216,7 @@ error:
 	return (result);
 }
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int	_args_set_desc_option(
 	_t_args_option *const target,
 	const enum _e_args_set_desc_actions _action,
@@ -234,7 +242,7 @@ error:
 	return (result);
 }
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int	_args_set_desc_param(
 	_t_args_param *const target,
 	const enum _e_args_set_desc_actions _action,

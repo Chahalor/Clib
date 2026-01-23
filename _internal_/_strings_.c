@@ -221,7 +221,7 @@ int	_string_add_value_(
 		return (error_invalid_arg);
 }
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 _t_string_	*_string_new_(
 	size_t length
 )
@@ -245,12 +245,14 @@ error:
 	return (result);
 }
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 _t_string_	*_string_new_form_char_(
 	const char *const _src
 )
 {
-	const size_t	_length = strlen(_src);
+	const size_t	_length = _src ?
+								strlen(_src) :
+								0;
 	_t_string_		*result;
 
 	result = _string_new_(_length);
@@ -263,7 +265,7 @@ error:
 	return (result);
 }
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int	_string_append_(
 	_t_string_ *const target,
 	const char *const src,
@@ -298,7 +300,7 @@ error:
 	return (result);
 }
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 void	_string_free_(
 	_t_string_ *const target
 )

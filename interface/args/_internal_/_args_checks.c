@@ -137,7 +137,7 @@ static int	_check_parser(
 
 /* ----| Public     |----- */
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 bool	_args_check_sub_exist_parser(
 	const _t_args_parser *const restrict parser,
 	const char *const name
@@ -157,7 +157,7 @@ bool	_args_check_sub_exist_parser(
 	return (result);
 }
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 bool	_args_check_opt_exist_parser(
 	const _t_args_parser *const restrict parser,
 	const char *name
@@ -196,7 +196,7 @@ bool	_args_check_opt_exist_parser(
 	return (result);
 }
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 bool	_args_check_param_exist_parser(
 	const _t_args_parser *const restrict parser,
 	const char *name
@@ -219,7 +219,7 @@ bool	_args_check_param_exist_parser(
 	return (result);
 }
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int	_args_check_parser(
 	const _t_args_parser *const _parser
 )

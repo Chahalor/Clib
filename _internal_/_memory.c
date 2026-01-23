@@ -19,7 +19,7 @@
 
 /* ----| Public     |----- */
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 void	*_mem_alloc_(
 	const size_t size
 )
@@ -32,7 +32,7 @@ void	*_mem_alloc_(
 	return (result);
 }
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 void	_mem_free_(
 	void *const restrict ptr
 )

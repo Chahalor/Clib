@@ -1,7 +1,7 @@
 file(GLOB_RECURSE INTERNAL_SRC CONFIGURE_DEPENDS
 	_config_.c
 	_format_.c
-	_memory_.c
+	_memory.c
 	_strings_.c
 )
 

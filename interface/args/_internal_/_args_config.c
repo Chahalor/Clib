@@ -18,7 +18,7 @@
 
 /* ----| Public     |----- */
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 _t_args_config	*_args_config_get(void)
 {
 	static _t_args_config	config = {
@@ -28,7 +28,7 @@ _t_args_config	*_args_config_get(void)
 	return (&config);
 }
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 void	_args_update_config(
 	const char _field,
 	const bool _value
@@ -45,7 +45,7 @@ void	_args_update_config(
 	// }
 }
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 void	_args_config_set_errnum(
 	const int _error
 )

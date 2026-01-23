@@ -18,7 +18,7 @@
 
 /* ----| Public     |----- */
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int	_args_get_opt(
 	_t_args_option *const opts,
 	const char *name,
@@ -59,7 +59,7 @@ int	_args_get_opt(
 }
 
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int	_args_get_sub(
 	_t_args_parser *const parsers,
 	const char *name,
@@ -83,7 +83,7 @@ int	_args_get_sub(
 	return (error_none);
 }
 
-__attribute__((visibility("hidden")))
+// __attribute__((visibility("hidden")))
 int	_args_get_param(
 	_t_args_param *const params,
 	const char *name,
