@@ -31,34 +31,27 @@
 
 /* -----| Structs   |----- */
 
-typedef struct _s_args_param		_t_args_param;
-typedef struct _s_args_option		_t_args_option;
-typedef struct _s_args_parser		_t_args_parser;
-typedef struct _s_args_config		_t_args_config;
+typedef struct _s_args_config			_t_args_config;
+
+typedef struct _s_args_param			_t_args_param;
+typedef struct _s_args_option			_t_args_option;
+typedef struct _s_args_parser			_t_args_parser;
+
+typedef struct _s_args_output_value		_t_args_output_value;
+typedef struct _s_args_output_param		_t_args_output_param;
+typedef struct _s_args_output_option	_t_args_output_option;
+typedef struct _s_args_output_parser	_t_args_output_parser;
+
 
 /* ************************************************************************** */
 /*                                 Enums                                      */
 /* ************************************************************************** */
-
-// enum e_args_errors
-// {
-// 	args_error_none,
-// 	args_error_invalid_args,
-// };
 
 enum e_args_context_type
 {
 	args_context_parser,
 	args_context_opt,
 	args_context_param,
-};
-
-enum _e_args_data_type
-{
-	_e_args_data_type_root,
-	_e_args_data_type_parser,
-	_e_args_data_type_opt,
-	_e_args_data_type_param,
 };
 
 enum _e_args_set_desc_actions
@@ -75,73 +68,6 @@ enum _e_args_set_desc_actions
 /* ************************************************************************** */
 /*                                 Structs                                    */
 /* ************************************************************************** */
-
-/**
- * @struct	args_param
- * 
- * @brief	struct to store data for param like a filename or a value
- */
-struct _s_args_param
-{	
-	char				*name;		// name of the parameter
-	char				*desc;		// description of the parameter
-	char				**values;	// value of the param
-	ARGSP				*next;		// next param in the context
-	unsigned int		nb_values;	// numbers of values entered
-	unsigned int		max_values;	// number of allocated values
-	bool				is_fill;	// is this param already filled
-	t_param_type		type;		// type of the expected data
-	t_param_args_type	args_type;	// type of the args content (requiered, nargs, ...)
-};
-
-/**
- * @struct	args_option
- * 
- * @brief	struct to store data for a option (like --help/-h)
- */
-struct _s_args_option
-{
-	char			*long_name;	// long name of the option (only one char == only short option)
-	char			*desc;		// description of the option
-	ARGSP			*params;	// params of the option
-	ARGSP			*next;		// next possible option the context
-	unsigned int	nb_calls;	// numbers of call of this option
-	char			short_name;	// short name of the option
-};
-
-/**
- * @brief	args_parser
- * 
- * @brief	store data for the app parser
- */
-struct _s_args_parser
-{
-	/* data for the current context */
-	char	*name;			// name of the context/sub-parser
-	char	*desc;			// description of this context/app
-	ARGSP	*params;		// params of the parser
-	ARGSP	*options;		// option of the parser/context
-	ARGSP	*sub_parsers;	// sub parser of the context
-	ARGSP	*next;			// next sub-parser for the current context
-
-	/* config (for the root one) */
-	char	**argv;			// argv to be parsed
-	int		argc;			// number of args
-	int		index;			// current index in the args
-};
-
-union _u_parsers
-{
-	_t_args_option	*option;
-	_t_args_param	*param;
-	_t_args_parser	*parser;
-};
-
-struct _s_args_parser_root
-{
-	union _u_parsers		data;
-	enum _e_args_data_type	type;
-};
 
 struct _s_args_config
 {
@@ -169,7 +95,105 @@ struct _s_args_config
 	/* string checks */
 	char	check_str_empty			: 1;
 	char	check_str_length		: 1;
+};
 
-	/* .errors managements */
-	int		errnum;							// last error of the module
+
+/**
+ * @struct	args_param
+ * 
+ * @brief	struct to store data for param like a filename or a value
+ */
+struct _s_args_param
+{	
+	t_param_type		type;		// type of the expected data
+	t_param_args_type	args_type;	// type of the args content (requiered, nargs, ...)
+
+	char				*name;		// name of the parameter
+	char				*desc;		// description of the parameter
+
+	_t_args_param		*next;		// next param in the context
+};
+
+/**
+ * @struct	args_option
+ * 
+ * @brief	struct to store data for a option (like --help/-h)
+ */
+struct _s_args_option
+{
+	char			short_name;	// short name of the option
+	char			*long_name;	// long name of the option (only one char == only short option)
+	char			*desc;		// description of the option
+
+	_t_args_param	*params;	// params of the option
+	_t_args_option	*next;		// next possible option the context
+};
+
+/**
+ * @brief	args_parser
+ * 
+ * @brief	store data for the app parser
+ */
+struct _s_args_parser
+{
+	char			*name;			// name of the context/sub-parser
+	char			*desc;			// description of this context/app
+
+	_t_args_param	*params;		// params of the parser
+	_t_args_option	*options;		// option of the parser/context
+	_t_args_parser	*sub_parsers;	// sub parser of the context
+	_t_args_parser	*next;			// next sub-parser for the current context
+};
+
+struct _s_args_root
+{
+	_t_args_parser	*parser;		// main parser struct
+	_t_args_config	config;			// config of this parser
+};
+
+
+#pragma region Output
+
+struct _s_args_output_value
+{
+	char					*value;
+	_t_args_output_value	*next;
+};
+
+
+struct _s_args_output_param
+{
+	int						error;
+	char					*name;
+	_t_args_output_value	*values;
+	_t_args_output_param	*next;
+};
+
+
+struct s_args_output_option
+{
+	char					short_name;
+	unsigned int			nb_call;
+	int						error;
+
+	char					*long_name;
+	_t_args_param			*params;
+	_t_args_output_option	*next;
+};
+
+struct _s_args_output_parser
+{
+	char					*name;
+
+	_t_args_output_option	*options;
+	_t_args_output_param	*params;
+
+	_t_args_output_parser	*sub;
+	_t_args_output_parser	*next;
+};
+
+struct _s_args_output
+{
+	int						error;
+	_t_args_output_parser	*root;
 };
