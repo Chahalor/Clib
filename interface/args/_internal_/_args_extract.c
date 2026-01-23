@@ -25,23 +25,23 @@ int	_args_get_opt(
 	void **dest
 )
 {
-	const bool	_is_long = _is_long_opt(name);
-	const bool	_is_short = _is_short_opt(name);
+	const bool	_is_long = _args_is_long_opt(name);
+	const bool	_is_short = _args_is_short_opt(name);
 	char		_key = 0;
 	char		*_lname = NULL;
 
 	if (_is_long)
-		_lname = name + 2;
+		_lname = (char *)(name + 2);
 	else if (_is_short)
 		_key = name[1];
 	else if (strlen(name) > 1)
-		_lname = name;
+		_lname = (char *)name;
 	else
 		_key = name[0];
 
-	for (_t_args_option *_this = opts;
+	for (_t_args_option	*_this = opts;
 		_this;
-		_this = _this->next
+		_this = _this->next->data.option
 	)
 	{
 		const bool	_match =
@@ -70,7 +70,7 @@ int	_args_get_sub(
 
 	for (_t_args_parser	*_this = parsers;
 		_this && !_match;
-		_this = _this->next
+		_this = _this->next->data.parser
 	)
 	{
 		if (unlikely(_this->name && !strcmp(_this->name, name)))
@@ -94,7 +94,7 @@ int	_args_get_param(
 
 	for (_t_args_param	*_this = params;
 		_this && !_match;
-		_this = _this->next
+		_this = _this->next->data.param
 	)
 	{
 		if (unlikely(_this->name && !strcmp(_this->name, name)))

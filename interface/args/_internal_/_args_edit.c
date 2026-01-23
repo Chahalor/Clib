@@ -48,7 +48,7 @@ int	_args_add_sub_parser(
 	_t_args_parser **const dest
 )
 {
-	_t_args_parser	*_new = NULL;
+	ARGSP			*_new = NULL;
 	_t_args_parser	*_last = NULL;
 	int				result = error_none;
 
@@ -59,9 +59,9 @@ int	_args_add_sub_parser(
 		goto error;
 	}
 
-	for (_t_args_parser	*_this = parent->sub_parsers;
+	for (_t_args_parser	*_this = parent->sub_parsers->data.parser;
 		_this;
-		_this = _this->next
+		_this = _this->next->data.parser
 	)
 	{
 		_last = _this;
@@ -83,7 +83,7 @@ int	_args_add_param_to_parser(
 	_t_args_param **const dest
 )
 {
-	_t_args_param	*_new;
+	ARGSP			*_new;
 	_t_args_param	*_last;
 	int				result;
 
@@ -94,9 +94,9 @@ int	_args_add_param_to_parser(
 		goto error;
 	}
 
-	for (_t_args_parser	*_this = parent->params;
+	for (_t_args_param	*_this = parent->params->data.param;
 		_this;
-		_this = _this->next
+		_this = _this->next->data.param
 	)
 	{
 		_last = _this;
@@ -118,7 +118,7 @@ int	_args_add_param_to_option(
 	_t_args_param **const dest
 )
 {
-	_t_args_param	*_new;
+	ARGSP			*_new;
 	_t_args_param	*_last;
 	int				result;
 
@@ -129,9 +129,9 @@ int	_args_add_param_to_option(
 		goto error;
 	}
 
-	for (_t_args_parser	*_this = parent->params;
+	for (_t_args_param	*_this = parent->params->data.param;
 		_this;
-		_this = _this->next
+		_this = _this->next->data.param
 	)
 	{
 		_last = _this;
@@ -154,7 +154,7 @@ int	_args_add_option(
 	_t_args_option **const dest
 )
 {
-	_t_args_option	*_new;
+	ARGSP			*_new;
 	_t_args_option	*_last;
 	int				result;
 
@@ -165,9 +165,9 @@ int	_args_add_option(
 		goto error;
 	}
 
-	for (_t_args_parser	*_this = parent->options;
+	for (_t_args_option	*_this = parent->options->data.option;
 		_this;
-		_this = _this->next
+		_this = _this->next->data.option
 	)
 	{
 		_last = _this;
@@ -210,7 +210,7 @@ error:
 
 __attribute__((visibility("hidden")))
 int	_args_set_desc_option(
-	_t_args_parser *const target,
+	_t_args_option *const target,
 	const enum _e_args_set_desc_actions _action,
 	const char *const _fmt,
 	va_list *const _list
@@ -236,7 +236,7 @@ error:
 
 __attribute__((visibility("hidden")))
 int	_args_set_desc_param(
-	_t_args_parser *const target,
+	_t_args_param *const target,
 	const enum _e_args_set_desc_actions _action,
 	const char *const _fmt,
 	va_list *const _list

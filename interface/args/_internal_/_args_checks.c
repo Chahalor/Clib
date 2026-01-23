@@ -34,7 +34,7 @@ static inline int	_check_options(
 
 	for (_t_args_option *_this = options;
 		_this != NULL && !result;
-		_this = _this->next
+		_this = _this->next->data.option
 	)
 	{
 		char	*_name1 = _this->long_name;
@@ -49,7 +49,7 @@ static inline int	_check_options(
 
 		for (_t_args_option *_opt = options;
 			_opt != NULL && !result;
-			_opt = _opt->next
+			_opt = _opt->next->data.option
 		)
 		{
 			char	*_name2 = _opt->long_name;
@@ -69,14 +69,14 @@ static inline int	_check_options(
 }
 
 static inline int	_check_params(
-	const _t_args_param *const restrict params
+	_t_args_param *const params
 )
 {
 	int	result = error_none;
 
 	for (_t_args_param	*_this = params;
 		_this != NULL && !result;
-		_this = _this->next
+		_this = _this->next->data.param
 	)
 	{
 		if (unlikely(!_this->name || !_this->name[0] || _this->name[0] == '-'))
@@ -87,7 +87,7 @@ static inline int	_check_params(
 		{
 			for (_t_args_param	*_parm = params;
 				_parm != NULL && !result;
-				_parm = _parm->next
+				_parm = _parm->next->data.param
 			)
 			{
 				if (_parm != _this && (!_parm->name || !strcmp(_parm->name, _this->name)))
@@ -100,34 +100,34 @@ static inline int	_check_params(
 }
 
 static int	_check_parser(
-	const _t_args_parser *const restrict parser
+	const _t_args_parser *const parser
 )
 {
 	int	result = error_none;
 
-	for (_t_args_parser	*_this = parser;
+	for (_t_args_parser	*_this = (_t_args_parser *)parser;
 		_this != NULL && !result;
-		_this = _this->next
+		_this = _this->next->data.parser
 	)
 	{
 		if (unlikely(!_this->name || !_this->name[0] || _this->name[0] == '-'))
 			result = args_error_ambiguous_option;
 		else
 		{
-			for (_t_args_parser	*_psr = parser;
+			for (const _t_args_parser	*_psr = parser;
 				_psr != NULL && !result;
-				_psr = _psr->next
+				_psr = _psr->next->data.parser
 			)
 			{
 				if (_psr != _this && (!_psr->name || !strcmp(_this->name, _psr->name)))
 					result = args_error_duplicate;
 			}
-			result = _check_options(_this->options);
+			result = _check_options(_this->options->data.option);
 			result = !result ?
-						_check_params(_this->params) :
+						_check_params(_this->params->data.param) :
 						result;
 			result = !result ?
-						_check_parser(_this->sub_parsers) :
+						_check_parser(_this->sub_parsers->data.parser) :
 						result;
 		}
 	}
@@ -145,9 +145,9 @@ bool	_args_check_sub_exist_parser(
 {
 	int	result = false;
 
-	for (_t_args_parser	*_this = parser->sub_parsers;
+	for (_t_args_parser	*_this = parser->sub_parsers->data.parser;
 		_this != NULL && !result;
-		_this = _this->next
+		_this = _this->next->data.parser
 	)
 	{
 		if (_this->name && !strcmp(_this->name, name))
@@ -163,16 +163,16 @@ bool	_args_check_opt_exist_parser(
 	const char *name
 )
 {
-	const bool	_is_long =	_args_opt_is_long(name);
+	const bool	_is_long =	_args_is_long_opt(name);
 	int			result = false;
 
 	if (_is_long)
 	{
 		if (name[0] == '-')
 			name = name + 2;
-		for (_t_args_option	*_this = parser->options;
+		for (_t_args_option	*_this = parser->options->data.option;
 			_this != NULL && !result;
-			_this = _this->next
+			_this = _this->next->data.option
 		)
 		{
 			if (_this->long_name && !strcmp(_this->long_name, name))
@@ -183,9 +183,9 @@ bool	_args_check_opt_exist_parser(
 	{
 		if (name[0] == '-')
 			name = name + 1;
-		for (_t_args_option	*_this = parser->options;
+		for (_t_args_option	*_this = parser->options->data.option;
 			_this != NULL && !result;
-			_this = _this->next
+			_this = _this->next->data.option
 		)
 		{
 			if (_this->short_name && _this->short_name == name[0])
@@ -206,9 +206,9 @@ bool	_args_check_param_exist_parser(
 
 	if (name[0] != '-')
 	{
-		for (_t_args_param	*_this = parser->params;
+		for (_t_args_param	*_this = parser->params->data.param;
 			_this != NULL && !result;
-			_this = _this->next
+			_this = _this->next->data.param
 		)
 		{
 			if (unlikely(!strcmp(_this->name, name)))
@@ -221,7 +221,7 @@ bool	_args_check_param_exist_parser(
 
 __attribute__((visibility("hidden")))
 int	_args_check_parser(
-	const _t_args_parser *const restrict _parser
+	const _t_args_parser *const _parser
 )
 {
 	if (unlikely(!_parser->name))

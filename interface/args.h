@@ -105,9 +105,9 @@ void			args_config_set_param_check(
 
 #pragma region Parsing
 
+/** */
 int				args_parse(
-					const ARGSP *const parser,
-					t_args_output *const output,
+					ARGSP *const parser,
 					const int argc,
 					const char *argv[]
 				);
@@ -127,7 +127,7 @@ int				args_parse(
  * 	args_has(parser, "--file") -> only check for an option named like that
  * 	args_has(parser, "-f") -> only check for an option named like that
 */
-int				args_has(
+bool			args_has(
 					const ARGSP *const restrict parser,
 					const char *const restrict field
 				);
@@ -145,7 +145,7 @@ int				args_has(
  * 	args_has_opt(parser, "--file") -> check for the option named file
  * 	args_has_opt(parser, "-f") -> check for the option named file
 */
-int				args_has_opt(
+bool			args_has_opt(
 					const ARGSP *const restrict parser,
 					const char *const restrict field
 				);
@@ -161,7 +161,7 @@ int				args_has_opt(
  * @example:
  * 	args_has_param(parser, "file") -> check for the param file is recved
 */
-int				args_has_param(
+bool			args_has_param(
 					const ARGSP *const restrict parser,
 					const char *const restrict field
 				);
@@ -205,7 +205,7 @@ int				args_get(
 int				args_get_opt(
 					const ARGSP *const restrict parser,
 					const char *const restrict field,
-					char *const restrict dest
+					char **const dest
 				);
 
 /**
@@ -224,7 +224,7 @@ int				args_get_opt(
 int				args_get_param(
 					const ARGSP *const restrict parser,
 					const char *const restrict field,
-					char *const restrict dest
+					char **const dest
 				);
 
 /**
@@ -243,7 +243,7 @@ int				args_get_param(
 int				args_get_sub_parser(
 					const ARGSP *const restrict parser,
 					const char *const restrict field,
-					ARGS_SUB_PARSER *const restrict dest
+					ARGS_SUB_PARSER **const dest
 				);
 
 #pragma region Config

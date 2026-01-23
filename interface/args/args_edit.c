@@ -32,7 +32,7 @@ ARGS_SUB_PARSER	*args_add_subparser(
 				(parent->type != _e_args_data_type_parser && parent->type != _e_args_data_type_root)))
 		result = NULL;
 	else
-		_error = _args_add_sub_parser(parent->data.parser, name, &result);
+		_error = _args_add_sub_parser(parent->data.parser, name, &result->data.parser);
 
 	return (result);
 }
@@ -56,14 +56,14 @@ ARGS_PARAM		*args_parser_add_param(
 	switch (parser->type)
 	{
 	case (_e_args_data_type_opt):
-		_error = _args_add_param_to_option(parser->data.option, name, &result);
+		_error = _args_add_param_to_option(parser->data.option, name, &result->data.param);
 		if (unlikely(_error))
 			goto error;
 		break;
 
 	case (_e_args_data_type_parser):
 	case (_e_args_data_type_root):
-		_error = _args_add_param_to_parser(parser->data.parser, name, &result);
+		_error = _args_add_param_to_parser(parser->data.parser, name, &result->data.param);
 		if (unlikely(_error))
 			goto error;
 		break;
@@ -99,7 +99,7 @@ ARGS_PARAM		*args_option_add_param(
 		goto error;
 	}
 
-	_error = _args_add_param_to_option(option->data.option, name, &result);
+	_error = _args_add_param_to_option(option->data.option, name, &result->data.param);
 	if (unlikely(_error))
 		goto error;
 	if (result)
@@ -128,7 +128,7 @@ ARGS_OPT		*args_add_option(
 		goto error;
 	}
 	else
-		_error = _args_add_option(parser->data.parser, long_name, short_name, &result);
+		_error = _args_add_option(parser->data.parser, long_name, short_name, &result->data.option);
 
 error:
 	return (result);

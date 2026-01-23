@@ -41,7 +41,7 @@ static _t_args_option	*_get_opt_of(
 	const char *const restrict _s
 )
 {
-	const bool		_is_long = _s && _is_long_opt(_s);
+	const bool		_is_long = _s && _args_is_long_opt(_s);
 	_t_args_option	*result = NULL;
 
 	for (_t_args_option	*_this = _context->options->data.option;
@@ -149,11 +149,11 @@ static inline int	_parse_context_parser(
 	int				result = error_none;
 
 	/* Sub-parser switch (only meaningful in parser context) */
-	sub = _get_sub_parser_of(_context, current);
+	sub = _get_sub_parser_of(*_context, current);
 	if (sub)
 	{
 		*_context = sub;
-		*pos_cursor = (*_context)->params;
+		*pos_cursor = (*_context)->params->data.param;
 
 		/* Usually -- applies globally, so we DO NOT reset opt_disabled.
 			If you want it per-context, set opt_disabled=false here. */
@@ -161,7 +161,7 @@ static inline int	_parse_context_parser(
 	}
 
 	/* Option handling (disabled after "--") */
-	if (!opt_disabled && _is_opt(current))
+	if (!opt_disabled && _args_is_opt(current))
 	{
 		opt = _get_opt_of(*_context, current);
 		if (unlikely(!opt))
@@ -207,13 +207,13 @@ static inline int	_parse_context_parser(
 	}
 	else
 	{
-		result = _add_param(pos_cursor, current);
+		result = _add_param(*pos_cursor, current);
 		if (unlikely(result))
 		{
 			_args_config_set_errnum(result);
 			return (result);
 		}
-		pos_cursor = (*pos_cursor)->next->data.param;
+		*pos_cursor = (*pos_cursor)->next->data.param;
 	}
 
 	return (result);
@@ -257,7 +257,7 @@ static inline int	_parse_context_opt(
 	if (
 		!(*opt_disabled) &&
 		((*opt_param)->args_type & param_args_type_nargs) &&
-		_is_opt(current)
+		_args_is_opt(current)
 	)
 	{
 		/* give token back to main loop */
@@ -279,7 +279,7 @@ static inline int	_parse_context_opt(
 
 	/* Advance param cursor only if this param is not nargs */
 	if (!((*opt_param)->args_type & param_args_type_nargs))
-		*opt_param = (*opt_param)->next;
+		*opt_param = (*opt_param)->next->data.param;
 
 	/* Finished all params for this option */
 	if (!*opt_param)
@@ -293,14 +293,14 @@ static inline int	_parse_context_opt(
 
 int	_parse_args(
 	_t_args_parser *const restrict _root,
-	_t_args_parser *restrict _context
+	_t_args_parser *_context
 )
 {
 	enum e_args_context_type	context_type = args_context_parser;
 	bool			opt_disabled = false;
 	char			*current = NULL;
 	_t_args_parser	*sub = NULL;
-	_t_args_param	*pos_cursor = _context->params;	// Cursor for positional params in the current parser context
+	_t_args_param	*pos_cursor = _context->params->data.param;	// Cursor for positional params in the current parser context
 	_t_args_option	*opt = NULL;					// Current option (when parsing its arguments)
 	_t_args_param	*opt_param = NULL;
 	int				result = error_none;
@@ -332,7 +332,7 @@ int	_parse_args(
 /* ----| Public     |----- */
 
 int	_args_parse(
-	ARGSP *const restrict _main,
+	ARGSP *const _main,
 	const int _argc,
 	const char *_argv[]
 )
@@ -348,7 +348,7 @@ int	_args_parse(
 
 	_root->index = 1;
 	_root->argc = _argc;
-	_root->argv = _argv;
+	_root->argv = (char **)_argv;
 
 	result = _parse_args(_root, _root);
 

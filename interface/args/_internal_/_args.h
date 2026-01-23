@@ -8,6 +8,7 @@
 
 /* -----| Systems   |----- */
 #include <ctype.h>
+#include <stdarg.h>
 
 /* -----| Globals   |----- */
 # include "lib_config.h"
@@ -18,7 +19,7 @@
 # include "../../args.h"
 
 /* -----| Modules   |----- */
-	//...
+#include "memory.h"
 
 /* ************************************************************************** */
 /*                                 Macros                                     */
@@ -165,6 +166,16 @@ void	_args_remove_param_from_parser(
 	ARGSP *const _param
 );
 
+/* -----| Parsing   |----- */
+#pragma region Parsing
+
+/** */
+int				_args_parse(
+					ARGSP *const _main,
+					const int _argc,
+					const char *_argv[]
+				);
+
 /* -----| Editions   |----- */
 #pragma region Editions
 
@@ -213,7 +224,7 @@ int	_args_set_desc_parser(
 /** */
 __attribute__((visibility("hidden")))
 int	_args_set_desc_option(
-	_t_args_parser *const target,
+	_t_args_option *const target,
 	const enum _e_args_set_desc_actions _action,
 	const char *const _fmt,
 	va_list *const _list
@@ -222,7 +233,7 @@ int	_args_set_desc_option(
 /** */
 __attribute__((visibility("hidden")))
 int	_args_set_desc_param(
-	_t_args_parser *const target,
+	_t_args_param *const target,
 	const enum _e_args_set_desc_actions _action,
 	const char *const _fmt,
 	va_list *const _list
@@ -259,7 +270,7 @@ int	_args_get_param(
 #pragma region Checks
 
 /** */
-static inline int	_is_long_opt(
+static inline int	_args_is_long_opt(
 	const char *restrict _s
 )
 {
@@ -274,7 +285,7 @@ static inline int	_is_long_opt(
 }
 
 /** */
-static inline int	_is_short_opt(
+static inline int	_args_is_short_opt(
 	const char *restrict _s
 )
 {
@@ -289,11 +300,11 @@ static inline int	_is_short_opt(
 }
 
 /** */
-static inline int	_is_opt(
+static inline int	_args_is_opt(
 	const char *restrict _s
 )
 {
-	return (_is_short_opt(_s) || _is_long_opt(_s));
+	return (_args_is_short_opt(_s) || _args_is_long_opt(_s));
 }
 
 /** */
@@ -312,7 +323,7 @@ bool			_args_check_opt_exist_parser(
 
 /** */
 __attribute__((visibility("hidden")))
-bool			args_check_param_exist_parser(
+bool			_args_check_param_exist_parser(
 					const _t_args_parser *const restrict parser,
 					const char *name
 				);
@@ -320,5 +331,5 @@ bool			args_check_param_exist_parser(
 /** */
 __attribute__((visibility("hidden")))
 int				_args_check_parser(
-					const _t_args_parser *const restrict _parser
+					const _t_args_parser *const _parser
 				);

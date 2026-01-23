@@ -42,21 +42,21 @@ void	args_free_elt(
 	case (_e_args_data_type_parser):
 	case (_e_args_data_type_root):
 	{
-		_args_mem_free_param(_elt->data.parser, true);
+		_args_mem_free_param(_elt, true);
 		break;
 	}
 	case (_e_args_data_type_opt):
-		_args_mem_free_opt(_elt->data.option, true);
+		_args_mem_free_opt(_elt, true);
 		break;
 	case (_e_args_data_type_param):
-		_args_mem_free_param(_elt->data.param, true);
+		_args_mem_free_param(_elt, true);
 		break;
 	default:
 		result = error_invalid_arg;
 	}
 
 error:
-	return (result);
+	return /* (result) */;
 }
 
 void	args_remove_sub(
@@ -68,7 +68,7 @@ void	args_remove_sub(
 		(_main->type != _e_args_data_type_parser && _main->type != _e_args_data_type_root)))
 		_args_config_set_errnum(error_invalid_arg);
 	else
-		_args_remove_sub(_main->data.parser, _sub);
+		_args_remove_sub(_main, _sub);
 
 }
 
@@ -81,7 +81,7 @@ void	args_remove_option(
 		(_main->type != _e_args_data_type_parser && _main->type != _e_args_data_type_root)))
 		_args_config_set_errnum(error_invalid_arg);
 	else
-		_args_remove_opt(_main->data.parser, _opt);
+		_args_remove_opt(_main, _opt);
 }
 
 void	args_remove_param(
@@ -92,9 +92,9 @@ void	args_remove_param(
 	if (unlikely(!_main || !_param || _main->type == _e_args_data_type_param))
 		_args_config_set_errnum(error_invalid_arg);
 	else if (_main->type == _e_args_data_type_opt)
-		_args_remove_param_from_opt(_main->data.option, _param);
+		_args_remove_param_from_opt(_main, _param);
 	else
-		_args_remove_param_from_parser(_main->data.parser, _param);
+		_args_remove_param_from_parser(_main, _param);
 }
 
 void			args_destroy_parser(
