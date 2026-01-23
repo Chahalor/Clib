@@ -129,8 +129,8 @@ ARGSP	*_args_mem_new_parser(
 	}
 	else
 	{
-		result->data.parser = (_t_args_option *)(result + 1);
-		result->type = _e_args_data_type_opt;
+		result->data.parser = (_t_args_parser *)(result + 1);
+		result->type = _e_args_data_type_parser;
 		_this = result->data.parser;
 	}
 

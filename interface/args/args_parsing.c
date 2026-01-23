@@ -19,7 +19,7 @@
 /* ----| Public     |----- */
 
 int	args_parse(
-	const ARGS_PARSER *const parser,
+	const ARGSP *const parser,
 	const int argc,
 	const char *argv[]
 )

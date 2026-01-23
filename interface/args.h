@@ -30,42 +30,42 @@
 
 #pragma region Memory
 
-ARGS_PARSER		*args_parser_new(void);
+ARGSP		*args_parser_new(void);
 
 // TODO: check for this
 // #if __has_include ("json.h") || __has_include("files/json.h")
 
-// ARGS_PARSER		*args_parser_load_json(
+// ARGSP		*args_parser_load_json(
 // 					JSON *const restrict json
 // 				);
 
 // #endif
 
 
-// ARGS_PARSER		*args_parser_load_yaml(
+// ARGSP		*args_parser_load_yaml(
 // 					YAML *const restrict json
 // 				);
 
 void			args_destroy_parser(
-					ARGS_PARSER *const restrict parser
+					ARGSP *const restrict parser
 				);
 
 #pragma region Editing
 
 ARGS_SUB_PARSER	*args_parser_add_subparser(
-					ARGS_PARSER *const parent,
+					ARGSP *const parent,
 					const char *const name
 				);
 
 ARGS_PARAM		*args_parser_add_param(
-					ARGS_PARSER *const parser,
+					ARGSP *const parser,
 					const char *const name,
 					const t_param_type type,
 					const t_param_args_type spec
 				);
 
 ARGS_OPT		*args_parser_add_option(
-					ARGS_PARSER *const parser,
+					ARGSP *const parser,
 					const char *const long_name,
 					const char short_name
 				);
@@ -79,7 +79,7 @@ ARGS_PARAM		*args_option_add_param(
 
 /** */
 int	args_set_desc(
-	ARGS_PARSER *const target,
+	ARGSP *const target,
 	const char *const fmt,
 	...
 );
@@ -87,7 +87,7 @@ int	args_set_desc(
 /*
  TODO: see to link the config to one parser
 void			args_parser_set_config(
-					ARGS_PARSER *parser,
+					ARGSP *parser,
 					const t_args_config *config
 				);
 
@@ -106,7 +106,7 @@ void			args_config_set_param_check(
 #pragma region Parsing
 
 int				args_parse(
-					const ARGS_PARSER *const parser,
+					const ARGSP *const parser,
 					t_args_output *const output,
 					const int argc,
 					const char *argv[]
@@ -128,7 +128,7 @@ int				args_parse(
  * 	args_has(parser, "-f") -> only check for an option named like that
 */
 int				args_has(
-					const ARGS_PARSER *const restrict parser,
+					const ARGSP *const restrict parser,
 					const char *const restrict field
 				);
 
@@ -146,7 +146,7 @@ int				args_has(
  * 	args_has_opt(parser, "-f") -> check for the option named file
 */
 int				args_has_opt(
-					const ARGS_PARSER *const restrict parser,
+					const ARGSP *const restrict parser,
 					const char *const restrict field
 				);
 
@@ -162,7 +162,7 @@ int				args_has_opt(
  * 	args_has_param(parser, "file") -> check for the param file is recved
 */
 int				args_has_param(
-					const ARGS_PARSER *const restrict parser,
+					const ARGSP *const restrict parser,
 					const char *const restrict field
 				);
 
@@ -183,7 +183,7 @@ int				args_has_param(
  * 	args_get(parser, "-f", &filename) -> only search for the option named with a short name 'f'
 */
 int				args_get(
-					const ARGS_PARSER *const restrict parser,
+					const ARGSP *const restrict parser,
 					const char *const restrict field,
 					void *const restrict dest
 				);
@@ -203,7 +203,7 @@ int				args_get(
  * 	args_get_opt(parser, "-f", &filename) -> return the content of the option where the short_name == 'f'
 */
 int				args_get_opt(
-					const ARGS_PARSER *const restrict parser,
+					const ARGSP *const restrict parser,
 					const char *const restrict field,
 					char *const restrict dest
 				);
@@ -222,7 +222,7 @@ int				args_get_opt(
  * 	args_get_opt(parser, "--file", &filename) -> invalid, no param should be named like that
 */
 int				args_get_param(
-					const ARGS_PARSER *const restrict parser,
+					const ARGSP *const restrict parser,
 					const char *const restrict field,
 					char *const restrict dest
 				);
@@ -241,7 +241,7 @@ int				args_get_param(
  * 	args_get_opt(parser, "--add", &sub_parser) -> invalid, no sub-parser should be named like that
 */
 int				args_get_sub_parser(
-					const ARGS_PARSER *const restrict parser,
+					const ARGSP *const restrict parser,
 					const char *const restrict field,
 					ARGS_SUB_PARSER *const restrict dest
 				);

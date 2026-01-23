@@ -51,11 +51,6 @@ void			_args_config_set_errnum(
 #pragma region Memory
 
 /**
- * TODO: Docs
- */
-_t_args_parser	*_args_mem_new_root(void);
-
-/**
  * @brief	allocate and initialize a `_t_args_param` descriptor
  *
  * @param	_name	optional name used only to size the inline buffer
@@ -66,9 +61,9 @@ _t_args_parser	*_args_mem_new_root(void);
  * @note	.desc is left NULL and must be allocated separately if needed
  * @version	1.0.0
 */
-_t_args_param	*_args_mem_new_param(
-					const char *const restrict _name
-				);
+ARGSP	*_args_mem_new_param(
+	const char *const restrict _name
+);
 
 /**
  * @brief	allocate and initialize a `_t_args_option` descriptor
@@ -81,10 +76,10 @@ _t_args_param	*_args_mem_new_param(
  * @note	.desc is left NULL and must be allocated separately if needed
  * @version	1.0.0
  */
-_t_args_option	*_args_mem_new_option(
-					const char *const restrict _name,
-					const char _short_name
-				);
+ARGSP	*_args_mem_new_option(
+	const char *const restrict _name,
+	const char _short_name
+);
 
 /**
  * @brief	allocate and initialize a `_t_args_parser` descriptor
@@ -97,9 +92,14 @@ _t_args_option	*_args_mem_new_option(
  * @note	.desc, .params, .options, and .sub_parsers are set to NULL
  * @version	1.0.0
  */
-_t_args_parser	*_args_mem_new_parser(
-					const char *const restrict _name
-				);
+ARGSP	*_args_mem_new_parser(
+	const char *const restrict _name
+);
+
+/**
+ * TODO: Docs
+ */
+ARGSP	*_args_mem_new_root(void);
 
 /**
  * @brief	free a parameter descriptor
@@ -109,10 +109,10 @@ _t_args_parser	*_args_mem_new_parser(
  *
  * @version	1.0.0
  */
-void			_args_mem_free_param(
-					_t_args_param *const restrict _param,
-					const char _recursiv
-				);
+void	_args_mem_free_param(
+	ARGSP *const restrict _param,
+	const char _recursiv
+);
 
 /**
  * @brief	free an option descriptor
@@ -122,10 +122,10 @@ void			_args_mem_free_param(
  *
  * @version	1.0.0
  */
-void			_args_mem_free_opt(
-					_t_args_option *const restrict _param,
-					const char _recursiv
-				);
+void	_args_mem_free_opt(
+	ARGSP *const restrict _param,
+	const char _recursiv
+);
 
 /**
  * @brief	free a parser descriptor and its owned children
@@ -136,33 +136,33 @@ void			_args_mem_free_opt(
  * @note	also frees .params, .options, and .sub_parsers lists
  * @version	1.0.0
  */
-void			_args_mem_free_parser(
-					_t_args_parser *const restrict _param,
-					const char _recursiv
-				);
+void	_args_mem_free_parser(
+	ARGSP *const restrict _param,
+	const char _recursiv
+);
 
 /** */
 void	_args_remove_sub(
-	_t_args_parser *const _main,
-	_t_args_parser *const _sub
+	ARGSP *const _main,
+	ARGSP *const _sub
 );
 
 /** */
 void	_args_remove_opt(
-	_t_args_parser *const _main,
-	_t_args_option *const _opt
+	ARGSP *const _main,
+	ARGSP *const _opt
 );
 
 /** */
 void	_args_remove_param_from_opt(
-	_t_args_option *const _main,
-	_t_args_param *const _param
+	ARGSP *const _main,
+	ARGSP *const _param
 );
 
 /** */
 void	_args_remove_param_from_parser(
-	_t_args_parser *const _main,
-	_t_args_param *const _param
+	ARGSP *const _main,
+	ARGSP *const _param
 );
 
 /* -----| Editions   |----- */

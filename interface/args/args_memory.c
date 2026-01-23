@@ -20,13 +20,13 @@
 /* ----| Public     |----- */
 
 
-ARGS_PARSER		*args_parser_new(void)
+ARGSP		*args_parser_new(void)
 {
 	return (_args_mem_new_parser(NULL));
 }
 
 void	args_free_elt(
-	ARGS_PARSER *const _elt
+	ARGSP *const _elt
 )
 {
 	int	result = error_none;
@@ -60,7 +60,7 @@ error:
 }
 
 void	args_remove_sub(
-	ARGS_PARSER *const _main,
+	ARGSP *const _main,
 	ARGS_SUB_PARSER *const _sub
 )
 {
@@ -73,7 +73,7 @@ void	args_remove_sub(
 }
 
 void	args_remove_option(
-	ARGS_PARSER *const _main,
+	ARGSP *const _main,
 	ARGS_OPT *const _opt
 )
 {
@@ -85,7 +85,7 @@ void	args_remove_option(
 }
 
 void	args_remove_param(
-	ARGS_PARSER *const _main,
+	ARGSP *const _main,
 	ARGS_PARAM *const _param
 )
 {
@@ -98,7 +98,7 @@ void	args_remove_param(
 }
 
 void			args_destroy_parser(
-	ARGS_PARSER *const restrict parser
+	ARGSP *const restrict parser
 )
 {
 	_args_mem_free_parser(parser, true);

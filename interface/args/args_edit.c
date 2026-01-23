@@ -21,7 +21,7 @@
 
 
 ARGS_SUB_PARSER	*args_add_subparser(
-	ARGS_PARSER *const parent,
+	ARGSP *const parent,
 	const char *const name
 )
 {
@@ -38,8 +38,10 @@ ARGS_SUB_PARSER	*args_add_subparser(
 }
 
 ARGS_PARAM		*args_parser_add_param(
-	ARGS_PARSER *const parser,
-	const char *const name
+	ARGSP *const parser,
+	const char *const name,
+	const t_param_type type,
+	const t_param_args_type spec
 )
 {
 	int			_error;
@@ -55,15 +57,55 @@ ARGS_PARAM		*args_parser_add_param(
 	{
 	case (_e_args_data_type_opt):
 		_error = _args_add_param_to_option(parser->data.option, name, &result);
+		if (unlikely(_error))
+			goto error;
 		break;
 
 	case (_e_args_data_type_parser):
 	case (_e_args_data_type_root):
 		_error = _args_add_param_to_parser(parser->data.parser, name, &result);
+		if (unlikely(_error))
+			goto error;
+		break;
 
 	default:
 		result = NULL;
 		break;
+	}
+
+	if (result)
+	{
+		result->data.param->type = type;
+		result->data.param->args_type = spec;
+	}
+
+error:
+	return (result);
+}
+
+ARGS_PARAM		*args_option_add_param(
+	ARGS_OPT *const option,
+	const char *const name,
+	const t_param_type type,
+	const t_param_args_type spec
+)
+{
+	int			_error;
+	ARGS_PARAM	*result = NULL;
+
+	if (unlikely(!option || !name || option->type != _e_args_data_type_opt))
+	{
+		result = NULL;
+		goto error;
+	}
+
+	_error = _args_add_param_to_option(option->data.option, name, &result);
+	if (unlikely(_error))
+		goto error;
+	if (result)
+	{
+		result->data.param->type = type;
+		result->data.param->args_type = spec;
 	}
 
 error:
@@ -71,7 +113,7 @@ error:
 }
 
 ARGS_OPT		*args_add_option(
-	ARGS_PARSER *const parser,
+	ARGSP *const parser,
 	const char *const long_name,
 	const char short_name
 )
@@ -93,7 +135,7 @@ error:
 }
 
 int	args_set_desc(
-	ARGS_PARSER *const target,
+	ARGSP *const target,
 	const char *const fmt,
 	...
 )
@@ -129,4 +171,3 @@ int	args_set_desc(
 error:
 	return (result);
 }
-

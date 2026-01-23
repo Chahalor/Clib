@@ -19,7 +19,7 @@
 /* ----| Public     |----- */
 
 int	args_has(
-	const ARGS_PARSER *const restrict parser,
+	const ARGSP *const restrict parser,
 	const char *const restrict field
 )
 {
@@ -36,7 +36,7 @@ int	args_has(
 }
 
 int	args_has_opt(
-	const ARGS_PARSER *const restrict parser,
+	const ARGSP *const restrict parser,
 	const char *const restrict field
 )
 {
@@ -53,7 +53,7 @@ int	args_has_opt(
 }
 
 int				args_has_param(
-	const ARGS_PARSER *const restrict parser,
+	const ARGSP *const restrict parser,
 	const char *const restrict field
 )
 {
@@ -70,7 +70,7 @@ int				args_has_param(
 }
 
 int	args_get(
-	const ARGS_PARSER *const restrict parser,
+	const ARGSP *const restrict parser,
 	const char *const restrict field,
 	void *const restrict dest
 )
@@ -103,7 +103,7 @@ exit:
 }
 
 int	args_get_opt(
-	const ARGS_PARSER *const restrict parser,
+	const ARGSP *const restrict parser,
 	const char *const restrict field,
 	char *const restrict dest
 )
@@ -119,7 +119,7 @@ int	args_get_opt(
 }
 
 int	args_get_param(
-	const ARGS_PARSER *const restrict parser,
+	const ARGSP *const restrict parser,
 	const char *const restrict field,
 	char *const restrict dest
 )
@@ -135,7 +135,7 @@ int	args_get_param(
 }
 
 int	args_get_sub_parser(
-	const ARGS_PARSER *const restrict parser,
+	const ARGSP *const restrict parser,
 	const char *const restrict field,
 	ARGS_SUB_PARSER *const restrict dest
 )

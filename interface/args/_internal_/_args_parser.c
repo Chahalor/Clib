@@ -23,9 +23,9 @@ static _t_args_parser	*_get_sub_parser_of(
 {
 	_t_args_parser			*result = NULL;
 
-	for (_t_args_parser *_this = _context->sub_parsers;
+	for (_t_args_parser	*_this = _context->sub_parsers->data.parser;
 		_this != NULL && !result;
-		_this = _this->next
+		_this = _this->next->data.parser
 	)
 	{
 		result = _this->name && !strcmp(_this->name, _s) ?
@@ -44,9 +44,9 @@ static _t_args_option	*_get_opt_of(
 	const bool		_is_long = _s && _is_long_opt(_s);
 	_t_args_option	*result = NULL;
 
-	for (_t_args_option	*_this = _context->options;
+	for (_t_args_option	*_this = _context->options->data.option;
 		_this != NULL && !result;
-		_this = _this->next
+		_this = _this->next->data.option
 	)
 	{
 		if (_s && _this->long_name && _is_long && !strcmp(_this->long_name, _s + 2))
@@ -139,7 +139,7 @@ static inline int	_parse_context_parser(
 	_t_args_parser **_context,
 	_t_args_param **pos_cursor,
 	_t_args_param **opt_param,
-	int *const restrict context_type,
+	enum e_args_context_type *const restrict context_type,
 	const bool opt_disabled,
 	char *current
 )
@@ -175,7 +175,7 @@ static inline int	_parse_context_parser(
 		opt->nb_calls++;
 		/* if (!(opt->flags & OPT_REPEATABLE) && opt->nb_calls > 1) ... */
 
-		*opt_param = opt->params;
+		*opt_param = opt->params->data.param;
 		if (*opt_param)
 			*context_type = args_context_opt;
 		return (result);
@@ -213,7 +213,7 @@ static inline int	_parse_context_parser(
 			_args_config_set_errnum(result);
 			return (result);
 		}
-		pos_cursor = (*pos_cursor)->next;
+		pos_cursor = (*pos_cursor)->next->data.param;
 	}
 
 	return (result);
@@ -224,7 +224,7 @@ static inline int	_parse_context_opt(
 	// _t_args_parser *const restrict _context,
 	_t_args_param **opt_param,
 	_t_args_option **opt,
-	int *const restrict context_type,
+	enum e_args_context_type *const restrict context_type,
 	bool *const restrict opt_disabled,
 	char *current
 )
@@ -291,13 +291,12 @@ static inline int	_parse_context_opt(
 	return (result);
 }
 
-
 int	_parse_args(
 	_t_args_parser *const restrict _root,
 	_t_args_parser *restrict _context
 )
 {
-	int				context_type = args_context_parser;
+	enum e_args_context_type	context_type = args_context_parser;
 	bool			opt_disabled = false;
 	char			*current = NULL;
 	_t_args_parser	*sub = NULL;
