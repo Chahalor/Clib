@@ -299,18 +299,11 @@ int	_parse_args(
 {
 	int				context_type = args_context_parser;
 	bool			opt_disabled = false;
-
 	char			*current = NULL;
-
 	_t_args_parser	*sub = NULL;
-
-	/* Cursor for positional params in the current parser context */
-	_t_args_param	*pos_cursor = _context->params;
-
-	/* Current option (when parsing its arguments) */
-	_t_args_option	*opt = NULL;
+	_t_args_param	*pos_cursor = _context->params;	// Cursor for positional params in the current parser context
+	_t_args_option	*opt = NULL;					// Current option (when parsing its arguments)
 	_t_args_param	*opt_param = NULL;
-
 	int				result = error_none;
 
 	while (_root->index < _root->argc && !result)
@@ -340,17 +333,17 @@ int	_parse_args(
 /* ----| Public     |----- */
 
 int	_args_parse(
-	_t_args_parser *const restrict _root,
-	t_args_output *const restrict _output,
+	ARGSP *const restrict _main,
 	const int _argc,
 	const char *_argv[]
 )
 {
 	char			*_current = NULL;
-	_t_args_parser	*_context = (_t_args_parser *)_root;
+	_t_args_parser	*_context = (_t_args_parser *)_main->data.parser;
+	_t_args_parser	*_root = _main->data.parser;
 	int				result;
 
-	result = _check_parser(_root);
+	result = _args_check_parser(_root);
 	if (unlikely(result))
 		goto error;
 

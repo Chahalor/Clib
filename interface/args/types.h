@@ -26,19 +26,14 @@
 	//...
 
 /* -----| Enums     |----- */
-typedef enum e_param_type			t_param_type;
-typedef enum e_param_args_type		t_param_args_type;
+typedef enum e_param_type			t_param_type;		// TODO: docs
+typedef enum e_param_args_type		t_param_args_type;	//
 
 /* -----| Structs   |----- */
-
-typedef struct _s_args_param		ARGS_PARAM;
-typedef struct _s_args_option		ARGS_OPT;
-typedef struct _s_args_parser		ARGS_SUB_PARSER;
-typedef struct _s_args_parser_root	ARGS_PARSER;
-
-typedef struct s_args_output_param	t_args_output_param;
-typedef struct s_args_output_option	t_args_output_option;
-typedef struct s_args_output		t_args_output;
+typedef struct _s_args_parser_root	ARGSP;				//
+typedef ARGSP						ARGS_PARAM;			//
+typedef ARGSP						ARGS_OPT;			//
+typedef ARGSP						ARGS_SUB_PARSER;	//
 
 /* ************************************************************************** */
 /*                                 Enums                                      */
@@ -55,7 +50,7 @@ enum e_param_type
 enum e_param_args_type
 {
 	param_args_type_require = 1 << 0,	// this param is required
-	param_args_type_nargs =   1 << 1,		// this param take n args
+	param_args_type_nargs =   1 << 1,	// this param take n args
 };
 
 enum e_args_error

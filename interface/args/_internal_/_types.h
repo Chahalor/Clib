@@ -86,10 +86,10 @@ struct _s_args_param
 	char				*name;		// name of the parameter
 	char				*desc;		// description of the parameter
 	char				**values;	// value of the param
+	ARGSP				*next;		// next param in the context
 	unsigned int		nb_values;	// numbers of values entered
 	unsigned int		max_values;	// number of allocated values
 	bool				is_fill;	// is this param already filled
-	_t_args_param		*next;		// next param in the context
 	t_param_type		type;		// type of the expected data
 	t_param_args_type	args_type;	// type of the args content (requiered, nargs, ...)
 };
@@ -103,8 +103,8 @@ struct _s_args_option
 {
 	char			*long_name;	// long name of the option (only one char == only short option)
 	char			*desc;		// description of the option
-	_t_args_param	*params;	// params of the option
-	_t_args_option	*next;		// next possible option the context
+	ARGSP			*params;	// params of the option
+	ARGSP			*next;		// next possible option the context
 	unsigned int	nb_calls;	// numbers of call of this option
 	char			short_name;	// short name of the option
 };
@@ -117,18 +117,17 @@ struct _s_args_option
 struct _s_args_parser
 {
 	/* data for the current context */
-	char			*name;			// name of the context/sub-parser
-	char			*desc;			// description of this context/app
-	_t_args_param	*params;		// params of the parser
-	_t_args_option	*options;		// option of the parser/context
-	_t_args_parser	*sub_parsers;	// sub parser of the context
-	_t_args_parser	*next;			// next sub-parser for the current context
+	char	*name;			// name of the context/sub-parser
+	char	*desc;			// description of this context/app
+	ARGSP	*params;		// params of the parser
+	ARGSP	*options;		// option of the parser/context
+	ARGSP	*sub_parsers;	// sub parser of the context
+	ARGSP	*next;			// next sub-parser for the current context
 
 	/* config (for the root one) */
-	char			**argv;
-	_t_args_parser	*parser;
-	int				argc;
-	int				index;
+	char	**argv;			// argv to be parsed
+	int		argc;			// number of args
+	int		index;			// current index in the args
 };
 
 union _u_parsers

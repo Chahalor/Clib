@@ -14,95 +14,111 @@
 	//...
 
 /* ----| Internals  |----- */
-	//...
 
-/* ----| Public     |----- */
-
-_t_args_parser	*_args_mem_new_root(void)
+static inline ARGSP	*_new_elt(
+	const size_t _length
+)
 {
-	_t_args_parser	*result;
+	const size_t	_alloc_size = sizeof(ARGSP) + _length;
+	ARGSP			*result = NULL;
 
-	result = mem_alloc(sizeof(_t_args_parser));
+	result = mem_alloc(_alloc_size);
 	if (unlikely(!result))
 		_args_config_set_errnum(error_alloc_fail);
 
 	return (result);
 }
 
-_t_args_param	*_args_mem_new_param(
+/* ----| Public     |----- */
+
+ARGSP	*_args_mem_new_param(
 	const char *const restrict _name
 )
 {
 	const size_t	_name_len = _name ? strlen(_name) + 1 : 0;
-	const size_t	_alloc_size = sizeof(_t_args_param) + _name_len;
-	_t_args_param	*result;
+	_t_args_param	*_this = NULL;;
+	ARGSP			*result = NULL;
 
-	result = mem_alloc(_alloc_size);
+	result = _new_elt(sizeof(_t_args_param) + _name_len);
 	if (unlikely(!result))
 	{
 		_args_config_set_errnum(error_alloc_fail);
 		goto error;
 	}
+	else
+	{
+		result->data.param = (_t_args_param *)(result + 1);
+		result->type = _e_args_data_type_param;
+		_this = result->data.param;
+	}
 
 	if (_name_len)
 	{
-		result->name = (char *)(result + 1);
-		strcpy(result->name, _name);
+		_this->name = (char *)(_this + 1);
+		strcpy(_this->name, _name);
 	}
 	else
-		result->name = NULL;
-	result->desc = NULL;
-	result->next = NULL;
-	result->type = 0;
-	result->values = NULL;
-	result->args_type = 0;
-	result->is_fill = false;
-	result->nb_values = 0;
+		_this->name = NULL;
+	_this->desc = NULL;
+	_this->next = NULL;
+	_this->type = 0;
+	_this->values = NULL;
+	_this->args_type = 0;
+	_this->is_fill = false;
+	_this->nb_values = 0;
 
 error:
 	return (result);
 }
 
-_t_args_option	*_args_mem_new_option(
+ARGSP	*_args_mem_new_option(
 	const char *const restrict _name,
 	const char _short_name
 )
 {
 	const size_t	_name_len = _name ? strlen(_name) + 1 : 0;
 	const size_t	_alloc_size = sizeof(_t_args_option) + _name_len;
-	_t_args_option	*result;
+	_t_args_option	*_this = NULL;
+	ARGSP			*result;
 
-	result = mem_alloc(_alloc_size);
+	result = _new_elt(_alloc_size);
 	if (unlikely(!result))
 	{
 		_args_config_set_errnum(error_alloc_fail);
 		goto error;
 	}
+	else
+	{
+		result->data.option = (_t_args_option *)(result + 1);
+		result->type = _e_args_data_type_opt;
+		_this = result->data.option;
+	}
 
 	if (_name_len)
 	{
-		result->long_name = (char *)(result + 1);
-		strcpy(result->long_name, _name);
+		_this->long_name = (char *)(_this + 1);
+		strcpy(_this->long_name, _name);
 	}
 	else
-		result->long_name = NULL;
-	result->desc = NULL;
-	result->params = NULL;
-	result->next = NULL;
-	result->short_name = _short_name;
-	result->nb_calls = 0;
+		_this->long_name = NULL;
+	_this->desc = NULL;
+	_this->params = NULL;
+	_this->next = NULL;
+	_this->short_name = _short_name;
+	_this->nb_calls = 0;
 
 error:
 	return (result);
 }
 
-_t_args_parser	*_args_mem_new_parser(
+ARGSP	*_args_mem_new_parser(
 	const char *const restrict _name
 )
 {
 	const size_t	_name_len = _name ? strlen(_name) + 1 : 0;
 	const size_t	_alloc_size = sizeof(_t_args_parser) + _name_len;
-	_t_args_parser	*result;
+	_t_args_parser	*_this = NULL;
+	ARGSP			*result;
 
 
 	result = mem_alloc(_alloc_size);
@@ -111,82 +127,101 @@ _t_args_parser	*_args_mem_new_parser(
 		_args_config_set_errnum(error_alloc_fail);
 		goto error;
 	}
+	else
+	{
+		result->data.parser = (_t_args_option *)(result + 1);
+		result->type = _e_args_data_type_opt;
+		_this = result->data.parser;
+	}
 
 	if (_name_len)
 	{
-		result->name = (char *)(result + 1);
-		strcpy(result->name, _name);
+		_this->name = (char *)(_this + 1);
+		strcpy(_this->name, _name);
 	}
 	else
-		result->name = NULL;
-	result->desc = NULL;
-	result->options = NULL;
-	result->params = NULL;
-	result->sub_parsers = NULL;
-	result->next = NULL;
+		_this->name = NULL;
+	_this->desc = NULL;
+	_this->options = NULL;
+	_this->params = NULL;
+	_this->sub_parsers = NULL;
+	_this->next = NULL;
 
 
 error:
 	return (result);
 }
 
+ARGSP	*_args_mem_new_root(void)
+{
+	ARGSP	*result;
+
+	result = _args_mem_new_parser(NULL);
+	result->type = _e_args_data_type_root;
+
+	return (result);
+}
+
 void	_args_mem_free_param(
-	_t_args_param *const restrict _param,
+	ARGSP *const restrict _param,
 	const char _recursiv
 )
 {
 	if (unlikely(!_param))
 		return ;
-	mem_free(_param->desc);
-	if (_recursiv && _param->next)
-		_args_mem_free_param(_param->next, true);
+
+	mem_free(_param->data.param->desc);
+	if (_recursiv && _param->data.param->next)
+		_args_mem_free_param(_param->data.param->next, true);
 	mem_free(_param);
 }
 
 void	_args_mem_free_opt(
-	_t_args_option *const restrict _param,
+	ARGSP *const restrict _param,
 	const char _recursiv
 )
 {
 	if (unlikely(!_param))
 		return ;
-	mem_free(_param->desc);
-	if (_recursiv && _param->next)
-		_args_mem_free_opt(_param->next, true);
+
+	mem_free(_param->data.option->desc);
+	if (_recursiv && _param->data.option->next)
+		_args_mem_free_opt(_param->data.option->next, true);
 	mem_free(_param);
 }
 
 void	_args_mem_free_parser(
-	_t_args_parser *const restrict _param,
+	ARGSP *const restrict _param,
 	const char _recursiv
 )
 {
 	if (unlikely(!_param))
 		return ;
-	mem_free(_param->desc);
-	if (_recursiv && _param->next)
-		_args_mem_free_parser(_param->next, true);
-	_args_mem_free_param(_param->params, true);
-	_args_mem_free_opt(_param->options, true);
-	_args_mem_free_parser(_param->sub_parsers, true);
+
+	mem_free(_param->data.parser->desc);
+	if (_recursiv && _param->data.parser->next)
+		_args_mem_free_parser(_param->data.parser->next, true);
+	_args_mem_free_param(_param->data.parser->params, true);
+	_args_mem_free_opt(_param->data.parser->options, true);
+	_args_mem_free_parser(_param->data.parser->sub_parsers, true);
 	mem_free(_param);
 }
 
 void	_args_remove_sub(
-	_t_args_parser *const _main,
-	_t_args_parser *const _sub
+	ARGSP *const _main,
+	ARGSP *const _sub
 )
 {
-	_t_args_parser	*_prev = _main->sub_parsers;
+	ARGSP	*_prev = _main->data.parser->sub_parsers;
 
-	for (_t_args_parser	*_this = _main->sub_parsers;
+	for (ARGSP	*_this = _main->data.parser->sub_parsers;
 		_this; 
-		_this = _this->next
+		_this = _this->data.parser->next
 	)
 	{
 		if (unlikely(_this == _prev))
 		{
-			_prev->next = _this->next;
+			_prev->data.parser->next = _this->data.parser->next;
 			_args_mem_free_parser(_this, false);
 			return ;
 		}
@@ -195,20 +230,20 @@ void	_args_remove_sub(
 }
 
 void	_args_remove_opt(
-	_t_args_parser *const _main,
-	_t_args_option *const _opt
+	ARGSP *const _main,
+	ARGSP *const _opt
 )
 {
-	_t_args_option	*_prev = _main->options;
+	ARGSP	*_prev = _main->data.parser->options;
 
-	for (_t_args_option	*_this = _main->options;
+	for (ARGSP	*_this = _main->data.parser->options;
 		_this;
-		_this = _this->next
+		_this = _this->data.option->next
 	)
 	{
 		if (_this == _prev)
 		{
-			_prev->next = _this->next;
+			_prev->data.option->next =  _this->data.option->next;
 			_args_mem_free_opt(_this, false);
 			return ;
 		}
@@ -217,20 +252,20 @@ void	_args_remove_opt(
 }
 
 void	_args_remove_param_from_opt(
-	_t_args_option *const _main,
-	_t_args_param *const _param
+	ARGSP *const _main,
+	ARGSP *const _param
 )
 {
-	_t_args_param	*_prev = _main->params;
+	ARGSP	*_prev = _main->data.option->params;
 
-	for (_t_args_param	*_this = _main->params;
+	for (ARGSP	*_this = _main->data.option->params;
 		_this;
-		_this = _this->next
+		_this = _this->data.option->next
 	)
 	{
 		if (unlikely(_this = _prev))
 		{
-			_prev->next = _this->next;
+			_prev->data.option->next = _this->data.option->next;
 			_args_mem_free_param(_this, false);
 			return ;
 		}
@@ -239,20 +274,20 @@ void	_args_remove_param_from_opt(
 }
 
 void	_args_remove_param_from_parser(
-	_t_args_parser *const _main,
-	_t_args_param *const _param
+	ARGSP *const _main,
+	ARGSP *const _param
 )
 {
-	_t_args_param	*_prev = _main->params;
+	ARGSP	*_prev = _main->data.parser->params;
 
-	for (_t_args_param	*_this = _main->params;
+	for (ARGSP	*_this = _main->data.parser->params;
 		_this;
-		_this = _this->next
+		_this = _this->data.param->next
 	)
 	{
 		if (unlikely(_this = _prev))
 		{
-			_prev->next = _this->next;
+			_prev->data.param->next = _this->data.param->next;
 			_args_mem_free_param(_this, false);
 			return ;
 		}
