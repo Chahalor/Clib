@@ -141,6 +141,30 @@ void			_args_mem_free_parser(
 					const char _recursiv
 				);
 
+/** */
+void	_args_remove_sub(
+	_t_args_parser *const _main,
+	_t_args_parser *const _sub
+);
+
+/** */
+void	_args_remove_opt(
+	_t_args_parser *const _main,
+	_t_args_option *const _opt
+);
+
+/** */
+void	_args_remove_param_from_opt(
+	_t_args_option *const _main,
+	_t_args_param *const _param
+);
+
+/** */
+void	_args_remove_param_from_parser(
+	_t_args_parser *const _main,
+	_t_args_param *const _param
+);
+
 /* -----| Editions   |----- */
 #pragma region Editions
 

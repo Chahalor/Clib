@@ -171,3 +171,91 @@ void	_args_mem_free_parser(
 	_args_mem_free_parser(_param->sub_parsers, true);
 	mem_free(_param);
 }
+
+void	_args_remove_sub(
+	_t_args_parser *const _main,
+	_t_args_parser *const _sub
+)
+{
+	_t_args_parser	*_prev = _main->sub_parsers;
+
+	for (_t_args_parser	*_this = _main->sub_parsers;
+		_this; 
+		_this = _this->next
+	)
+	{
+		if (unlikely(_this == _prev))
+		{
+			_prev->next = _this->next;
+			_args_mem_free_parser(_this, false);
+			return ;
+		}
+		_prev = _this;
+	}
+}
+
+void	_args_remove_opt(
+	_t_args_parser *const _main,
+	_t_args_option *const _opt
+)
+{
+	_t_args_option	*_prev = _main->options;
+
+	for (_t_args_option	*_this = _main->options;
+		_this;
+		_this = _this->next
+	)
+	{
+		if (_this == _prev)
+		{
+			_prev->next = _this->next;
+			_args_mem_free_opt(_this, false);
+			return ;
+		}
+		_prev = _this;
+	}
+}
+
+void	_args_remove_param_from_opt(
+	_t_args_option *const _main,
+	_t_args_param *const _param
+)
+{
+	_t_args_param	*_prev = _main->params;
+
+	for (_t_args_param	*_this = _main->params;
+		_this;
+		_this = _this->next
+	)
+	{
+		if (unlikely(_this = _prev))
+		{
+			_prev->next = _this->next;
+			_args_mem_free_param(_this, false);
+			return ;
+		}
+		_prev = _this;
+	}
+}
+
+void	_args_remove_param_from_parser(
+	_t_args_parser *const _main,
+	_t_args_param *const _param
+)
+{
+	_t_args_param	*_prev = _main->params;
+
+	for (_t_args_param	*_this = _main->params;
+		_this;
+		_this = _this->next
+	)
+	{
+		if (unlikely(_this = _prev))
+		{
+			_prev->next = _this->next;
+			_args_mem_free_param(_this, false);
+			return ;
+		}
+		_prev = _this;
+	}
+}
