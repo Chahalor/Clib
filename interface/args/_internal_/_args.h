@@ -51,22 +51,55 @@ void			_args_config_set_errnum(
 /* -----| Memory    |----- */
 #pragma region Memory
 
-
+/**
+ * @brief	initialize the root args configuration with defaults
+ *
+ * @param	_conf	target config structure to initialize
+ *
+ * @return	void
+ */
 void	_args_init_root_config(
 	_t_args_config *const _conf
 );
 
+/**
+ * @brief	allocate and initialize a new parser node
+ *
+ * @param	_name	parser name (optional)
+ * @param	_desc	parser description (optional)
+ *
+ * @return	new parser instance or NULL on allocation failure
+ */
 _t_args_parser	*_args_mem_new_parser(
 	const char *const _name,
 	const char *const _desc
 );
 
+/**
+ * @brief	allocate and initialize a new option node
+ *
+ * @param	_long_name	option long name (optional)
+ * @param	_short_name	option short name (0 if unused)
+ * @param	_desc		option description (optional)
+ *
+ * @return	new option instance or NULL on allocation failure
+ */
 _t_args_option	*_args_mem_new_option(
 	const char *const _long_name,
 	const char _short_name,
 	const char *const _desc
 );
 
+/**
+ * @brief	allocate and initialize a new parameter node
+ *
+ * @param	_name		parameter name (optional)
+ * @param	_desc		parameter description (optional)
+ * @param	_args_spec	parameter arguments specification
+ * @param	_type		parameter value type
+ *
+ * @return	new parameter instance or NULL on allocation failure
+ */
 _t_args_param	*_args_mem_new_param(
 	const char *const _name,
 	const char *const _desc,
@@ -74,26 +107,59 @@ _t_args_param	*_args_mem_new_param(
 	const t_param_type _type
 );
 
+/**
+ * @brief	allocate and initialize a new output value node
+ *
+ * @param	_value	string value to store (optional)
+ *
+ * @return	new output value instance or NULL on allocation failure
+ */
 _t_args_output_value	*_args_mem_new_out_val(
 	const char *const _value
 );
 
+/**
+ * @brief	allocate and initialize a new output parameter node
+ *
+ * @param	_name	parameter name (optional)
+ *
+ * @return	new output parameter instance or NULL on allocation failure
+ */
 _t_args_output_param	*_args_mem_new_out_param(
 	const char *const _name
 );
 
+/**
+ * @brief	allocate and initialize a new output option node from a template option
+ *
+ * @param	_opt	source option used to populate names and flags
+ *
+ * @return	new output option instance or NULL on allocation failure
+ */
 _t_args_output_option	*_args_mem_new_out_opt(
 	const _t_args_option *const _opt
 );
 
+/**
+ * @brief	allocate and initialize a new output parser node
+ *
+ * @param	_name	parser name (optional)
+ *
+ * @return	new output parser instance or NULL on allocation failure
+ */
 _t_args_output_parser	*_args_mem_new_out_parser(
 	const char *const _name
 );
 
+/**
+ * @brief	allocate and initialize a new output container
+ *
+ * @return	new output container or NULL on allocation failure
+ */
 _t_args_output	*_args_mem_new_output(void);
 
-// /* -----| Parsing   |----- */
-// #pragma region Parsing
+/* -----| Parsing   |----- */
+#pragma region Parsing
 
 // /** */
 // int				_args_parse(
