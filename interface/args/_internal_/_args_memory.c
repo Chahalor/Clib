@@ -131,3 +131,48 @@ _t_args_option	*_args_mem_new_option(
 error:
 	return (new);
 }
+
+_t_args_param	*_args_mem_new_param(
+	const char *const _name,
+	const char *const _desc,
+	const t_param_args_type _args_spec,
+	const t_param_type _type
+)
+{
+	const size_t	_name_length = _name ? strlen(_name) : 0;
+	const size_t	_desc_length = _desc ? strlen(_desc) : 0;
+	const size_t	_alloc_size = sizeof(_t_args_parser) + sizeof(char) * (_name_length);
+	_t_args_param	*new;
+
+	new = mem_alloc(_alloc_size);
+	if (unlikely(!new))
+	{
+		_args_config_set_errnum(error_alloc_fail);
+		goto error;
+	}
+
+	if (_name)
+	{
+		new->name = (char *)(new + 1);
+		strcpy(new->name, _name);
+	}
+	if (_desc)
+	{
+		new->desc = mem_alloc(_desc_length);
+		if (unlikely(!new->desc))
+		{
+			_args_config_set_errnum(error_alloc_fail);
+			mem_free(new);
+			goto error;
+		}
+		else
+			strcpy(new->desc, _desc);
+	}
+
+	new->next = NULL;
+	new->args_type = _args_spec;
+	new->type = _type;
+
+error:
+	return (new);
+}
