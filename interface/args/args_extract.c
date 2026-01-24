@@ -102,7 +102,7 @@ t_args_output	*args_get_sub_output(
 	const t_args_output *_out
 )
 {
-	if (unlikely(!_out || !_name))
+	if (unlikely(!_out))
 		return (error_invalid_arg);
 	else
 		return (_args_get_sub_output(_out));

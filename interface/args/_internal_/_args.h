@@ -231,6 +231,39 @@ int	_args_option_set_desc(
 	const char *const _desc
 );
 
+/** */
+t_args_parser	*_args_parser_add_sub(
+	t_args_parser *const _parent,
+	const char *const _name,
+	const char *const _desc
+);
+
+/** */
+t_args_option	*_args_parser_add_option(
+	t_args_parser *const _parent,
+	const char *const _long_name,
+	const char _sname,
+	const char *const _desc
+);
+
+/** */
+t_args_param	*_args_parser_add_param(
+	t_args_parser *const _parent,
+	const char *const _name,
+	const char *const _desc,
+	const int _spec,
+	const int _type
+);
+
+/** */
+t_args_param	*_args_option_add_param(
+	t_args_option *const _parent,
+	const char *const _name,
+	const char *const _desc,
+	const int _spec,
+	const int _type
+);
+
 /* -----| Extraction |----- */
 #pragma region Extraction
 

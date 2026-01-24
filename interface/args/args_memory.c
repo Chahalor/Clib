@@ -36,7 +36,7 @@ t_args_parser	*args_parser_add_sub(
 {
 	int	result = error_none;
 
-	if (unlikely(!_parent || !_name || !_desc))
+	if (unlikely(!_parent || !_name))
 		result = error_invalid_arg;
 	else
 		result = _args_parser_add_sub(_parent, _name, _desc);
@@ -48,16 +48,17 @@ t_args_parser	*args_parser_add_sub(
 
 t_args_option	*args_parser_add_option(
 	t_args_parser *const _parser,
-	const char *const _name,
+	const char *const _long_name,
+	const char _short_name,
 	const char *const _desc
 )
 {
 	int	result = error_none;
 
-	if (unlikely(!_parser || !_name || !_desc))
+	if (unlikely(!_parser || (!_long_name && !_short_name)))
 		result = error_invalid_arg;
 	else
-		result = _args_parser_add_sub(_parser, _name, _desc);
+		result = _args_parser_add_option(_parser, _long_name, _short_name, _desc);
 
 	return (result);
 }
@@ -68,19 +69,38 @@ t_args_option	*args_parser_add_option(
 t_args_param	*args_parser_add_param(
 	t_args_parser *const _parser,
 	const char *const _name,
-	const char *const _desc
+	const char *const _desc,
+	const int _spec,
+	const int _type
 )
 {
 	int	result = error_none;
 
-	if (unlikely(!_parser || !_name || !_desc))
+	if (unlikely(!_parser || !_name))
 		result = error_invalid_arg;
 	else
-		result = _args_parser_add_sub(_parser, _name, _desc);
+		result = _args_parser_add_param(_parser, _name, _desc, _spec, _type);
 
 	return (result);
 }
 
+t_args_param	*args_option_add_param(
+	t_args_option *const _parent,
+	const char *const _name,
+	const char *const _desc,
+	const int _spec,
+	const int _type
+)
+{
+	int	result = error_none;
+
+	if (unlikely(!_parent || !_name))
+		result = error_invalid_arg;
+	else
+		result = _args_option_add_param(_parent, _name, _desc, _spec, _type);
+
+	return (result);
+}
 
 /** */
 void			args_parser_free(
