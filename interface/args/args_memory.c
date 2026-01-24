@@ -22,7 +22,7 @@
 /** */
 t_args_parser	*args_parser_new(void)
 {
-	return (_args_mem_new_parser());
+	return (_args_mem_new_parser(NULL, NULL));
 }
 
 #pragma region Sub-parsers

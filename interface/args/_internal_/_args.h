@@ -205,31 +205,25 @@ _t_args_output	*_args_parse(
 // );
 
 // /** */
-// // __attribute__((visibility("hidden")))
-// int	_args_set_desc_parser(
-// 	_t_args_parser *const target,
-// 	const enum _e_args_set_desc_actions _action,
-// 	const char *const _fmt,
-// 	va_list *const _list
-// );
+// __attribute__((visibility("hidden")))
+int	_args_parser_set_desc(
+	_t_args_parser *const _target,
+	const char *const _desc
+);
 
 // /** */
-// // __attribute__((visibility("hidden")))
-// int	_args_set_desc_option(
-// 	_t_args_option *const target,
-// 	const enum _e_args_set_desc_actions _action,
-// 	const char *const _fmt,
-// 	va_list *const _list
-// );
+// __attribute__((visibility("hidden")))
+int	_args_param_set_desc(
+	_t_args_param *const _target,
+	const char *const _desc
+);
 
 // /** */
-// // __attribute__((visibility("hidden")))
-// int	_args_set_desc_param(
-// 	_t_args_param *const target,
-// 	const enum _e_args_set_desc_actions _action,
-// 	const char *const _fmt,
-// 	va_list *const _list
-// );
+// __attribute__((visibility("hidden")))
+int	_args_option_set_desc(
+	_t_args_option *const _target,
+	const char *const _desc
+);
 
 // /* -----| Extraction |----- */
 // #pragma region Extraction

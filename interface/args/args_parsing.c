@@ -27,7 +27,7 @@ t_args_output	*args_parse(
 {
 	int	result = error_none;
 
-	if (unlikely(!_parser))
+	if (unlikely(!_parser || _argc < 1 || !_argv))
 		result = error_invalid_arg;
 	else
 		result = _args_parse(_parser, _argc, _argv);

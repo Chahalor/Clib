@@ -19,7 +19,7 @@
 
 /* ----| Public     |----- */
 
-int args_parser_set_desc(
+int	args_parser_set_desc(
 	t_args_parser *const _parser,
 	const char *const _desc
 )

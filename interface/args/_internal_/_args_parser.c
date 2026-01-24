@@ -594,9 +594,6 @@ int	_args_parse_loop(
 
 /* ----| Public     |----- */
 
-/**
- * TODO: maybe check here if root.parser != NULL
- */
 _t_args_output	*_args_parse(
 	const t_args_parser *const _parser,
 	const int _argc,
