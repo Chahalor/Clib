@@ -165,6 +165,32 @@ _t_args_output_parser	*_args_mem_new_out_parser(
  */
 _t_args_output	*_args_mem_new_output(void);
 
+/**
+ * @brief	free a parser definition tree
+ *
+ * @param	_parser	parser node (root of list)
+ * @param	_deep	free nested lists when true
+ *
+ * @return	void
+ */
+void	_args_mem_free_parser(
+	_t_args_parser *const _parser,
+	const bool _deep
+);
+
+/**
+ * @brief	free a parsed output tree
+ *
+ * @param	_out	output container
+ * @param	_deep	free nested lists when true
+ *
+ * @return	void
+ */
+void	_args_mem_free_output(
+	_t_args_output *const _out,
+	const bool _deep
+);
+
 /* -----| Parsing   |----- */
 #pragma region Parsing
 
@@ -317,13 +343,13 @@ const char	*_args_active_subcommand(
 
 /** */
 /**
- * @brief	return the output subtree for a subcommand
+ * @brief	return the output parser for the first subcommand
  *
  * @param	_out	parsed output tree
  *
- * @return	subcommand output or NULL
+ * @return	subcommand output parser or NULL
  */
-t_args_output	*_args_get_sub_output(
+_t_args_output_parser	*_args_get_sub_output(
 	const t_args_output *_out
 );
 
@@ -389,43 +415,43 @@ static inline int	_args_is_opt(
 
 /** */
 /**
- * @brief	check if a parser declares a parameter name
+ * @brief	check if the parsed output has a parameter name
  *
- * @param	_parser	parser definition
+ * @param	_output	parsed output tree
  * @param	_name	parameter name
  *
  * @return	true if found, false otherwise
  */
 bool	_args_parser_has_param(
-	const _t_args_parser *const _parser,
+	const t_args_output *const _output,
 	const char *const _name
 );
 
 /** */
 /**
- * @brief	check if a parser declares an option name
+ * @brief	check if the parsed output has an option name
  *
- * @param	_parser	parser definition
+ * @param	_output	parsed output tree
  * @param	_name	option name (short/long or raw)
  *
  * @return	true if found, false otherwise
  */
 bool	_args_parser_has_option(
-	const _t_args_parser *const _parser,
+	const t_args_output *const _output,
 	const char *const _name
 );
 
 /** */
 /**
- * @brief	check if the output tree has a subcommand by name
+ * @brief	check if the parsed output has a subcommand by name
  *
- * @param	_parser	output tree (root)
+ * @param	_output	parsed output tree
  * @param	_name	subcommand name
  *
  * @return	true if found, false otherwise
  */
 char	_args_parser_has_sub(
-	t_args_output *const _parser,
+	const t_args_output *const _output,
 	const char *const _name
 );
 
@@ -439,6 +465,19 @@ char	_args_parser_has_sub(
  * @return	true if found, false otherwise
  */
 char	_args_option_has_param(
-	t_args_output_option *const _option,
+	const t_args_output_option *const _option,
 	const char *const _name
+);
+
+/**
+ * @brief	validate parsed output against the parsing root
+ *
+ * @param	_root	parser runtime context
+ * @param	_output	parsed output tree
+ *
+ * @return	error_none on success, otherwise an error code
+ */
+int	_args_check_output(
+	const _t_args_root *const _root,
+	const _t_args_output *const _output
 );

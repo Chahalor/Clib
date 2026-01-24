@@ -92,9 +92,14 @@ char	*_args_get_param(
 	unsigned int	_nb_values = 0;
 	char			**result = NULL;
 	unsigned int	_i = 0;
-	char			name = NULL;
 
-	for (_t_args_output_param	*_this = _output->params;
+	if (unlikely(!_output || !_output->root || !_name || !_values || !_count))
+		return (NULL);
+
+	*_values = NULL;
+	*_count = 0;
+
+	for (_t_args_output_param	*_this = _output->root->params;
 		_this;
 		_this = _this->next
 	)
@@ -109,22 +114,21 @@ char	*_args_get_param(
 			_args_config_set_errnum(error_alloc_fail);
 			goto error;
 		}
-		for (_t_args_output_value	*_this = _this->value;
-		_this;
-		_this = _this->next
+		for (_t_args_output_value	*_val = _this->values;
+			_val;
+			_val = _val->next
 		)
 		{
-			result[_i++] = _this->value;
+			result[_i++] = _val->value;
 		}
 		result[_i] = NULL;
 		*_values = result;
 		*_count = _nb_values;
-		name = _this->name;
-		break ;
+		return (_this->name);
 	}
 
 error:
-	return (name);
+	return (NULL);
 }
 
 char	_args_get_option(
@@ -134,33 +138,39 @@ char	_args_get_option(
 	unsigned int *const _count
 )
 {
-	unsigned int	_nb_values;
-	char			*_lname;
-	char			_key;
-	char			*name = NULL;
+	char			*_lname = NULL;
+	char			_key = 0;
+	bool			_found = false;
+
+	if (unlikely(!_output || !_output->root || !_name || !_values || !_count))
+		return (0);
+
+	*_values = NULL;
+	*_count = 0;
 
 	if (_name[0] == '-')
 	{
 		if (_name[1] == '-')
-			_lname = _name + 2;
+			_lname = (char *)(_name + 2);
 		else
 			_key = _name[1];
 	}
 	else if (strlen(_name) > 1)
-		_lname = _name + 1;
+		_lname = (char *)_name;
 	else
 		_key = _name[0];
 
-	for (_t_args_output_option	*_this = _output->options;
+	for (_t_args_output_option	*_this = _output->root->options;
 		_this;
 		_this = _this->next
 	)
 	{
-		if (likely(_lname && _this->long_name && strcmp(_this->long_name, _lname)))
+		if (_lname && _this->long_name && strcmp(_this->long_name, _lname))
 			continue ;
-		else if(likely(_this->short_name != _key))
+		else if (_key && _this->short_name != _key)
 			continue ;
 
+		_found = true;
 		if (_this->params)
 		{
 			*_values = _merge_params(_this->params, _count);
@@ -168,35 +178,36 @@ char	_args_get_option(
 		else
 		{
 			*_values = (char **)0x1;
-			_nb_values = 0;
+			*_count = 0;
 		}
+		break ;
 	}
 
-	return (0);
+	return (_found ? 1 : 0);
 }
 
 const char	*_args_active_subcommand(
 	const t_args_output *_out
 )
 {
-	char	*result;
+	const char	*result;
 
-	if (_out->sub)
-		result = _out->sub->name;
+	if (_out && _out->root && _out->root->sub)
+		result = _out->root->sub->name;
 	else
 		result = NULL;
 
 	return (result);
 }
 
-t_args_output	*_args_get_sub_output(
+_t_args_output_parser	*_args_get_sub_output(
 	const t_args_output *_out
 )
 {
-	t_args_output	*result;
+	_t_args_output_parser	*result;
 
-	if (_out->sub)
-		result = _out->sub;
+	if (_out && _out->root)
+		result = _out->root->sub;
 	else
 		result = NULL;
 

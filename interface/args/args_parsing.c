@@ -25,12 +25,11 @@ t_args_output	*args_parse(
 	const char *const _argv[]
 )
 {
-	int	result = error_none;
-
 	if (unlikely(!_parser || _argc < 1 || !_argv))
-		result = error_invalid_arg;
-	else
-		result = _args_parse(_parser, _argc, _argv);
+	{
+		_args_config_set_errnum(error_invalid_arg);
+		return (NULL);
+	}
 
-	return (result);
+	return (_args_parse(_parser, _argc, _argv));
 }

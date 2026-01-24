@@ -90,6 +90,7 @@ enum _e_args_set_desc_actions
 
 struct _s_args_config
 {
+	int		errnum;
 	/* behavior */
 	char	exit_on_error			: 1;
 	char	exit_on_help			: 1;

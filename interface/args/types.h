@@ -26,8 +26,8 @@
 	//...
 
 /* -----| Enums     |----- */
-typedef enum e_param_type			t_param_type;			// TODO: docs
-typedef enum e_param_args_type		t_param_args_type;		//
+typedef enum e_param_type				t_param_type;			// TODO: docs
+typedef enum e_param_args_type			t_param_args_type;		//
 
 /* -----| Structs   |----- */
 typedef struct _s_args_parser			t_args_parser;
@@ -39,7 +39,8 @@ typedef struct _s_args_parser			t_args_parser;
 // typedef struct _s_args_output_value		t_args_output_value;
 // typedef struct _s_args_output_param		t_args_output_param;
 typedef struct _s_args_output_option	t_args_output_option;
-typedef struct _s_args_output_parser	t_args_output;
+typedef struct _s_args_output_parser	t_args_output_parser;
+typedef struct _s_args_output			t_args_output;
 
 /* ************************************************************************** */
 /*                                 Enums                                      */

@@ -138,13 +138,16 @@ static int	_check_parser(
 /* ----| Public     |----- */
 
 bool	_args_parser_has_param(
-	const _t_args_parser *const _parser,
+	const t_args_output *const _output,
 	const char *const _name
 )
 {
 	bool	result = false;
 
-	for (_t_args_param	*_this = _parser->params;
+	if (unlikely(!_output || !_output->root))
+		return (false);
+
+	for (_t_args_output_param	*_this = _output->root->params;
 		_this && !result;
 		_this = _this->next
 	)
@@ -157,7 +160,7 @@ bool	_args_parser_has_param(
 }
 
 bool	_args_parser_has_option(
-	const _t_args_parser *const _parser,
+	const t_args_output *const _output,
 	const char *const _name
 )
 {
@@ -165,24 +168,27 @@ bool	_args_parser_has_option(
 	char	_key = 0;
 	bool	result = false;
 
+	if (unlikely(!_output || !_output->root))
+		return (false);
+
 	if (_name[0] == '-')
 	{
 		if (_name[1] == '-')
-			_lname = _name + 2;
+			_lname = (char *)(_name + 2);
 		else
 			_key = _name[1];
 	}
 	else if (strlen(_name) > 1)
-		_lname = _name + 1;
+		_lname = (char *)_name;
 	else
 		_key = _name[0];
 
-	for (_t_args_option	*_this = _parser->options;
+	for (_t_args_output_option	*_this = _output->root->options;
 		_this && !result;
 		_this = _this->next
 	)
 	{
-		if (_lname &&_this->long_name && !strcmp(_this->long_name, _lname))
+		if (_lname && _this->long_name && !strcmp(_this->long_name, _lname))
 			result = true;
 		else if (_key == _this->short_name)
 			result = true;
@@ -193,13 +199,16 @@ bool	_args_parser_has_option(
 
 
 char	_args_parser_has_sub(
-	t_args_output *const _parser,
+	const t_args_output *const _output,
 	const char *const _name
 )
 {
 	bool	result = false;
 
-	for (_t_args_parser	*_this = _parser->sub;
+	if (unlikely(!_output || !_output->root))
+		return (false);
+
+	for (_t_args_output_parser	*_this = _output->root->sub;
 		_this && !result;
 		_this = _this->next
 	)
@@ -212,13 +221,16 @@ char	_args_parser_has_sub(
 }
 
 char	_args_option_has_param(
-	t_args_output_option *const _option,
+	const t_args_output_option *const _option,
 	const char *const _name
 )
 {
 	bool	result = false;
 
-	for (_t_args_parser	*_this = _option->params;
+	if (unlikely(!_option))
+		return (false);
+
+	for (_t_args_output_param	*_this = _option->params;
 		_this && !result;
 		_this = _this->next
 	)
@@ -228,4 +240,15 @@ char	_args_option_has_param(
 	}
 
 	return (result);
+}
+
+int	_args_check_output(
+	const _t_args_root *const _root,
+	const _t_args_output *const _output
+)
+{
+	if (unlikely(!_root || !_output || !_output->root))
+		return (error_invalid_arg);
+
+	return (error_none);
 }

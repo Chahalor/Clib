@@ -46,7 +46,9 @@ void			args_output_free(
 
 /** */
 t_args_output	*args_parse(
-	const t_args_parser *const parser
+	const t_args_parser *const _parser,
+	const int _argc,
+	const char *const _argv[]
 );
 
 #pragma region Sub-parsers
@@ -131,7 +133,7 @@ const char	*args_active_subcommand(
 	const t_args_output *out
 );
 
-t_args_output	*args_get_sub_output(
+t_args_output_parser	*args_get_sub_output(
 	const t_args_output *out
 );
 

@@ -26,7 +26,7 @@ char	args_has_param(
 	if (unlikely(!_parser || !_name))
 		return (error_invalid_arg);
 	else
-		return (_args_check_parser_has_param(_parser, _name));
+		return (_args_parser_has_param(_parser, _name));
 }
 
 char	args_has_option(
@@ -37,7 +37,7 @@ char	args_has_option(
 	if (unlikely(!_parser || !_name))
 		return (error_invalid_arg);
 	else
-		return (_args_check_parser_has_option(_parser, _name));
+		return (_args_parser_has_option(_parser, _name));
 }
 
 char	args_has_sub(
@@ -48,7 +48,7 @@ char	args_has_sub(
 	if (unlikely(!_parser || !_name))
 		return (error_invalid_arg);
 	else
-		return (_args_check_parser_has_sub(_parser, _name));
+		return (_args_parser_has_sub(_parser, _name));
 }
 
 char	args_option_has_param(
@@ -59,7 +59,7 @@ char	args_option_has_param(
 	if (unlikely(!_option || !_name))
 		return (error_invalid_arg);
 	else
-		return (_args_check_option_has_param(_option, _name));
+		return (_args_option_has_param(_option, _name));
 }
 
 char	*args_get_param(
@@ -93,17 +93,17 @@ const char	*args_active_subcommand(
 )
 {
 	if (unlikely(!_out))
-		return (error_invalid_arg);
+		return (NULL);
 	else
 		return (_args_active_subcommand(_out));
 }
 
-t_args_output	*args_get_sub_output(
+t_args_output_parser	*args_get_sub_output(
 	const t_args_output *_out
 )
 {
 	if (unlikely(!_out))
-		return (error_invalid_arg);
+		return (NULL);
 	else
 		return (_args_get_sub_output(_out));
 }

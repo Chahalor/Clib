@@ -355,22 +355,22 @@ static inline int	_args_parse_loop_option(
 	_t_args_output_param	*out_param = NULL;
 	int						result = error_none;
 
-	if (unlikely(!opt_param || !out_opt))
+	if (unlikely(!opt_param || !out_opt || !*opt_param || !*out_opt))
 	{
-		context_type = args_context_parser;
-		opt = NULL;
-		out_opt = NULL;
-		opt_param = NULL;
+		*context_type = args_context_parser;
+		*opt = NULL;
+		*out_opt = NULL;
+		*opt_param = NULL;
 		goto error;
 	}
 
 	if (!strcmp(current, "--"))
 	{
 		*opt_disabled = true;
-		context_type = args_context_parser;
-		opt = NULL;
-		out_opt = NULL;
-		opt_param = NULL;
+		*context_type = args_context_parser;
+		*opt = NULL;
+		*out_opt = NULL;
+		*opt_param = NULL;
 		goto error;
 	}
 
@@ -381,14 +381,14 @@ static inline int	_args_parse_loop_option(
 	)
 	{
 		_root_push_back(_root);
-		context_type = args_context_parser;
-		opt = NULL;
-		out_opt = NULL;
-		opt_param = NULL;
+		*context_type = args_context_parser;
+		*opt = NULL;
+		*out_opt = NULL;
+		*opt_param = NULL;
 		goto error;
 	}
 
-	out_param = _out_add_param(out_opt, (*opt_param)->name);
+	out_param = _out_add_param(&(*out_opt)->params, (*opt_param)->name);
 	if (unlikely(!out_param))
 	{
 		result = error_alloc_fail;
@@ -400,13 +400,13 @@ static inline int	_args_parse_loop_option(
 		goto error;
 
 	if (!((*opt_param)->args_type & param_args_type_nargs))
-		opt_param = (*opt_param)->next;
+		*opt_param = (*opt_param)->next;
 
-	if (!opt_param)
+	if (!*opt_param)
 	{
-		context_type = args_context_parser;
-		opt = NULL;
-		out_opt = NULL;
+		*context_type = args_context_parser;
+		*opt = NULL;
+		*out_opt = NULL;
 	}
 
 error:
@@ -627,7 +627,7 @@ _t_args_output	*_args_parse(
 	if (unlikely(_errnum))
 		_args_config_set_errnum(_errnum);
 	else
-		_errnum = _args_check_output(_root, result);
+		_errnum = _args_check_output(&_root, result);
 
 error:
 	return (result);
