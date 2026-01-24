@@ -168,8 +168,8 @@ _t_args_output	*_args_mem_new_output(void);
 // 					const char *_argv[]
 // 				);
 
-// /* -----| Editions   |----- */
-// #pragma region Editions
+/* -----| Editions   |----- */
+#pragma region Editions
 
 // /** */
 // // __attribute__((visibility("hidden")))
@@ -258,46 +258,46 @@ _t_args_output	*_args_mem_new_output(void);
 // 	void **dest
 // );
 
-// /* -----| Checks     |----- */
-// #pragma region Checks
+/* -----| Checks     |----- */
+#pragma region Checks
 
-// /** */
-// static inline int	_args_is_long_opt(
-// 	const char *restrict _s
-// )
-// {
-// 	const unsigned char	_c0 = _s[0];
-// 	const unsigned char	_c1 = _s[1];
-// 	const unsigned char	_c2 = _s[2];
+/** */
+static inline int	_args_is_long_opt(
+	const char *restrict _s
+)
+{
+	const unsigned char	_c0 = _s ? _s[0] : '\0';
+	const unsigned char	_c1 = _s ? _s[1] : '\0';
+	const unsigned char	_c2 = _s ? _s[2] : '\0';
 
-// 	const int			is_long  = (_c0 == '-') & (_c1 == '-') & isalnum(_c2);
-// 	const int			is_delim = (_c0 == '-') & (_c1 == '-') & (_c2 == '\0');
+	const int			is_long = (_c0 == '-') & (_c1 == '-') & isalnum(_c2);
+	const int			is_delim = (_c0 == '-') & (_c1 == '-') & (_c2 == '\0');
 
-// 	return (is_long && !is_delim);
-// }
+	return (is_long && !is_delim);
+}
 
-// /** */
-// static inline int	_args_is_short_opt(
-// 	const char *restrict _s
-// )
-// {
-// 	const unsigned char	_c0 = _s[0];
-// 	const unsigned char	_c1 = _s[1];
-// 	const unsigned char	_c2 = _s[2];
+/** */
+static inline int	_args_is_short_opt(
+	const char *restrict _s
+)
+{
+	const unsigned char	_c0 = _s ? _s[0] : '\0';
+	const unsigned char	_c1 = _s ? _s[1] : '\0';
+	const unsigned char	_c2 = _s ? _s[2] : '\0';
 
-// 	const int			is_short = (_c0 == '-') & isalpha(_c1) & (_c2 == '\0');
-// 	const int			is_delim = (_c0 == '-') & (_c1 == '-') & (_c2 == '\0');
+	const int			is_short = (_c0 == '-') & isalpha(_c1) & (_c2 == '\0');
+	const int			is_delim = (_c0 == '-') & (_c1 == '-') & (_c2 == '\0');
 
-// 	return (is_short && !is_delim);
-// }
+	return (is_short && !is_delim);
+}
 
-// /** */
-// static inline int	_args_is_opt(
-// 	const char *restrict _s
-// )
-// {
-// 	return (_args_is_short_opt(_s) || _args_is_long_opt(_s));
-// }
+/** */
+static inline int	_args_is_opt(
+	const char *restrict _s
+)
+{
+	return (_s && (_args_is_short_opt(_s) || _args_is_long_opt(_s)));
+}
 
 // /** */
 // // __attribute__((visibility("hidden")))

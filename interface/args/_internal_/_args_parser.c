@@ -23,9 +23,9 @@ static _t_args_parser	*_get_sub_parser_of(
 {
 	_t_args_parser			*result = NULL;
 
-	for (_t_args_parser	*_this = _context->sub_parsers->data.parser;
+	for (_t_args_parser	*_this = _context->sub_parsers;
 		_this != NULL && !result;
-		_this = _this->next->data.parser
+		_this = _this->next
 	)
 	{
 		result = _this->name && !strcmp(_this->name, _s) ?
@@ -44,9 +44,9 @@ static _t_args_option	*_get_opt_of(
 	const bool		_is_long = _s && _args_is_long_opt(_s);
 	_t_args_option	*result = NULL;
 
-	for (_t_args_option	*_this = _context->options->data.option;
+	for (_t_args_option	*_this = _context->options;
 		_this != NULL && !result;
-		_this = _this->next->data.option
+		_this = _this->next
 	)
 	{
 		if (_s && _this->long_name && _is_long && !strcmp(_this->long_name, _s + 2))
@@ -58,8 +58,8 @@ static _t_args_option	*_get_opt_of(
 	return (result);
 }
 
-static inline char	*_root_get_next(
-	_t_args_parser *const restrict _root
+static inline const char	*_root_get_next(
+	_t_args_root *const restrict _root
 )
 {
 	return (_root->index < _root->argc ?
@@ -68,8 +68,8 @@ static inline char	*_root_get_next(
 		);
 }
 
-static inline char	*_root_pop_next(
-	_t_args_parser *const restrict _root
+static inline const char	*_root_pop_next(
+	_t_args_root *const restrict _root
 )
 {
 	return (_root->index < _root->argc ?
@@ -79,7 +79,7 @@ static inline char	*_root_pop_next(
 }
 
 static inline void	_root_push_back(
-	_t_args_parser *const restrict _root
+	_t_args_root *const restrict _root
 )
 {
 	_root->index -= _root->index > 0 ?
@@ -87,223 +87,347 @@ static inline void	_root_push_back(
 						0;
 }
 
-static int	_add_param(
-	_t_args_param *const restrict _this,
-	char *_current
+static _t_args_output_param	*_out_get_param(
+	_t_args_output_param *const restrict _list,
+	const char *const restrict _name
 )
 {
-	unsigned int	_nb_alloc;
-	char			**_new;
-	int				result = error_none;
-
-	if (unlikely(!_current))
+	for (_t_args_output_param *_this = _list;
+		_this;
+		_this = _this->next
+	)
 	{
-		result = args_error_missing_param;
-		goto error;
+		if (_this->name && _name && !strcmp(_this->name, _name))
+			return (_this);
 	}
-	else if (!_this->values || _this->nb_values + 1 > _this->max_values)
-	{
-		if (_this->args_type & param_args_type_nargs)
-			_nb_alloc = _ARGS_PARSE_PARAM_ALLOC_SIZE;
-		else
-			_nb_alloc = 1;
 
-		_new = mem_alloc(sizeof(char *) * (_this->max_values + _nb_alloc));
-		if (unlikely(!_new))
+	return (NULL);
+}
+
+static _t_args_output_param	*_out_add_param(
+	_t_args_output_param **const restrict _list,
+	const char *const restrict _name
+)
+{
+	_t_args_output_param	*_param = NULL;
+	_t_args_output_param	*_last = NULL;
+
+	_param = _out_get_param(*_list, _name);
+	if (_param)
+		return (_param);
+
+	_param = _args_mem_new_out_param(_name);
+	if (unlikely(!_param))
+	{
+		_args_config_set_errnum(error_alloc_fail);
+		return (NULL);
+	}
+
+	for (_t_args_output_param *_this = *_list;
+		_this;
+		_this = _this->next
+	)
+	{
+		_last = _this;
+	}
+
+	if (_last)
+		_last->next = _param;
+	else
+		*_list = _param;
+
+	return (_param);
+}
+
+static int	_out_add_value(
+	_t_args_output_param *const restrict _param,
+	const char *const restrict _value
+)
+{
+	_t_args_output_value	*_val = NULL;
+	_t_args_output_value	*_last = NULL;
+
+	if (unlikely(!_param || !_value))
+		return (args_error_missing_value);
+
+	_val = _args_mem_new_out_val(_value);
+	if (unlikely(!_val))
+	{
+		_args_config_set_errnum(error_alloc_fail);
+		return (error_alloc_fail);
+	}
+
+	for (_t_args_output_value *_this = _param->values;
+		_this;
+		_this = _this->next
+	)
+	{
+		_last = _this;
+	}
+
+	if (_last)
+		_last->next = _val;
+	else
+		_param->values = _val;
+
+	return (error_none);
+}
+
+static _t_args_output_option	*_out_get_option(
+	_t_args_output_option *const restrict _list,
+	const _t_args_option *const restrict _opt
+)
+{
+	for (_t_args_output_option *_this = _list;
+		_this;
+		_this = _this->next
+	)
+	{
+		if (_opt->long_name && _this->long_name &&
+			!strcmp(_this->long_name, _opt->long_name))
+			return (_this);
+		if (!_opt->long_name && _opt->short_name &&
+			_this->short_name == _opt->short_name)
+			return (_this);
+		if (_opt->short_name && !_this->long_name &&
+			_this->short_name == _opt->short_name)
+			return (_this);
+	}
+
+	return (NULL);
+}
+
+static _t_args_output_option	*_out_add_option(
+	_t_args_output_option **const restrict _list,
+	const _t_args_option *const restrict _opt
+)
+{
+	_t_args_output_option	*_out = NULL;
+	_t_args_output_option	*_last = NULL;
+
+	_out = _out_get_option(*_list, _opt);
+	if (_out)
+		return (_out);
+
+	_out = _args_mem_new_out_opt(_opt);
+	if (unlikely(!_out))
+	{
+		_args_config_set_errnum(error_alloc_fail);
+		return (NULL);
+	}
+
+	for (_t_args_output_option *_this = *_list;
+		_this;
+		_this = _this->next
+	)
+	{
+		_last = _this;
+	}
+
+	if (_last)
+		_last->next = _out;
+	else
+		*_list = _out;
+
+	return (_out);
+}
+
+static _t_args_output_parser	*_out_add_sub_parser(
+	_t_args_output_parser *const restrict _parent,
+	const _t_args_parser *const restrict _sub
+)
+{
+	_t_args_output_parser	*_out = NULL;
+	_t_args_output_parser	*_last = NULL;
+
+	_out = _args_mem_new_out_parser(_sub->name);
+	if (unlikely(!_out))
+	{
+		_args_config_set_errnum(error_alloc_fail);
+		return (NULL);
+	}
+
+	for (_t_args_output_parser *_this = _parent->sub;
+		_this;
+		_this = _this->next
+	)
+	{
+		_last = _this;
+	}
+
+	if (_last)
+		_last->next = _out;
+	else
+		_parent->sub = _out;
+
+	return (_out);
+}
+
+static inline int	_args_parse_loop_parser(
+	_t_args_parser **context,
+	const char *const current,
+	_t_args_param **pos_cursor,
+	_t_args_output_parser **out_context,
+	const bool opt_disabled,
+	_t_args_option **opt,
+	_t_args_output_option **out_opt,
+	_t_args_param **opt_param,
+	enum e_args_context_type *context_type
+)
+{
+	_t_args_parser			*sub = NULL;
+	_t_args_output_param	*out_param = NULL;
+	int						result = error_none;
+
+	sub = _get_sub_parser_of(*context, current);
+	if (sub)
+	{
+		*context = sub;
+		*pos_cursor = (*context)->params;
+		*out_context = _out_add_sub_parser(*out_context, sub);
+		if (unlikely(!*out_context))
 		{
 			result = error_alloc_fail;
+			goto error;
+		}
+		goto error;
+	}
+
+	if (!opt_disabled && _args_is_opt(current))
+	{
+		*opt = _get_opt_of(*context, current);
+		if (unlikely(!*opt))
+		{
+			result = args_error_unknown_option;
 			_args_config_set_errnum(result);
 			goto error;
 		}
 
-		for (unsigned int	_i = 0;
-			_i < _this->max_values;
-			_i++
-		)
+		*out_opt = _out_add_option(&(*out_context)->options, *opt);
+		if (unlikely(!*out_opt))
 		{
-			_new[_i] = _this->values[_i];
+			result = error_alloc_fail;
+			goto error;
 		}
+		(*out_opt)->nb_call += 1;
 
-		mem_free(_this->values);
-		_this->values = _new;
-		_this->max_values += _nb_alloc;
+		*opt_param = (*opt)->params;
+		if (*opt_param)
+			*context_type = args_context_opt;
+		goto error;
 	}
 
-	_this->values[_this->nb_values++] = _current;
+	if (unlikely(!*pos_cursor))
+	{
+		result = args_error_extra_param;
+		_args_config_set_errnum(result);
+		goto error;
+	}
+
+	out_param = _out_add_param(&(*out_context)->params, (*pos_cursor)->name);
+	if (unlikely(!out_param))
+	{
+		result = error_alloc_fail;
+		goto error;
+	}
+
+	result = _out_add_value(out_param, current);
+	if (unlikely(result))
+		goto error;
+
+	if (!((*pos_cursor)->args_type & param_args_type_nargs))
+		*pos_cursor = (*pos_cursor)->next;
 
 error:
 	return (result);
 }
 
-static inline int	_parse_context_parser(
-	_t_args_parser **_context,
-	_t_args_param **pos_cursor,
-	_t_args_param **opt_param,
-	enum e_args_context_type *const restrict context_type,
-	const bool opt_disabled,
-	char *current
-)
-{
-	_t_args_option	*opt = NULL;
-	_t_args_parser	*sub = NULL;
-	int				result = error_none;
-
-	/* Sub-parser switch (only meaningful in parser context) */
-	sub = _get_sub_parser_of(*_context, current);
-	if (sub)
-	{
-		*_context = sub;
-		*pos_cursor = (*_context)->params->data.param;
-
-		/* Usually -- applies globally, so we DO NOT reset opt_disabled.
-			If you want it per-context, set opt_disabled=false here. */
-		return (result);
-	}
-
-	/* Option handling (disabled after "--") */
-	if (!opt_disabled && _args_is_opt(current))
-	{
-		opt = _get_opt_of(*_context, current);
-		if (unlikely(!opt))
-		{
-			result = args_error_unknown_option;
-			_args_config_set_errnum(result);
-			return (result);
-		}
-
-		/* Optional: enforce repeatability here if you have a flag */
-		opt->nb_calls++;
-		/* if (!(opt->flags & OPT_REPEATABLE) && opt->nb_calls > 1) ... */
-
-		*opt_param = opt->params->data.param;
-		if (*opt_param)
-			*context_type = args_context_opt;
-		return (result);
-	}
-
-	/* Positional parameter */
-	if (unlikely(!*pos_cursor))
-	{
-		result = args_error_extra_param;
-		_args_config_set_errnum(result);
-		return (result);
-	}
-
-	/* If this positional is nargs: consume this token into it and keep cursor */
-	if ((*pos_cursor)->args_type & param_args_type_nargs)
-	{
-		/* For positionals nargs, we typically consume everything remaining
-			(including things that look like options) once opt_disabled is true.
-			If you want "stop at next option" behavior for positionals nargs,
-			add a boundary check here. */
-		// TODO: consume all other token if opt_disabled == true
-		result = _add_param(*pos_cursor, current);
-		if (unlikely(result))
-		{
-			_args_config_set_errnum(result);
-			return (result);
-		}
-		/* stay on same pos_cursor */
-	}
-	else
-	{
-		result = _add_param(*pos_cursor, current);
-		if (unlikely(result))
-		{
-			_args_config_set_errnum(result);
-			return (result);
-		}
-		*pos_cursor = (*pos_cursor)->next->data.param;
-	}
-
-	return (result);
-}
-
-static inline int	_parse_context_opt(
-	_t_args_parser *const restrict _root,
-	// _t_args_parser *const restrict _context,
-	_t_args_param **opt_param,
+static inline int	_args_parse_loop_option(
+	_t_args_root *const _root,
+	const char *const current,
+	bool *const opt_disabled,
 	_t_args_option **opt,
-	enum e_args_context_type *const restrict context_type,
-	bool *const restrict opt_disabled,
-	char *current
+	_t_args_output_option **out_opt,
+	_t_args_param **opt_param,
+	enum e_args_context_type *context_type
 )
 {
-	int	result = error_none;
+	_t_args_output_param	*out_param = NULL;
+	int						result = error_none;
 
-	/* Defensive recovery */
-	if (unlikely(!opt_param || !*opt_param))
+	if (unlikely(!opt_param || !out_opt))
 	{
-		*context_type = args_context_parser;
-		*opt = NULL;
-		*opt_param = NULL;
-		return (result);
+		context_type = args_context_parser;
+		opt = NULL;
+		out_opt = NULL;
+		opt_param = NULL;
+		goto error;
 	}
 
-	/* "--" always terminates option parsing */
 	if (!strcmp(current, "--"))
 	{
 		*opt_disabled = true;
-		*context_type = args_context_parser;
-		*opt = NULL;
-		*opt_param = NULL;
-		return (result);
+		context_type = args_context_parser;
+		opt = NULL;
+		out_opt = NULL;
+		opt_param = NULL;
+		goto error;
 	}
 
-	/* Stop condition for nargs option parameter:
-	 * if this token looks like an option and options are enabled,
-	 * it does NOT belong to this option.
-	 */
 	if (
-		!(*opt_disabled) &&
+		!*opt_disabled &&
 		((*opt_param)->args_type & param_args_type_nargs) &&
 		_args_is_opt(current)
 	)
 	{
-		/* give token back to main loop */
 		_root_push_back(_root);
-
-		*context_type = args_context_parser;
-		*opt = NULL;
-		*opt_param = NULL;
-		return (result);
+		context_type = args_context_parser;
+		opt = NULL;
+		out_opt = NULL;
+		opt_param = NULL;
+		goto error;
 	}
 
-	/* Consume token as option argument */
-	result = _add_param(*opt_param, current);
+	out_param = _out_add_param(out_opt, (*opt_param)->name);
+	if (unlikely(!out_param))
+	{
+		result = error_alloc_fail;
+		goto error;
+	}
+
+	result = _out_add_value(out_param, current);
 	if (unlikely(result))
-	{
-		_args_config_set_errnum(result);
-		return (result);
-	}
+		goto error;
 
-	/* Advance param cursor only if this param is not nargs */
 	if (!((*opt_param)->args_type & param_args_type_nargs))
-		*opt_param = (*opt_param)->next->data.param;
+		opt_param = (*opt_param)->next;
 
-	/* Finished all params for this option */
-	if (!*opt_param)
+	if (!opt_param)
 	{
-		*context_type = args_context_parser;
-		*opt = NULL;
+		context_type = args_context_parser;
+		opt = NULL;
+		out_opt = NULL;
 	}
 
+error:
 	return (result);
 }
 
-int	_parse_args(
-	_t_args_parser *const restrict _root,
-	_t_args_parser *_context
+int	_args_parse_loop(
+	_t_args_root *const _root,
+	_t_args_output *const _out
 )
 {
 	enum e_args_context_type	context_type = args_context_parser;
-	bool			opt_disabled = false;
-	char			*current = NULL;
-	_t_args_parser	*sub = NULL;
-	_t_args_param	*pos_cursor = _context->params->data.param;	// Cursor for positional params in the current parser context
-	_t_args_option	*opt = NULL;					// Current option (when parsing its arguments)
-	_t_args_param	*opt_param = NULL;
-	int				result = error_none;
+	bool						opt_disabled = false;
+	const char					*current = NULL;
+	_t_args_parser				*context = _root->parser;
+	_t_args_output_parser		*out_context = _out->root;
+	_t_args_param				*pos_cursor = context ? context->params : NULL;
+	_t_args_option				*opt = NULL;
+	_t_args_output_option		*out_opt = NULL;
+	_t_args_param				*opt_param = NULL;
+	int							result = error_none;
 
 	while (_root->index < _root->argc && !result)
 	{
@@ -320,10 +444,148 @@ int	_parse_args(
 
 		/* ---------- Parser context ---------- */
 		if (context_type == args_context_parser)
-			result = _parse_context_parser(&_context, &pos_cursor, &opt_param, &context_type, opt_disabled, current);
+		{
+			result = _args_parse_loop_parser(
+				&context,
+				current,
+				&pos_cursor,
+				&out_context,
+				opt_disabled,
+				&opt,
+				&out_opt,
+				&opt_param,
+				&context_type
+			);
+			/* _t_args_parser			*sub = NULL;
+			_t_args_output_param	*out_param = NULL;
+
+			sub = _get_sub_parser_of(context, current);
+			if (sub)
+			{
+				context = sub;
+				pos_cursor = context->params;
+				out_context = _out_add_sub_parser(out_context, sub);
+				if (unlikely(!out_context))
+				{
+					result = error_alloc_fail;
+					break ;
+				}
+				continue;
+			}
+
+			if (!opt_disabled && _args_is_opt(current))
+			{
+				opt = _get_opt_of(context, current);
+				if (unlikely(!opt))
+				{
+					result = args_error_unknown_option;
+					_args_config_set_errnum(result);
+					break ;
+				}
+
+				out_opt = _out_add_option(&out_context->options, opt);
+				if (unlikely(!out_opt))
+				{
+					result = error_alloc_fail;
+					break ;
+				}
+				out_opt->nb_call += 1;
+
+				opt_param = opt->params;
+				if (opt_param)
+					context_type = args_context_opt;
+				continue;
+			}
+
+			if (unlikely(!pos_cursor))
+			{
+				result = args_error_extra_param;
+				_args_config_set_errnum(result);
+				break ;
+			}
+
+			out_param = _out_add_param(&out_context->params, pos_cursor->name);
+			if (unlikely(!out_param))
+			{
+				result = error_alloc_fail;
+				break ;
+			}
+
+			result = _out_add_value(out_param, current);
+			if (unlikely(result))
+				break ;
+
+			if (!(pos_cursor->args_type & param_args_type_nargs))
+				pos_cursor = pos_cursor->next; */
+		}
 		/* ---------- Option-arguments context ---------- */
 		else /* context_type == args_context_opt */
-			result = _parse_context_opt(_root, &opt_param, &opt, &context_type, &opt_disabled, current);
+		{
+			result = _args_parse_loop_option(
+				_root,
+				current,
+				&opt_disabled,
+				&opt,
+				&out_opt,
+				&opt_param,
+				&context_type
+			);
+			/* _t_args_output_param	*out_param = NULL;
+
+			if (unlikely(!opt_param || !out_opt))
+			{
+				context_type = args_context_parser;
+				opt = NULL;
+				out_opt = NULL;
+				opt_param = NULL;
+				continue;
+			}
+
+			if (!strcmp(current, "--"))
+			{
+				opt_disabled = true;
+				context_type = args_context_parser;
+				opt = NULL;
+				out_opt = NULL;
+				opt_param = NULL;
+				continue;
+			}
+
+			if (
+				!opt_disabled &&
+				(opt_param->args_type & param_args_type_nargs) &&
+				_args_is_opt(current)
+			)
+			{
+				_root_push_back(_root);
+				context_type = args_context_parser;
+				opt = NULL;
+				out_opt = NULL;
+				opt_param = NULL;
+				continue;
+			}
+
+			out_param = _out_add_param(out_opt, opt_param->name);
+			if (unlikely(!out_param))
+			{
+				result = error_alloc_fail;
+				break ;
+			}
+
+			result = _out_add_value(out_param, current);
+			if (unlikely(result))
+				break ;
+
+			if (!(opt_param->args_type & param_args_type_nargs))
+				opt_param = opt_param->next;
+
+			if (!opt_param)
+			{
+				context_type = args_context_parser;
+				opt = NULL;
+				out_opt = NULL;
+			} */
+		}
 	}
 
 	return (result);
@@ -331,7 +593,7 @@ int	_parse_args(
 
 /* ----| Public     |----- */
 
-t_args_output	*_args_parse(
+_t_args_output	*_args_parse(
 	const t_args_parser *const _parser,
 	const int _argc,
 	const char *const *const _argv
@@ -343,11 +605,20 @@ t_args_output	*_args_parse(
 		.argv = _argv,
 		.index = 1
 	};
-	t_args_output	*result;
+	_t_args_output	*result;
 
-	_arg_init_root_config(&_root.config);
+	_args_init_root_config(&_root.config);
 
-	result = _args_mem_new_out
+	result = _args_mem_new_output();
+	if (unlikely(!result))
+		return (NULL);
+
+	result->root = _args_mem_new_out_parser(_parser ? _parser->name : NULL);
+	if (unlikely(!result->root))
+	{
+		mem_free(result);
+		return (NULL);
+	}
 
 	_args_parse_loop(&_root, result);
 

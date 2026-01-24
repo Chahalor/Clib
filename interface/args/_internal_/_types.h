@@ -199,7 +199,7 @@ struct _s_args_output_option
 	int						error;
 
 	char					*long_name;
-	_t_args_param			*params;
+	_t_args_output_param	*params;
 	_t_args_output_option	*next;
 };
 
