@@ -267,3 +267,17 @@ _t_args_output_parser	*_args_mem_new_out_parser(
 error:
 	return (result);
 }
+
+_t_args_output	*_args_mem_new_output(void)
+{
+	_t_args_output	*result;
+
+	result = mem_alloc(sizeof(_t_args_output));
+	if (likely(result))
+	{
+		result->root = NULL;
+		result->error = error_none;
+	}
+
+	return (result);
+}

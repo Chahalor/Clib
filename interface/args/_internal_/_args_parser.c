@@ -347,6 +347,10 @@ t_args_output	*_args_parse(
 
 	_arg_init_root_config(&_root.config);
 
+	result = _args_mem_new_out
+
+	_args_parse_loop(&_root, result);
+
 error:
 	return (result);
 }
