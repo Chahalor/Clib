@@ -137,95 +137,95 @@ static int	_check_parser(
 
 /* ----| Public     |----- */
 
-// __attribute__((visibility("hidden")))
-bool	_args_check_sub_exist_parser(
-	const _t_args_parser *const restrict parser,
-	const char *const name
+bool	_args_parser_has_param(
+	const _t_args_parser *const _parser,
+	const char *const _name
 )
 {
-	int	result = false;
+	bool	result = false;
 
-	for (_t_args_parser	*_this = parser->sub_parsers->data.parser;
-		_this != NULL && !result;
-		_this = _this->next->data.parser
+	for (_t_args_param	*_this = _parser->params;
+		_this && !result;
+		_this = _this->next
 	)
 	{
-		if (_this->name && !strcmp(_this->name, name))
+		if (unlikely(!strcmp(_this->name, _name)))
 			result = true;
 	}
 
 	return (result);
 }
 
-// __attribute__((visibility("hidden")))
-bool	_args_check_opt_exist_parser(
-	const _t_args_parser *const restrict parser,
-	const char *name
+bool	_args_parser_has_option(
+	const _t_args_parser *const _parser,
+	const char *const _name
 )
 {
-	const bool	_is_long =	_args_is_long_opt(name);
-	int			result = false;
+	char	*_lname = NULL;
+	char	_key = 0;
+	bool	result = false;
 
-	if (_is_long)
+	if (_name[0] == '-')
 	{
-		if (name[0] == '-')
-			name = name + 2;
-		for (_t_args_option	*_this = parser->options->data.option;
-			_this != NULL && !result;
-			_this = _this->next->data.option
-		)
-		{
-			if (_this->long_name && !strcmp(_this->long_name, name))
-				result = true;
-		}
+		if (_name[1] == '-')
+			_lname = _name + 2;
+		else
+			_key = _name[1];
 	}
+	else if (strlen(_name) > 1)
+		_lname = _name + 1;
 	else
+		_key = _name[0];
+
+	for (_t_args_option	*_this = _parser->options;
+		_this && !result;
+		_this = _this->next
+	)
 	{
-		if (name[0] == '-')
-			name = name + 1;
-		for (_t_args_option	*_this = parser->options->data.option;
-			_this != NULL && !result;
-			_this = _this->next->data.option
-		)
-		{
-			if (_this->short_name && _this->short_name == name[0])
-				result = true;
-		}
+		if (_lname && !strcmp(_this->long_name, _lname))
+			result = true;
+		else if (_key == _this->short_name)
+			result = true;
 	}
 
 	return (result);
 }
 
-// __attribute__((visibility("hidden")))
-bool	_args_check_param_exist_parser(
-	const _t_args_parser *const restrict parser,
-	const char *name
+
+char	_args_parser_has_sub(
+	t_args_output *const _parser,
+	const char *const _name
 )
 {
-	int	result = false;
+	bool	result = false;
 
-	if (name[0] != '-')
+	for (_t_args_parser	*_this = _parser->sub;
+		_this && !result;
+		_this = _this->next
+	)
 	{
-		for (_t_args_param	*_this = parser->params->data.param;
-			_this != NULL && !result;
-			_this = _this->next->data.param
-		)
-		{
-			if (unlikely(!strcmp(_this->name, name)))
-				result = true;
-		}
+		if (unlikely(!strcmp(_this->name, _name)))
+			result = true;
 	}
 
 	return (result);
 }
 
-// __attribute__((visibility("hidden")))
-int	_args_check_parser(
-	const _t_args_parser *const _parser
+char	_args_option_has_param(
+	t_args_output_option *const _option,
+	const char *const _name
 )
 {
-	if (unlikely(!_parser->name))
-		return (error_invalid_arg);
-	else
-		return (_check_parser(_parser));
+	bool	result = false;
+
+	for (_t_args_parser	*_this = _option->params;
+		_this && !result;
+		_this = _this->next
+	)
+	{
+		if (unlikely(!strcmp(_this->name, _name)))
+			result = true;
+	}
+
+	return (result);
 }

@@ -293,29 +293,26 @@ static inline int	_args_is_opt(
 	return (_s && (_args_is_short_opt(_s) || _args_is_long_opt(_s)));
 }
 
-// /** */
-// // __attribute__((visibility("hidden")))
-// bool			_args_check_sub_exist_parser(
-// 					const _t_args_parser *const restrict parser,
-// 					const char *const name
-// 				);
+/** */
+bool	_args_parser_has_param(
+	const _t_args_parser *const _parser,
+	const char *const _name
+);
 
-// /** */
-// // __attribute__((visibility("hidden")))
-// bool			_args_check_opt_exist_parser(
-// 					const _t_args_parser *const restrict parser,
-// 					const char *name
-// 				);
+/** */
+bool	_args_parser_has_option(
+	const _t_args_parser *const _parser,
+	const char *const _name
+);
 
-// /** */
-// // __attribute__((visibility("hidden")))
-// bool			_args_check_param_exist_parser(
-// 					const _t_args_parser *const restrict parser,
-// 					const char *name
-// 				);
+/** */
+char	_args_parser_has_sub(
+	t_args_output *const _parser,
+	const char *const _name
+);
 
-// /** */
-// // __attribute__((visibility("hidden")))
-// int				_args_check_parser(
-// 					const _t_args_parser *const _parser
-// 				);
+/** */
+char	_args_option_has_param(
+	t_args_output_option *const _option,
+	const char *const _name
+);
