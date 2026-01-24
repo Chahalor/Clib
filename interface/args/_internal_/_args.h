@@ -43,6 +43,13 @@
  */
 _t_args_config	*_args_config_get(void);
 
+/**
+ * @brief	set the module error number in the config singleton
+ *
+ * @param	_error	error code to store
+ *
+ * @return	void
+ */
 // __attribute__((visibility("hidden")))
 void			_args_config_set_errnum(
 					const int _error
@@ -161,7 +168,15 @@ _t_args_output	*_args_mem_new_output(void);
 /* -----| Parsing   |----- */
 #pragma region Parsing
 
-/** */
+/**
+ * @brief	parse argv and build an output tree from the parser definition
+ *
+ * @param	_parser	root parser definition
+ * @param	_argc	argument count
+ * @param	_argv	argument vector
+ *
+ * @return	output tree or NULL on allocation failure
+ */
 _t_args_output	*_args_parse(
 	const t_args_parser *const _parser,
 	const int _argc,
@@ -173,6 +188,14 @@ _t_args_output	*_args_parse(
 
 // /** */
 // __attribute__((visibility("hidden")))
+/**
+ * @brief	set or clear a parser description string
+ *
+ * @param	_target	parser to update
+ * @param	_desc	new description (NULL to clear)
+ *
+ * @return	error_none on success or error_alloc_fail on allocation failure
+ */
 int	_args_parser_set_desc(
 	_t_args_parser *const _target,
 	const char *const _desc
@@ -180,6 +203,14 @@ int	_args_parser_set_desc(
 
 // /** */
 // __attribute__((visibility("hidden")))
+/**
+ * @brief	set or clear a parameter description string
+ *
+ * @param	_target	param to update
+ * @param	_desc	new description (NULL to clear)
+ *
+ * @return	error_none on success or error_alloc_fail on allocation failure
+ */
 int	_args_param_set_desc(
 	_t_args_param *const _target,
 	const char *const _desc
@@ -187,6 +218,14 @@ int	_args_param_set_desc(
 
 // /** */
 // __attribute__((visibility("hidden")))
+/**
+ * @brief	set or clear an option description string
+ *
+ * @param	_target	option to update
+ * @param	_desc	new description (NULL to clear)
+ *
+ * @return	error_none on success or error_alloc_fail on allocation failure
+ */
 int	_args_option_set_desc(
 	_t_args_option *const _target,
 	const char *const _desc
@@ -195,7 +234,16 @@ int	_args_option_set_desc(
 /* -----| Extraction |----- */
 #pragma region Extraction
 
-/** */
+/**
+ * @brief	get values for a named output parameter
+ *
+ * @param	_output	parsed output tree
+ * @param	_name	parameter name
+ * @param	_values	receives array of value pointers (allocated)
+ * @param	_count	receives number of values
+ *
+ * @return	parameter name if found, NULL otherwise
+ */
 char	*_args_get_param(
 	t_args_output *const _output,
 	const char *const _name,
@@ -204,6 +252,17 @@ char	*_args_get_param(
 );
 
 /** */
+/**
+ * @brief	get option values merged across all params for a named option
+ * if the option has no param, `_count` is set to 0 and `_values[0]` is set to `0x1`
+ *
+ * @param	_output	parsed output tree
+ * @param	_name	option name (short/long or raw)
+ * @param	_values	receives merged values pointer
+ * @param	_count	receives number of values
+ *
+ * @return	currently returns 0 (reserved)
+ */
 char	_args_get_option(
 	t_args_output *const _output,
 	const char *const _name,
@@ -212,21 +271,40 @@ char	_args_get_option(
 );
 
 /** */
+/**
+ * @brief	return the active subcommand name, if any
+ *
+ * @param	_out	parsed output tree
+ *
+ * @return	subcommand name or NULL
+ */
 const char	*_args_active_subcommand(
 	const t_args_output *_out
 );
 
 /** */
+/**
+ * @brief	return the output subtree for a subcommand
+ *
+ * @param	_out	parsed output tree
+ *
+ * @return	subcommand output or NULL
+ */
 t_args_output	*_args_get_sub_output(
-	const t_args_output *_out,
-	const char *_name
+	const t_args_output *_out
 );
 
 
 /* -----| Checks     |----- */
 #pragma region Checks
 
-/** */
+/**
+ * @brief	check if a string is a long option ("--name")
+ *
+ * @param	_s	candidate string
+ *
+ * @return	non-zero if long option, zero otherwise
+ */
 static inline int	_args_is_long_opt(
 	const char *restrict _s
 )
@@ -241,7 +319,13 @@ static inline int	_args_is_long_opt(
 	return (is_long && !is_delim);
 }
 
-/** */
+/**
+ * @brief	check if a string is a short option ("-n")
+ *
+ * @param	_s	candidate string
+ *
+ * @return	non-zero if short option, zero otherwise
+ */
 static inline int	_args_is_short_opt(
 	const char *restrict _s
 )
@@ -256,7 +340,13 @@ static inline int	_args_is_short_opt(
 	return (is_short && !is_delim);
 }
 
-/** */
+/**
+ * @brief	check if a string is any option ("-n" or "--name")
+ *
+ * @param	_s	candidate string
+ *
+ * @return	non-zero if option, zero otherwise
+ */
 static inline int	_args_is_opt(
 	const char *restrict _s
 )
@@ -265,24 +355,56 @@ static inline int	_args_is_opt(
 }
 
 /** */
+/**
+ * @brief	check if a parser declares a parameter name
+ *
+ * @param	_parser	parser definition
+ * @param	_name	parameter name
+ *
+ * @return	true if found, false otherwise
+ */
 bool	_args_parser_has_param(
 	const _t_args_parser *const _parser,
 	const char *const _name
 );
 
 /** */
+/**
+ * @brief	check if a parser declares an option name
+ *
+ * @param	_parser	parser definition
+ * @param	_name	option name (short/long or raw)
+ *
+ * @return	true if found, false otherwise
+ */
 bool	_args_parser_has_option(
 	const _t_args_parser *const _parser,
 	const char *const _name
 );
 
 /** */
+/**
+ * @brief	check if the output tree has a subcommand by name
+ *
+ * @param	_parser	output tree (root)
+ * @param	_name	subcommand name
+ *
+ * @return	true if found, false otherwise
+ */
 char	_args_parser_has_sub(
 	t_args_output *const _parser,
 	const char *const _name
 );
 
 /** */
+/**
+ * @brief	check if an output option has a parameter by name
+ *
+ * @param	_option	output option node
+ * @param	_name	parameter name
+ *
+ * @return	true if found, false otherwise
+ */
 char	_args_option_has_param(
 	t_args_output_option *const _option,
 	const char *const _name

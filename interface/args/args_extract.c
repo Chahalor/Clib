@@ -99,12 +99,11 @@ const char	*args_active_subcommand(
 }
 
 t_args_output	*args_get_sub_output(
-	const t_args_output *_out,
-	const char *_name
+	const t_args_output *_out
 )
 {
 	if (unlikely(!_out || !_name))
 		return (error_invalid_arg);
 	else
-		return (_args_get_sub_output(_out, _name));
+		return (_args_get_sub_output(_out));
 }

@@ -190,8 +190,7 @@ const char	*_args_active_subcommand(
 }
 
 t_args_output	*_args_get_sub_output(
-	const t_args_output *_out,
-	const char *_name
+	const t_args_output *_out
 )
 {
 	t_args_output	*result;
