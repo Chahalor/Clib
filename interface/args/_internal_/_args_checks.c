@@ -182,7 +182,7 @@ bool	_args_parser_has_option(
 		_this = _this->next
 	)
 	{
-		if (_lname && !strcmp(_this->long_name, _lname))
+		if (_lname &&_this->long_name && !strcmp(_this->long_name, _lname))
 			result = true;
 		else if (_key == _this->short_name)
 			result = true;
