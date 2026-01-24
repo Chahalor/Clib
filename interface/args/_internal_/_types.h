@@ -31,14 +31,15 @@
 
 /* -----| Structs   |----- */
 
-typedef struct _s_args_map_entry		_t_args_map_entry;
-typedef struct _s_args_map				_t_args_map;
+// typedef struct _s_args_map_entry		_t_args_map_entry;
+// typedef struct _s_args_map				_t_args_map;
 
 typedef struct _s_args_config			_t_args_config;
 
 typedef struct _s_args_param			_t_args_param;
 typedef struct _s_args_option			_t_args_option;
 typedef struct _s_args_parser			_t_args_parser;
+typedef struct _s_args_root				_t_args_root;
 
 typedef struct _s_args_output_value		_t_args_output_value;
 typedef struct _s_args_output_param		_t_args_output_param;
