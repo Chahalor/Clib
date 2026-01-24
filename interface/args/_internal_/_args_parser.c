@@ -157,7 +157,7 @@ static int	_out_add_value(
 		return (error_alloc_fail);
 	}
 
-	for (_t_args_output_value *_this = _param->values;
+	for (_t_args_output_value	*_this = _param->values;
 		_this;
 		_this = _this->next
 	)
@@ -588,11 +588,15 @@ int	_args_parse_loop(
 		}
 	}
 
+	_out->error = result;
 	return (result);
 }
 
 /* ----| Public     |----- */
 
+/**
+ * TODO: maybe check here if root.parser != NULL
+ */
 _t_args_output	*_args_parse(
 	const t_args_parser *const _parser,
 	const int _argc,
@@ -605,6 +609,7 @@ _t_args_output	*_args_parse(
 		.argv = _argv,
 		.index = 1
 	};
+	int				_errnum;
 	_t_args_output	*result;
 
 	_args_init_root_config(&_root.config);
@@ -620,7 +625,12 @@ _t_args_output	*_args_parse(
 		return (NULL);
 	}
 
-	_args_parse_loop(&_root, result);
+	_errnum = _args_parse_loop(&_root, result);
+
+	if (unlikely(_errnum))
+		_args_config_set_errnum(_errnum);
+	else
+		_errnum = _args_check_output(_root, result);
 
 error:
 	return (result);

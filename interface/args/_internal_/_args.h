@@ -161,12 +161,12 @@ _t_args_output	*_args_mem_new_output(void);
 /* -----| Parsing   |----- */
 #pragma region Parsing
 
-// /** */
-// int				_args_parse(
-// 					ARGSP *const _main,
-// 					const int _argc,
-// 					const char *_argv[]
-// 				);
+/** */
+_t_args_output	*_args_parse(
+	const t_args_parser *const _parser,
+	const int _argc,
+	const char *const *const _argv
+);
 
 /* -----| Editions   |----- */
 #pragma region Editions
