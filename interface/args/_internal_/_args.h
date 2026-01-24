@@ -51,120 +51,46 @@ void			_args_config_set_errnum(
 /* -----| Memory    |----- */
 #pragma region Memory
 
-// /**
-//  * @brief	allocate and initialize a `_t_args_param` descriptor
-//  *
-//  * @param	_name	optional name used only to size the inline buffer
-//  *
-//  * @return	the newly allocated param struct or NULL on error
-//  *
-//  * @note	the name buffer is part of the allocation and is not populated
-//  * @note	.desc is left NULL and must be allocated separately if needed
-//  * @version	1.0.0
-// */
-// ARGSP	*_args_mem_new_param(
-// 	const char *const restrict _name
-// );
 
-// /**
-//  * @brief	allocate and initialize a `_t_args_option` descriptor
-//  *
-//  * @param	_name	optional long name used only to size the inline buffer
-//  *
-//  * @return	the newly allocated option struct or NULL on error
-//  *
-//  * @note	the long-name buffer is part of the allocation and is not populated
-//  * @note	.desc is left NULL and must be allocated separately if needed
-//  * @version	1.0.0
-//  */
-// ARGSP	*_args_mem_new_option(
-// 	const char *const restrict _name,
-// 	const char _short_name
-// );
+void	_args_init_root_config(
+	_t_args_config *const _conf
+);
 
-// /**
-//  * @brief	allocate and initialize a `_t_args_parser` descriptor
-//  *
-//  * @param	_name	optional parser name used only to size the inline buffer
-//  *
-//  * @return	the newly allocated parser struct or NULL on error
-//  *
-//  * @note	the name buffer is part of the allocation and is not populated
-//  * @note	.desc, .params, .options, and .sub_parsers are set to NULL
-//  * @version	1.0.0
-//  */
-// ARGSP	*_args_mem_new_parser(
-// 	const char *const restrict _name
-// );
+_t_args_parser	*_args_mem_new_parser(
+	const char *const _name,
+	const char *const _desc
+);
 
-// /**
-//  * TODO: Docs
-//  */
-// ARGSP	*_args_mem_new_root(void);
+_t_args_option	*_args_mem_new_option(
+	const char *const _long_name,
+	const char _short_name,
+	const char *const _desc
+);
 
-// /**
-//  * @brief	free a parameter descriptor
-//  *
-//  * @param	_param		parameter to release (must be non-NULL)
-//  * @param	_recursiv	if nonzero, free the full linked list via .next
-//  *
-//  * @version	1.0.0
-//  */
-// void	_args_mem_free_param(
-// 	ARGSP *const restrict _param,
-// 	const char _recursiv
-// );
+_t_args_param	*_args_mem_new_param(
+	const char *const _name,
+	const char *const _desc,
+	const t_param_args_type _args_spec,
+	const t_param_type _type
+);
 
-// /**
-//  * @brief	free an option descriptor
-//  *
-//  * @param	_param		option to release (must be non-NULL)
-//  * @param	_recursiv	if nonzero, free the full linked list via .next
-//  *
-//  * @version	1.0.0
-//  */
-// void	_args_mem_free_opt(
-// 	ARGSP *const restrict _param,
-// 	const char _recursiv
-// );
+_t_args_output_value	*_args_mem_new_out_val(
+	const char *const _value
+);
 
-// /**
-//  * @brief	free a parser descriptor and its owned children
-//  *
-//  * @param	_param		parser to release (must be non-NULL)
-//  * @param	_recursiv	if nonzero, free the full linked list via .next
-//  *
-//  * @note	also frees .params, .options, and .sub_parsers lists
-//  * @version	1.0.0
-//  */
-// void	_args_mem_free_parser(
-// 	ARGSP *const restrict _param,
-// 	const char _recursiv
-// );
+_t_args_output_param	*_args_mem_new_out_param(
+	const char *const _name
+);
 
-// /** */
-// void	_args_remove_sub(
-// 	ARGSP *const _main,
-// 	ARGSP *const _sub
-// );
+_t_args_output_option	*_args_mem_new_out_opt(
+	const _t_args_option *const _opt
+);
 
-// /** */
-// void	_args_remove_opt(
-// 	ARGSP *const _main,
-// 	ARGSP *const _opt
-// );
+_t_args_output_parser	*_args_mem_new_out_parser(
+	const char *const _name
+);
 
-// /** */
-// void	_args_remove_param_from_opt(
-// 	ARGSP *const _main,
-// 	ARGSP *const _param
-// );
-
-// /** */
-// void	_args_remove_param_from_parser(
-// 	ARGSP *const _main,
-// 	ARGSP *const _param
-// );
+_t_args_output	*_args_mem_new_output(void);
 
 // /* -----| Parsing   |----- */
 // #pragma region Parsing
