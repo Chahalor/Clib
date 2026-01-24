@@ -331,26 +331,21 @@ int	_parse_args(
 
 /* ----| Public     |----- */
 
-int	_args_parse(
-	ARGSP *const _main,
+t_args_output	*_args_parse(
+	const t_args_parser *const _parser,
 	const int _argc,
-	const char *_argv[]
+	const char *const *const _argv
 )
 {
-	char			*_current = NULL;
-	_t_args_parser	*_context = (_t_args_parser *)_main->data.parser;
-	_t_args_parser	*_root = _main->data.parser;
-	int				result;
+	_t_args_root	_root = {
+		.parser = _parser,
+		.argc = _argc,
+		.argv = _argv,
+		.index = 1
+	};
+	t_args_output	*result;
 
-	result = _args_check_parser(_root);
-	if (unlikely(result))
-		goto error;
-
-	_root->index = 1;
-	_root->argc = _argc;
-	_root->argv = (char **)_argv;
-
-	result = _parse_args(_root, _root);
+	_arg_init_root_config(&_root.config);
 
 error:
 	return (result);

@@ -14,34 +14,17 @@
 	//...
 
 /* ----| Internals  |----- */
+	//...
 
-static inline void	_init_root_config(
+/* ----| Public     |----- */
+
+void	_args_init_root_config(
 	_t_args_config *const _conf
 )
 {
 	*_conf = (_t_args_config){
 		0	// TODO: default config
 	};
-}
-
-/* ----| Public     |----- */
-
-_t_args_root	*_args_mem_new_root(void)
-{
-	_t_args_root	*result;
-
-	result = mem_alloc(sizeof(_t_args_root));
-	if (unlikely(!result))
-	{
-		_args_config_set_errnum(error_alloc_fail);
-		goto error;
-	}
-
-	_init_root_config(&result->config);
-	result->parser = NULL;
-
-error:
-	return (result);
 }
 
 _t_args_parser	*_args_mem_new_parser(
@@ -175,4 +158,112 @@ _t_args_param	*_args_mem_new_param(
 
 error:
 	return (new);
+}
+
+_t_args_output_value	*_args_mem_new_out_val(
+	const char *const _value
+)
+{
+	const size_t			_alloc_size = sizeof(_t_args_output_value) + _value ? strlen(_value) : 0;
+	_t_args_output_value	*result;
+
+	result = mem_alloc(_alloc_size);
+	if (unlikely(!result))
+	{
+		_args_config_set_errnum(error_alloc_fail);
+		goto error;
+	}
+
+	if (_value)
+	{
+		result->value = (char *)(result + 1);
+		strcpy(result->value, _value);
+	}
+	result->next = NULL;
+
+error:
+	return (result);
+}
+
+_t_args_output_param	*_args_mem_new_out_param(
+	const char *const _name
+)
+{
+	const size_t			_alloc_size = sizeof(_t_args_output_param) + _name ? strlen(_name) : 0;
+	_t_args_output_param	*result;
+
+	result = mem_alloc(_alloc_size);
+	if (unlikely(!result))
+	{
+		_args_config_set_errnum(error_alloc_fail);
+		goto error;
+	}
+
+	if (_name)
+	{
+		result->name = (char *)(result + 1);
+		strcpy(result->name, _name);
+	}
+	result->values = NULL;
+	result->error = error_none;
+	result->next = NULL;
+
+error:
+	return (result);
+}
+
+_t_args_output_option	*_args_mem_new_out_opt(
+	const _t_args_option *const _opt
+)
+{
+	const size_t			_alloc_size = sizeof(_t_args_output_option) + _opt->long_name ? strlen(_opt->long_name) : 0;
+	_t_args_output_option	*result;
+
+	result = mem_alloc(_alloc_size);
+	if (unlikely(!result))
+	{
+		_args_config_set_errnum(error_alloc_fail);
+		goto error;
+	}
+
+	if (_opt->long_name)
+	{
+		result->long_name = (char *)(result + 1);
+		strcpy(result->long_name, _opt->long_name);
+	}
+	result->short_name = _opt->short_name;
+	result->params = NULL;
+	result->error = error_none;
+	result->next = NULL;
+
+error:
+	return (result);
+}
+
+_t_args_output_parser	*_args_mem_new_out_parser(
+	const char *const _name
+)
+{
+	const size_t			_alloc_size = sizeof(_t_args_output_parser) + _name ? strlen(_name) : 0;
+	_t_args_output_parser	*result;
+
+	result = mem_alloc(_alloc_size);
+	if (unlikely(!result))
+	{
+		_args_config_set_errnum(error_alloc_fail);
+		goto error;
+	}
+
+	if (_name)
+	{
+		result->name = (char *)(result + 1);
+		strcpy(result->name, _name);
+	}
+	result->options = NULL;
+	result->params = NULL;
+	result->sub = NULL;
+	result->next = NULL;
+
+error:
+	return (result);
 }

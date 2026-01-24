@@ -165,8 +165,11 @@ struct _s_args_parser
 
 struct _s_args_root
 {
-	_t_args_parser	*parser;		// main parser struct
-	_t_args_config	config;			// config of this parser
+	_t_args_config				config;			// config of this parser
+	_t_args_parser				*parser;		// main parser struct
+	const char *const *const	argv;
+	const int					argc;
+	int							index;
 };
 
 
@@ -188,7 +191,7 @@ struct _s_args_output_param
 };
 
 
-struct s_args_output_option
+struct _s_args_output_option
 {
 	char					short_name;
 	unsigned int			nb_call;
