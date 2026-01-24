@@ -172,39 +172,6 @@ _t_args_output	*_args_parse(
 #pragma region Editions
 
 // /** */
-// // __attribute__((visibility("hidden")))
-// int	_args_add_sub_parser(
-// 	_t_args_parser *const parent,
-// 	const char *const name,
-// 	ARGSP **const dest
-// );
-
-// /** */
-// // __attribute__((visibility("hidden")))
-// int	_args_add_param_to_parser(
-// 	_t_args_parser *const parent,
-// 	const char *const name,
-// 	ARGSP **const dest
-// );
-
-// /** */
-// // __attribute__((visibility("hidden")))
-// int	_args_add_param_to_option(
-// 	_t_args_option *const parent,
-// 	const char *const name,
-// 	ARGSP **const dest
-// );
-
-// /** */
-// // __attribute__((visibility("hidden")))
-// int	_args_add_option(
-// 	_t_args_parser *const parent,
-// 	const char *const lname,
-// 	const char sname,
-// 	ARGSP **const dest
-// );
-
-// /** */
 // __attribute__((visibility("hidden")))
 int	_args_parser_set_desc(
 	_t_args_parser *const _target,
@@ -225,32 +192,36 @@ int	_args_option_set_desc(
 	const char *const _desc
 );
 
-// /* -----| Extraction |----- */
-// #pragma region Extraction
+/* -----| Extraction |----- */
+#pragma region Extraction
 
-// /** */
-// // __attribute__((visibility("hidden")))
-// int	_args_get_opt(
-// 	_t_args_option *const opts,
-// 	const char *name,
-// 	void **dest
-// );
+/** */
+char	*_args_get_param(
+	t_args_output *const _output,
+	const char *const _name,
+	char *const * *const _values,
+	unsigned int *const _count
+);
 
-// /** */
-// // __attribute__((visibility("hidden")))
-// int	_args_get_sub(
-// 	_t_args_parser *const parsers,
-// 	const char *name,
-// 	void **dest
-// );
+/** */
+char	_args_get_option(
+	t_args_output *const _output,
+	const char *const _name,
+	char *const * *const _values,
+	unsigned int *const _count
+);
 
-// /** */
-// // __attribute__((visibility("hidden")))
-// int	_args_get_param(
-// 	_t_args_param *const params,
-// 	const char *name,
-// 	void **dest
-// );
+/** */
+const char	*_args_active_subcommand(
+	const t_args_output *_out
+);
+
+/** */
+t_args_output	*_args_get_sub_output(
+	const t_args_output *_out,
+	const char *_name
+);
+
 
 /* -----| Checks     |----- */
 #pragma region Checks

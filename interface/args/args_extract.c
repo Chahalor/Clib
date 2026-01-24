@@ -85,7 +85,7 @@ char	args_get_option(
 	if (unlikely(!_output || !_name || !_values || !_count))
 		return (error_invalid_arg);
 	else
-		return (_args_get_param(_output, _name, _values, _count));
+		return (_args_get_option(_output, _name, _values, _count));
 }
 
 const char	*args_active_subcommand(
@@ -95,7 +95,7 @@ const char	*args_active_subcommand(
 	if (unlikely(!_out))
 		return (error_invalid_arg);
 	else
-		return (_args_get_sub_name(_out));
+		return (_args_active_subcommand(_out));
 }
 
 t_args_output	*args_get_sub_output(
@@ -106,5 +106,5 @@ t_args_output	*args_get_sub_output(
 	if (unlikely(!_out || !_name))
 		return (error_invalid_arg);
 	else
-		return (_args_get_output_(_out, _name));
+		return (_args_get_sub_output(_out, _name));
 }
