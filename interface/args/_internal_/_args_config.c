@@ -22,7 +22,8 @@
 _t_args_config	*_args_config_get(void)
 {
 	static _t_args_config	config = {
-		0	// TODO: default config
+		.format_cmd = "\t%20s%s\n",
+		.sub_format = "\t%20s%s\n"
 	};
 
 	return (&config);

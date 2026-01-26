@@ -90,6 +90,9 @@ enum _e_args_set_desc_actions
 
 struct _s_args_config
 {
+	char	*format_cmd;
+	char	*sub_format;
+
 	int		errnum;
 	/* behavior */
 	char	exit_on_error			: 1;

@@ -66,6 +66,8 @@ t_args_option	*_args_parser_add_option(
 		else
 			_lname = _long_name + 1;
 	}
+	else
+		_lname = _long_name;
 
 	new = _args_mem_new_option(_lname, _sname, _desc);
 	if (unlikely(!new))

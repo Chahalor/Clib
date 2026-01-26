@@ -3,6 +3,7 @@
 /* ----| Headers    |----- */
 	/* Standard */
 #include <string.h>
+#include <stdio.h>
 
 	/* Internal */
 #include "_args.h"
@@ -124,15 +125,6 @@ static void	_args_mem_free_output_parsers(
 	}
 }
 
-void	_args_init_root_config(
-	_t_args_config *const _conf
-)
-{
-	*_conf = (_t_args_config){
-		0	// TODO: default config
-	};
-}
-
 _t_args_parser	*_args_mem_new_parser(
 	const char *const _name,
 	const char *const _desc
@@ -151,6 +143,8 @@ _t_args_parser	*_args_mem_new_parser(
 		goto error;
 	}
 
+	new->name = NULL;
+	new->desc = NULL;
 	if (_name)
 	{
 		new->name = (char *)(new + 1);
@@ -173,6 +167,8 @@ _t_args_parser	*_args_mem_new_parser(
 	new->options = NULL;
 	new->params = NULL;
 	new->sub_parsers = NULL;
+
+	_args_parser_add_option(new, "help", 'h', "show this message");
 
 error:
 	return (new);
@@ -197,6 +193,8 @@ _t_args_option	*_args_mem_new_option(
 		goto error;
 	}
 
+	new->long_name = NULL;
+	new->desc = NULL;
 	if (_long_name)
 	{
 		new->long_name = (char *)(new + 1);
@@ -243,6 +241,8 @@ _t_args_param	*_args_mem_new_param(
 		goto error;
 	}
 
+	new->name = NULL;
+	new->desc = NULL;
 	if (_name)
 	{
 		new->name = (char *)(new + 1);
@@ -284,6 +284,7 @@ _t_args_output_value	*_args_mem_new_out_val(
 		goto error;
 	}
 
+	result->value = NULL;
 	if (_value)
 	{
 		result->value = (char *)(result + 1);
@@ -310,6 +311,7 @@ _t_args_output_param	*_args_mem_new_out_param(
 		goto error;
 	}
 
+	result->name = NULL;
 	if (_name)
 	{
 		result->name = (char *)(result + 1);
@@ -338,6 +340,7 @@ _t_args_output_option	*_args_mem_new_out_opt(
 		goto error;
 	}
 
+	result->long_name = NULL;
 	if (_opt->long_name)
 	{
 		result->long_name = (char *)(result + 1);
@@ -367,6 +370,7 @@ _t_args_output_parser	*_args_mem_new_out_parser(
 		goto error;
 	}
 
+	result->name = NULL;
 	if (_name)
 	{
 		result->name = (char *)(result + 1);

@@ -75,6 +75,19 @@ char	*args_get_param(
 		return (_args_get_param(_output, _name, _values, _count));
 }
 
+char	*args_output_parser_get_param(
+	t_args_output_parser *const _output,
+	const char *const _name,
+	char *const * *const _values,
+	unsigned int *const _count
+)
+{
+	if (unlikely(!_output || !_name || !_values || !_count))
+		return (NULL);
+	else
+		return (_args_output_parser_get_param(_output, _name, _values, _count));
+}
+
 char	args_get_option(
 	t_args_output *const _output,
 	const char *const _name,
@@ -86,6 +99,19 @@ char	args_get_option(
 		return (error_invalid_arg);
 	else
 		return (_args_get_option(_output, _name, _values, _count));
+}
+
+char	args_output_parser_get_option(
+	t_args_output_parser *const _output,
+	const char *const _name,
+	char *const * *const _values,
+	unsigned int *const _count
+)
+{
+	if (unlikely(!_output || !_name || !_values || !_count))
+		return (error_invalid_arg);
+	else
+		return (_args_output_parser_get_option(_output, _name, _values, _count));
 }
 
 const char	*args_active_subcommand(

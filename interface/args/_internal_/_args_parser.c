@@ -456,67 +456,6 @@ int	_args_parse_loop(
 				&opt_param,
 				&context_type
 			);
-			/* _t_args_parser			*sub = NULL;
-			_t_args_output_param	*out_param = NULL;
-
-			sub = _get_sub_parser_of(context, current);
-			if (sub)
-			{
-				context = sub;
-				pos_cursor = context->params;
-				out_context = _out_add_sub_parser(out_context, sub);
-				if (unlikely(!out_context))
-				{
-					result = error_alloc_fail;
-					break ;
-				}
-				continue;
-			}
-
-			if (!opt_disabled && _args_is_opt(current))
-			{
-				opt = _get_opt_of(context, current);
-				if (unlikely(!opt))
-				{
-					result = args_error_unknown_option;
-					_args_config_set_errnum(result);
-					break ;
-				}
-
-				out_opt = _out_add_option(&out_context->options, opt);
-				if (unlikely(!out_opt))
-				{
-					result = error_alloc_fail;
-					break ;
-				}
-				out_opt->nb_call += 1;
-
-				opt_param = opt->params;
-				if (opt_param)
-					context_type = args_context_opt;
-				continue;
-			}
-
-			if (unlikely(!pos_cursor))
-			{
-				result = args_error_extra_param;
-				_args_config_set_errnum(result);
-				break ;
-			}
-
-			out_param = _out_add_param(&out_context->params, pos_cursor->name);
-			if (unlikely(!out_param))
-			{
-				result = error_alloc_fail;
-				break ;
-			}
-
-			result = _out_add_value(out_param, current);
-			if (unlikely(result))
-				break ;
-
-			if (!(pos_cursor->args_type & param_args_type_nargs))
-				pos_cursor = pos_cursor->next; */
 		}
 		/* ---------- Option-arguments context ---------- */
 		else /* context_type == args_context_opt */
@@ -530,61 +469,6 @@ int	_args_parse_loop(
 				&opt_param,
 				&context_type
 			);
-			/* _t_args_output_param	*out_param = NULL;
-
-			if (unlikely(!opt_param || !out_opt))
-			{
-				context_type = args_context_parser;
-				opt = NULL;
-				out_opt = NULL;
-				opt_param = NULL;
-				continue;
-			}
-
-			if (!strcmp(current, "--"))
-			{
-				opt_disabled = true;
-				context_type = args_context_parser;
-				opt = NULL;
-				out_opt = NULL;
-				opt_param = NULL;
-				continue;
-			}
-
-			if (
-				!opt_disabled &&
-				(opt_param->args_type & param_args_type_nargs) &&
-				_args_is_opt(current)
-			)
-			{
-				_root_push_back(_root);
-				context_type = args_context_parser;
-				opt = NULL;
-				out_opt = NULL;
-				opt_param = NULL;
-				continue;
-			}
-
-			out_param = _out_add_param(out_opt, opt_param->name);
-			if (unlikely(!out_param))
-			{
-				result = error_alloc_fail;
-				break ;
-			}
-
-			result = _out_add_value(out_param, current);
-			if (unlikely(result))
-				break ;
-
-			if (!(opt_param->args_type & param_args_type_nargs))
-				opt_param = opt_param->next;
-
-			if (!opt_param)
-			{
-				context_type = args_context_parser;
-				opt = NULL;
-				out_opt = NULL;
-			} */
 		}
 	}
 
@@ -608,8 +492,6 @@ _t_args_output	*_args_parse(
 	};
 	int				_errnum;
 	_t_args_output	*result;
-
-	_args_init_root_config(&_root.config);
 
 	result = _args_mem_new_output();
 	if (unlikely(!result))

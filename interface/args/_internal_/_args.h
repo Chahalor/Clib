@@ -9,6 +9,7 @@
 /* -----| Systems   |----- */
 #include <ctype.h>
 #include <stdarg.h>
+#include <stdio.h>	// rm
 
 /* -----| Globals   |----- */
 # include "lib_config.h"
@@ -310,6 +311,23 @@ char	*_args_get_param(
 	unsigned int *const _count
 );
 
+/**
+ * @brief	get values for a named output parameter from a sub-parser output
+ *
+ * @param	_output	sub-parser output node
+ * @param	_name	parameter name
+ * @param	_values	receives array of value pointers (allocated)
+ * @param	_count	receives number of values
+ *
+ * @return	parameter name if found, NULL otherwise
+ */
+char	*_args_output_parser_get_param(
+	t_args_output_parser *const _output,
+	const char *const _name,
+	char *const * *const _values,
+	unsigned int *const _count
+);
+
 /** */
 /**
  * @brief	get option values merged across all params for a named option
@@ -324,6 +342,23 @@ char	*_args_get_param(
  */
 char	_args_get_option(
 	t_args_output *const _output,
+	const char *const _name,
+	char *const * *const _values,
+	unsigned int *const _count
+);
+
+/**
+ * @brief	get option values for a named option from a sub-parser output
+ *
+ * @param	_output	sub-parser output node
+ * @param	_name	option name (short/long or raw)
+ * @param	_values	receives merged values pointer
+ * @param	_count	receives number of values
+ *
+ * @return	non-zero if found, zero otherwise
+ */
+char	_args_output_parser_get_option(
+	t_args_output_parser *const _output,
 	const char *const _name,
 	char *const * *const _values,
 	unsigned int *const _count
@@ -372,8 +407,8 @@ static inline int	_args_is_long_opt(
 	const unsigned char	_c1 = _s ? _s[1] : '\0';
 	const unsigned char	_c2 = _s ? _s[2] : '\0';
 
-	const int			is_long = (_c0 == '-') & (_c1 == '-') & isalnum(_c2);
-	const int			is_delim = (_c0 == '-') & (_c1 == '-') & (_c2 == '\0');
+	const int			is_long = (_c0 == '-') && (_c1 == '-') && isalnum(_c2);
+	const int			is_delim = (_c0 == '-') && (_c1 == '-') && (_c2 == '\0');
 
 	return (is_long && !is_delim);
 }
@@ -393,8 +428,8 @@ static inline int	_args_is_short_opt(
 	const unsigned char	_c1 = _s ? _s[1] : '\0';
 	const unsigned char	_c2 = _s ? _s[2] : '\0';
 
-	const int			is_short = (_c0 == '-') & isalpha(_c1) & (_c2 == '\0');
-	const int			is_delim = (_c0 == '-') & (_c1 == '-') & (_c2 == '\0');
+	const int			is_short = (_c0 == '-') && isalpha(_c1) && (_c2 == '\0');
+	const int			is_delim = (_c0 == '-') && (_c1 == '-') && (_c2 == '\0');
 
 	return (is_short && !is_delim);
 }
@@ -495,6 +530,13 @@ char	_args_option_has_param(
 int	_args_check_output(
 	const _t_args_root *const _root,
 	const _t_args_output *const _output
+);
+
+#pragma region Builtins
+
+int	_args_builtin_help(
+	const _t_args_parser *const _parser,
+	const _t_args_config *const _config
 );
 
 
