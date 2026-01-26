@@ -496,3 +496,10 @@ int	_args_check_output(
 	const _t_args_root *const _root,
 	const _t_args_output *const _output
 );
+
+
+#pragma region Errors
+
+const char	*_args_error_str(
+	const int _errnum
+);

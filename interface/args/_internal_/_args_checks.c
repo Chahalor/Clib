@@ -194,7 +194,7 @@ static inline int	_check_output_parser(
 	)
 	{
 		_target = _this;
-		if (strcmp(_this->name, _out->name))
+		if (_this->name && strcmp(_this->name, _out->name))
 			break ;
 	}
 
