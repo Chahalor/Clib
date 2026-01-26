@@ -27,7 +27,7 @@
 
 /* -----| Enums     |----- */
 typedef enum e_param_type				t_param_type;			// TODO: docs
-typedef enum e_param_args_type			t_param_args_type;		//
+typedef enum e_args_param_specs			t_args_param_specs;		//
 
 /* -----| Structs   |----- */
 typedef struct _s_args_parser			t_args_parser;
@@ -54,10 +54,10 @@ enum e_param_type
 	param_type_str,
 };
 
-enum e_param_args_type
+enum e_args_param_specs
 {
-	param_args_type_require = 1 << 0,	// this param is required
-	param_args_type_nargs =   1 << 1,	// this param take n args
+	args_param_specs_require = 1 << 0,	// this param is required
+	args_param_specs_nargs =   1 << 1,	// this param take n args
 };
 
 enum e_args_error

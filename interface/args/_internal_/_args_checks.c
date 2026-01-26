@@ -34,7 +34,7 @@ static inline int	_check_options(
 
 	for (_t_args_option *_this = options;
 		_this != NULL && !result;
-		_this = _this->next->data.option
+		_this = _this->next
 	)
 	{
 		char	*_name1 = _this->long_name;
@@ -49,7 +49,7 @@ static inline int	_check_options(
 
 		for (_t_args_option *_opt = options;
 			_opt != NULL && !result;
-			_opt = _opt->next->data.option
+			_opt = _opt->next
 		)
 		{
 			char	*_name2 = _opt->long_name;
@@ -76,7 +76,7 @@ static inline int	_check_params(
 
 	for (_t_args_param	*_this = params;
 		_this != NULL && !result;
-		_this = _this->next->data.param
+		_this = _this->next
 	)
 	{
 		if (unlikely(!_this->name || !_this->name[0] || _this->name[0] == '-'))
@@ -87,7 +87,7 @@ static inline int	_check_params(
 		{
 			for (_t_args_param	*_parm = params;
 				_parm != NULL && !result;
-				_parm = _parm->next->data.param
+				_parm = _parm->next
 			)
 			{
 				if (_parm != _this && (!_parm->name || !strcmp(_parm->name, _this->name)))
@@ -105,9 +105,9 @@ static int	_check_parser(
 {
 	int	result = error_none;
 
-	for (_t_args_parser	*_this = (_t_args_parser *)parser;
+	for (const _t_args_parser	*_this = parser;
 		_this != NULL && !result;
-		_this = _this->next->data.parser
+		_this = _this->next
 	)
 	{
 		if (unlikely(!_this->name || !_this->name[0] || _this->name[0] == '-'))
@@ -116,21 +116,92 @@ static int	_check_parser(
 		{
 			for (const _t_args_parser	*_psr = parser;
 				_psr != NULL && !result;
-				_psr = _psr->next->data.parser
+				_psr = _psr->next
 			)
 			{
 				if (_psr != _this && (!_psr->name || !strcmp(_this->name, _psr->name)))
 					result = args_error_duplicate;
 			}
-			result = _check_options(_this->options->data.option);
+			result = _check_options(_this->options);
 			result = !result ?
-						_check_params(_this->params->data.param) :
+						_check_params(_this->params) :
 						result;
 			result = !result ?
-						_check_parser(_this->sub_parsers->data.parser) :
+						_check_parser(_this->sub_parsers) :
 						result;
 		}
 	}
+
+	return (result);
+}
+
+static inline int	_check_output_params(
+	const _t_args_param *_params,
+	const _t_args_output_param *_out
+)
+{
+	int	result = true;
+
+	const _t_args_param	*_param = _params;
+	for (const _t_args_output_param	*_this = _out;
+		_this && result;
+		_this = _this->next
+	)
+	{
+		if (_this->error)
+			result = false;
+		else if (_args_param_is_requiered(_param) && strcmp(_this->name, _param->name))
+			result = false;
+		_param = _param->next;
+	}
+
+	return (result);
+}
+
+static inline int	_check_output_options(
+	const _t_args_option *const _options,
+	const _t_args_output_option *_out
+)
+{
+	int	result = true;
+
+	const _t_args_option	*_opt = _options;
+	for (const _t_args_output_option	*_this = _out;
+		_this && result;
+		_this = _this->next
+	)
+	{
+		if (_this->error)
+			result = false;
+		else if (_this->params)
+			result = _check_output_params(_opt->params, _this->params);
+	}
+
+	return (result);
+}
+
+static inline int	_check_output_parser(
+	const _t_args_parser *const _parser,
+	const _t_args_output_parser *const _out
+)
+{
+	const _t_args_parser	*_target;
+	int						result = true;
+	
+	for (const _t_args_parser	*_this = _parser;
+		_this;
+		_this = _this->next
+	)
+	{
+		_target = _this;
+		if (strcmp(_this->name, _out->name))
+			break ;
+	}
+
+	result = _check_output_options(_target->options, _out->options);
+	result = result ?
+				result :
+				_check_output_params(_target->params, _out->params);
 
 	return (result);
 }
@@ -247,8 +318,17 @@ int	_args_check_output(
 	const _t_args_output *const _output
 )
 {
-	if (unlikely(!_root || !_output || !_output->root))
-		return (error_invalid_arg);
+	int	result;
 
-	return (error_none);
+	if (unlikely(!_root || !_output || !_output->root))
+		result = error_invalid_arg;
+	else if (_output->error)
+		result = _output->error;
+	else if (_output->root->sub)
+		result = _check_output_parser(_root->parser->sub_parsers, _output->root->sub);
+	else
+		result = _check_output_parser(_root->parser, _output->root);
+
+error:
+	return (result);
 }

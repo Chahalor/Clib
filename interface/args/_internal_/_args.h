@@ -399,6 +399,21 @@ static inline int	_args_is_short_opt(
 	return (is_short && !is_delim);
 }
 
+/** */
+static inline bool	_args_param_is_requiered(
+	const _t_args_param *const _param
+)
+{
+	return (_param->specs & args_param_specs_require);
+}
+
+static inline bool	_args_param_has_nargs(
+	const _t_args_param *const _param
+)
+{
+	return (_param->specs & args_param_specs_nargs);
+}
+
 /**
  * @brief	check if a string is any option ("-n" or "--name")
  *

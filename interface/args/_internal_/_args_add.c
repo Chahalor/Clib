@@ -55,7 +55,7 @@ t_args_option	*_args_parser_add_option(
 	const char *const _desc
 )
 {
-	char			*_lname = NULL;
+	const char		*_lname = NULL;
 	t_args_option	*_last = NULL;
 	t_args_option	*new = NULL;
 
