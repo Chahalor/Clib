@@ -65,12 +65,12 @@ char	args_option_has_param(
 char	*args_get_param(
 	t_args_output *const _output,
 	const char *const _name,
-	char **const *const _values,
+	char *const * *const _values,
 	unsigned int *const _count
 )
 {
 	if (unlikely(!_output || !_name || !_values || !_count))
-		return (error_invalid_arg);
+		return (NULL);
 	else
 		return (_args_get_param(_output, _name, _values, _count));
 }
@@ -78,7 +78,7 @@ char	*args_get_param(
 char	args_get_option(
 	t_args_output *const _output,
 	const char *const _name,
-	char **const *const _values,
+	char *const * *const _values,
 	unsigned int *const _count
 )
 {

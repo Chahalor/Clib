@@ -64,7 +64,8 @@ t_args_parser	*args_parser_add_sub(
 
 t_args_option	*args_parser_add_option(
 	t_args_parser *const _parser,
-	const char *const _name,
+	const char *const _long_name,
+	const char _short_name,
 	const char *const _desc
 );
 
@@ -73,7 +74,9 @@ t_args_option	*args_parser_add_option(
 t_args_param	*args_parser_add_param(
 	t_args_parser *const _parser,
 	const char *const _name,
-	const char *const _desc
+	const char *const _desc,
+	const int _spec,
+	const int _type
 );
 
 #pragma region Setter
@@ -118,14 +121,14 @@ char	args_option_has_param(
 char	*args_get_param(
 	t_args_output *const _output,
 	const char *const _name,
-	char **const *const _values,
+	char *const * *const _values,
 	unsigned int *const _count
 );
 
 char	args_get_option(
-	t_args_output *const _ouptput,
+	t_args_output *const _output,
 	const char *const _name,
-	char **const *const _values,
+	char *const * *const _values,
 	unsigned int *const _count
 );
 

@@ -168,7 +168,7 @@ struct _s_args_parser
 struct _s_args_root
 {
 	_t_args_config				config;			// config of this parser
-	_t_args_parser				*parser;		// main parser struct
+	const _t_args_parser		*parser;		// main parser struct
 	const char *const *const	argv;
 	const int					argc;
 	int							index;

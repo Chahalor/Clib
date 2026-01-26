@@ -264,7 +264,7 @@ static _t_args_output_parser	*_out_add_sub_parser(
 }
 
 static inline int	_args_parse_loop_parser(
-	_t_args_parser **context,
+	const _t_args_parser **context,
 	const char *const current,
 	_t_args_param **pos_cursor,
 	_t_args_output_parser **out_context,
@@ -335,7 +335,7 @@ static inline int	_args_parse_loop_parser(
 	if (unlikely(result))
 		goto error;
 
-	if (!((*pos_cursor)->args_type & param_args_type_nargs))
+	if (!((*pos_cursor)->specs & args_param_specs_nargs))
 		*pos_cursor = (*pos_cursor)->next;
 
 error:
@@ -376,7 +376,7 @@ static inline int	_args_parse_loop_option(
 
 	if (
 		!*opt_disabled &&
-		((*opt_param)->args_type & param_args_type_nargs) &&
+		((*opt_param)->specs & args_param_specs_nargs) &&
 		_args_is_opt(current)
 	)
 	{
@@ -399,7 +399,7 @@ static inline int	_args_parse_loop_option(
 	if (unlikely(result))
 		goto error;
 
-	if (!((*opt_param)->args_type & param_args_type_nargs))
+	if (!((*opt_param)->specs & args_param_specs_nargs))
 		*opt_param = (*opt_param)->next;
 
 	if (!*opt_param)
@@ -421,7 +421,7 @@ int	_args_parse_loop(
 	enum e_args_context_type	context_type = args_context_parser;
 	bool						opt_disabled = false;
 	const char					*current = NULL;
-	_t_args_parser				*context = _root->parser;
+	const _t_args_parser		*context = _root->parser;
 	_t_args_output_parser		*out_context = _out->root;
 	_t_args_param				*pos_cursor = context ? context->params : NULL;
 	_t_args_option				*opt = NULL;

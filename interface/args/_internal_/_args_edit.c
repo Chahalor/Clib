@@ -3,6 +3,7 @@
 /* ----| Headers    |----- */
 	/* Standard */
 #include <stdarg.h>
+#include <string.h>
 
 	/* Internal */
 #include "_args.h"

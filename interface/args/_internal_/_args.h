@@ -110,7 +110,7 @@ _t_args_option	*_args_mem_new_option(
 _t_args_param	*_args_mem_new_param(
 	const char *const _name,
 	const char *const _desc,
-	const t_param_args_type _args_spec,
+	const t_args_param_specs _args_spec,
 	const t_param_type _type
 );
 

@@ -226,7 +226,7 @@ error:
 _t_args_param	*_args_mem_new_param(
 	const char *const _name,
 	const char *const _desc,
-	const t_param_args_type _args_spec,
+	const t_args_param_specs _args_spec,
 	const t_param_type _type
 )
 {
@@ -262,7 +262,7 @@ _t_args_param	*_args_mem_new_param(
 	}
 
 	new->next = NULL;
-	new->args_type = _args_spec;
+	new->specs = _args_spec;
 	new->type = _type;
 
 error:

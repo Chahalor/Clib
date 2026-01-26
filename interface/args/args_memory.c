@@ -34,12 +34,9 @@ t_args_parser	*args_parser_add_sub(
 	const char *const _desc
 )
 {
-	int	result = error_none;
+	t_args_parser	*result = NULL;
 
-	if (unlikely(!_parent || !_name))
-		result = error_invalid_arg;
-	else
-		result = _args_parser_add_sub(_parent, _name, _desc);
+	result = _args_parser_add_sub(_parent, _name, _desc);
 
 	return (result);
 }
@@ -53,10 +50,10 @@ t_args_option	*args_parser_add_option(
 	const char *const _desc
 )
 {
-	int	result = error_none;
+	t_args_option	*result = NULL;
 
-	if (unlikely(!_parser || (!_long_name && !_short_name)))
-		result = error_invalid_arg;
+	if (unlikely(!_long_name && !_short_name))
+		result = NULL;
 	else
 		result = _args_parser_add_option(_parser, _long_name, _short_name, _desc);
 
@@ -74,12 +71,9 @@ t_args_param	*args_parser_add_param(
 	const int _type
 )
 {
-	int	result = error_none;
+	t_args_param	*result = NULL;
 
-	if (unlikely(!_parser || !_name))
-		result = error_invalid_arg;
-	else
-		result = _args_parser_add_param(_parser, _name, _desc, _spec, _type);
+	result = _args_parser_add_param(_parser, _name, _desc, _spec, _type);
 
 	return (result);
 }
@@ -92,12 +86,9 @@ t_args_param	*args_option_add_param(
 	const int _type
 )
 {
-	int	result = error_none;
+	t_args_param	*result = NULL;
 
-	if (unlikely(!_parent || !_name))
-		result = error_invalid_arg;
-	else
-		result = _args_option_add_param(_parent, _name, _desc, _spec, _type);
+	result = _args_option_add_param(_parent, _name, _desc, _spec, _type);
 
 	return (result);
 }
