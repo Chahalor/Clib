@@ -33,7 +33,9 @@
 
 /* -----| Internals |----- */
 # include "args/types.h"
-#include "args/_internal_/_args.h"	// TODO: rm
+#ifdef DEBUG
+# include "args/_internal_/_args.h"
+#endif
 
 /* -----| Modules   |----- */
 	//...
