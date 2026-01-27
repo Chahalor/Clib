@@ -145,21 +145,24 @@ static inline int	_check_output_params(
 	const _t_args_output_param *_out
 )
 {
-	int	result = true;
+	int	result = error_none;
 
-	const _t_args_param	*_param = _params;
-	for (const _t_args_output_param	*_this = _out;
-		_this && result;
+	const _t_args_output_param	*_param = _out;
+	for (const _t_args_param	*_this = _params;
+		_this && !result;
 		_this = _this->next
 	)
 	{
-		if (_this->error)
-			result = false;
-		else if (!_param)
-			result = false;
-		else if (_args_param_is_requiered(_param) && strcmp(_this->name, _param->name))
-			result = false;
-		_param = _param->next;
+		if (unlikely(!_param || !_param->name))
+		{
+			if (_args_param_is_requiered(_this))
+				result = args_error_missing_param;
+		}
+		else if (_param->error)
+			result = _param->error;
+
+		if (_param)
+			_param = _param->next;
 	}
 
 	return (result);
@@ -191,15 +194,15 @@ static inline int	_check_output_options(
 	const _t_args_output_option *_out
 )
 {
-	int	result = true;
+	int	result = error_none;
 
 	for (const _t_args_output_option	*_this = _out;
-		_this && result;
+		_this && !result;
 		_this = _this->next
 	)
 	{
 		if (_this->error)
-			result = false;
+			result = _this->error;
 		else if (_this->params)
 		{
 			const _t_args_option	*_opt = _find_option(_options, _this);
@@ -221,7 +224,7 @@ static inline int	_check_output_parser(
 {
 	const _t_args_parser	*_target = NULL;
 	int						result = true;
-	
+
 	for (const _t_args_parser	*_this = _parser;
 		_this;
 		_this = _this->next
@@ -246,9 +249,9 @@ static inline int	_check_output_parser(
 		_args_builtin_help(_parser, NULL);
 
 	result = _check_output_options(_target->options, _out->options);
-	result = result ?
-				result :
-				_check_output_params(_target->params, _out->params);
+	result = !result ?
+				_check_output_params(_target->params, _out->params) :
+				result;
 
 	return (result);
 }
@@ -410,7 +413,9 @@ int	_args_check_output(
 	else if (_output->error)
 		result = _output->error;
 	else if (_output->root->sub)
-		result = _check_output_parser(_root->parser->sub_parsers, _output->root->sub);
+	{
+ 		result = _check_output_parser(_root->parser->sub_parsers, _output->root->sub);
+	}
 	else
 		result = _check_output_parser(_root->parser, _output->root);
 

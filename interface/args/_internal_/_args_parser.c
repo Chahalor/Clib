@@ -506,10 +506,13 @@ _t_args_output	*_args_parse(
 
 	_errnum = _args_parse_loop(&_root, result);
 
-	if (unlikely(_errnum))
-		_args_config_set_errnum(_errnum);
-	else
+	if (likely(!_errnum))
 		_errnum = _args_check_output(&_root, result);
+
+	if (_errnum)
+		_args_config_set_errnum(_errnum);
+
+	result->error = _errnum;
 
 error:
 	return (result);

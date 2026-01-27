@@ -33,6 +33,7 @@
 
 /* -----| Internals |----- */
 # include "args/types.h"
+#include "args/_internal_/_args.h"	// TODO: rm
 
 /* -----| Modules   |----- */
 	//...
@@ -40,7 +41,9 @@
 /* ************************************************************************** */
 /*                                 Macros                                     */
 /* ************************************************************************** */
-	//...
+
+#define FOR_EACH_OPTIONS(var, out) _FOR_EACH_OPTIONS(var, out)
+#define FOR_EACH_PARAMS(var, out)  _FOR_EACH_PARAMS(var, out)
 
 /* ************************************************************************** */
 /*                                 Prototypes                                 */

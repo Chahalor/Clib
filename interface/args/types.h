@@ -92,7 +92,7 @@ enum e_args_error
 
 	/* argument structure */
 	args_error_missing_param,			/**< Parametre requis manquant. */
-	args_error_extra_param,			/**< Trop de parametres. */
+	args_error_extra_param,				/**< Trop de parametres. */
 	args_error_missing_value,			/**< Valeur d'option manquante. */
 
 	/* value validation */
