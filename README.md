@@ -18,3 +18,10 @@ mv build/libclib.a ./clib.a
 cmake --build build --target clean
 rm -rf build
 ```
+
+## Debug/tests
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+cmake --build build
+cc .dev/main.c ./build/libclib.a -I./standards -I./ -Iinterface -g3
+```
