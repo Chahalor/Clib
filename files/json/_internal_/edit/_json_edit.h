@@ -10,8 +10,8 @@
 	//...
 
 /* -----| Globals   |----- */
-# include "lib_config.h"
-# include "lib_standards.h"
+// # include "lib_config.h"
+// # include "lib_standards.h"
 
 /* -----| Internals |----- */
 # include "../_json.h"
