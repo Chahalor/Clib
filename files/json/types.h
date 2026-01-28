@@ -13,7 +13,7 @@
 	//...
 
 /* -----| Internals |----- */
-#include "json.h"
+#include "../json.h"
 
 /* -----| Modules   |----- */
 	//...

@@ -13,8 +13,8 @@
 #include <string.h>
 
 /* -----| Globals   |----- */
-# include "lib_config.h"
-# include "lib_standards.h"
+# include "../../standards/lib_config.h"
+# include "../../standards/lib_standards.h"
 
 /* -----| Internals |----- */
 // # include "_types.h"

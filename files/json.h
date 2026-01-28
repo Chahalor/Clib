@@ -19,15 +19,15 @@
 #include <stdarg.h>
 
 /* -----| Globals   |----- */
-# include "lib_config.h"
-# include "lib_standards.h"
+# include "../standards/lib_config.h"
+# include "../standards/lib_standards.h"
 
 /* -----| Internals |----- */
+#include "json/_internal_/_json.h"
 # include "json/types.h"
 
 /* -----| Modules   |----- */
-#include "memory.h"
-#include "json/_internal_/_json.h"
+#include "../memory.h"
 
 /* ************************************************************************** */
 /*                                 Macros                                     */
