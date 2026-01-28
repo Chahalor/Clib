@@ -193,6 +193,56 @@ int		json_set(
 			);
 
 /**
+ * @brief	set the array field of the json element from a C array
+ * 
+ * @param	json	the json element
+ * @param	field	the field to be set
+ * @param	array	the source array
+ * @param	len		the number of elements in array
+ * @param	type	the json element type for each entry
+ * 
+ * @return	the errnum of the action
+ * 
+ * @example json_set_from_array(json, "data.list", (int[]){1,2,3}, 3, json_tok_nbr);
+ * @example json_set_from_array(json, "data.names", (char *[]){"bob","alice"}, 2, json_tok_str);
+ * 
+ * @version	2.1.0
+*/
+int		json_set_from_array(
+			JSON *_json,
+			const char *const restrict _field,
+			void *const _array,
+			const size_t _length,
+			const int _type,
+			...
+			);
+
+/**
+ * @brief	set the array field of the json element from a C array
+ * 
+ * @param	json	the json element
+ * @param	field	the field to be set
+ * @param	array	the source array
+ * @param	len		the number of elements in array
+ * @param	type	the json element type for each entry
+ * 
+ * @return	the errnum of the action
+ * 
+ * @example _json_set_array_va_args(json, "data.list", (int[]){1,2,3}, 3, json_tok_nbr);
+ * @example _json_set_array_va_args(json, "data.names", (char *[]){"bob","alice"}, 2, json_tok_str);
+ * 
+ * @version	2.1.0
+*/
+int		_json_set_array_va_args(
+			JSON *_json,
+			const char *const restrict _field,
+			void *const _array,
+			const size_t _length,
+			const int _type,
+			...
+			);
+
+/**
  * @brief	unset the field of the json element based on _field
  * 
  * handle va args for field

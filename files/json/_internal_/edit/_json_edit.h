@@ -97,3 +97,31 @@ int	_json_set_va_args(
 		const unsigned int _type,
 		va_list *const restrict _args
 		);
+
+/**
+ * @brief	set the array value of the node `field` to `array`.
+ * 
+ * handle va args for `field`
+ */
+int	_json_set_array_va_list(
+		JSON **_json,
+		const char *const restrict _field,
+		void *const _array,
+		const size_t _length,
+		const int _type,
+		va_list *const restrict _args
+		);
+
+/**
+ * @brief	set the array value of the node `field` to `array`.
+ * 
+ * handle va args for `field`
+ */
+int	_json_set_array_va_args(
+		JSON *_json,
+		const char *const restrict _field,
+		void *const _array,
+		const size_t _length,
+		const int _type,
+		...
+		);

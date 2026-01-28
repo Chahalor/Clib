@@ -4,6 +4,7 @@
 	/* Standard */
 #include <string.h>
 #include <stdint.h>
+#include <stddef.h>
 
 	/* Internal */
 #include "_json_edit.h"
@@ -170,7 +171,44 @@ static int	_json_set_null(
 	return (_json_set_field(_json, _field, NULL, json_tok_null));
 }
 
+static void	_json_free_list(
+	t_json *_node
+)
+{
+	t_json	*_next;
+
+	while (_node)
+	{
+		_next = _node->next;
+		_node->next = NULL;
+		_json_free_content(_node);
+		_node = _next;
+	}
+}
+
 /* ----| Public    |----- */
+
+// int	_json_array_append(
+// 	JSON *const _array,
+// 	void *const _value,
+// 	const int _type
+// )
+// {
+// 	JSON	*_end;
+// 	char	*_content;
+// 	JSON	*_new;
+
+// 	for (JSON	*_this = _array->child;
+// 		_this;
+// 		_this = _this->next
+// 	)
+// 	{
+// 		_end = _this;
+// 	}
+
+// 	_new = _json_new_content(NULL, _type, _value);
+// 	_json_add_next
+// }
 
 int	_json_set_field(
 	t_json **_json,
@@ -276,11 +314,6 @@ int	_json_set(
 	return (result);
 }
 
-/**
- * for type we should be able to do thing like that:
- * json_tok_array | json_tok_str --> this mean i pass has param a null terminated array of char *
- * json_tok_array | json_tok_nbr --> here i pass
-*/
 int	_json_set_va_args(
 	JSON **_json,
 	const char *const restrict _field,
@@ -332,5 +365,178 @@ int	_json_set_va_args(
 error:
 	mem_free(_str_field);
 	mem_free(_str_value);
+	return (errnum);
+}
+
+int	_json_set_array_va_args(
+	JSON *_json,
+	const char *const _field,
+	void *const _array,
+	const size_t _length,
+	const int _type,
+	...
+)
+{
+	va_list	_args;
+	int		errnum;
+
+	va_start(_args, _type);
+	errnum = _json_set_array_va_list(&_json, _field, _array, _length, _type, &_args);
+	va_end(_args);
+	return (errnum);
+}
+
+int	_json_set_array_va_list(
+	JSON **_json,
+	const char *const restrict _field,
+	void *const _array,
+	const size_t _length,
+	const int _type,
+	va_list *const restrict _args
+)
+{
+	t_json_str	*_str_field = NULL;
+	t_json		*_array_node = NULL;
+	size_t		_i = 0;
+	int			errnum = error_none;
+
+	if (unlikely(!_json || !_field))
+		return (error_invalid_arg);
+
+	_str_field = _json_new_str(INTERFACE_JSON_STRING_ALLOC_SIZE);
+	if (unlikely(!_str_field))
+	{
+		errnum = -(error_alloc_fail);
+		goto cleanup;
+	}
+
+	errnum = _json_fill_format(_field, _str_field, _args);
+	if (unlikely(errnum != error_none))
+		goto cleanup;
+
+	_array_node = _json_new_content(NULL, json_tok_array, NULL);
+	if (unlikely(!_array_node))
+	{
+		errnum = -(error_alloc_fail);
+		goto cleanup;
+	}
+
+	if (_length == 0)
+		goto set_value;
+	if (unlikely(!_array && _type != json_tok_null))
+	{
+		errnum = error_invalid_arg;
+		goto cleanup;
+	}
+
+	while (_i < _length)
+	{
+		t_json	*_node = NULL;
+		char	*_data = NULL;
+
+		switch (_type)
+		{
+			case (json_tok_str):
+			{
+				const char	*_src = ((const char *const *)_array)[_i];
+
+				if (unlikely(!_src))
+				{
+					errnum = error_invalid_arg;
+					goto cleanup;
+				}
+				_data = mem_dup(_src, strlen(_src) + 1);
+				if (unlikely(!_data))
+				{
+					errnum = -(error_alloc_fail);
+					goto cleanup;
+				}
+				_node = _json_new_content(NULL, json_tok_str, _data);
+				break;
+			}
+			case (json_tok_nbr):
+			{
+				const int	_val = ((const int *)_array)[_i];
+
+				_data = _json_tool_itoa((long long)_val);
+				if (unlikely(!_data))
+				{
+					errnum = -(error_alloc_fail);
+					goto cleanup;
+				}
+				_node = _json_new_content(NULL, json_tok_nbr, _data);
+				break;
+			}
+			case (json_tok_bool):
+			{
+				const int	_val = ((const int *)_array)[_i];
+				const char	*_src = _val ? "true" : "false";
+
+				_data = mem_dup(_src, strlen(_src) + 1);
+				if (unlikely(!_data))
+				{
+					errnum = -(error_alloc_fail);
+					goto cleanup;
+				}
+				_node = _json_new_content(NULL, json_tok_bool, _data);
+				break;
+			}
+			case (json_tok_null):
+				_node = _json_new_content(NULL, json_tok_null, NULL);
+				break;
+			case (json_tok_obj):
+			case (json_tok_array):
+			{
+				const t_json	*_src = ((t_json *const *)_array)[_i];
+
+				if (unlikely(!_src || _src->type != _type))
+				{
+					errnum = error_invalid_arg;
+					goto cleanup;
+				}
+				_node = _json_new_content(NULL, _type, NULL);
+				if (unlikely(!_node))
+				{
+					errnum = -(error_alloc_fail);
+					goto cleanup;
+				}
+				if (_src->child)
+				{
+					_node->child = _json_clone_node(_src->child);
+					if (unlikely(!_node->child))
+					{
+						_json_free_content(_node);
+						errnum = -(error_alloc_fail);
+						goto cleanup;
+					}
+				}
+				break;
+			}
+			default:
+				errnum = error_invalid_arg;
+				goto cleanup;
+		}
+
+		if (unlikely(!_node))
+		{
+			mem_free(_data);
+			errnum = -(error_alloc_fail);
+			goto cleanup;
+		}
+		_json_add_child(&_array_node, _node);
+		_i++;
+	}
+
+set_value:
+	errnum = _json_set_array(_json, _str_field->content, _array_node);
+
+cleanup:
+	if (_array_node)
+	{
+		_json_free_list(_array_node->child);
+		_array_node->child = NULL;
+		_json_free_content(_array_node);
+	}
+	mem_free(_str_field);
 	return (errnum);
 }

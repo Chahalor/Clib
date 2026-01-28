@@ -62,20 +62,28 @@ t_json	*_json_get_field(
 	else
 		_limits = _depth;
 
-	while (_current && _i < _limits && _current->type != json_tok_array)
+	while (_current && _i < _limits)
 	{
-		if (_current->type == json_tok_array)
-		{
-			int	_idx = atoi(_split[_i]);
-			_current = _json_get_field_array(_current, _idx);
-		}
-
-		while (_current && strcmp(_current->key, _split[_i]))
+		while (_current && _current->key && strcmp(_current->key, _split[_i]))
 			_current = _current->next;
 
 		if (unlikely(!_current))
 			break ;
-		else if (_i + 1 < _limits)
+
+		if (_current->type == json_tok_array)
+		{
+			if (_i + 1 >= _limits)
+				break ;
+			int	_idx = atoi(_split[_i + 1]);
+
+			_current = _current->child;
+			_current = _json_get_field_array(_current, _idx);
+			_i++;
+			if (unlikely(!_current))
+				break ;
+		}
+
+		if (_i + 1 < _limits)
 			_current = _current->child;
 		_i++;
 	}
