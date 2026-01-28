@@ -28,7 +28,13 @@
 /*                                 Prototypes                                 */
 /* ************************************************************************** */
 
+HTTP	*http_new(
+	const char *const _host,
+	const char *const _user,
+	const char *const _autorisation
+);
+
 int	http_send(
-	const char	*const _methode,
-	
-)
+	HTTP *const _http,
+	const char *const _content
+);
