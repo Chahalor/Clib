@@ -151,6 +151,23 @@ int		json_set(
 	return (result);
 }
 
+int	json_set_from_array(
+	JSON *const _json,
+	const char *const restrict _field,
+	void *const _array,
+	const size_t _length,
+	const int _type,
+	...
+)
+{
+	va_list	_args;
+	int		result = error_none;
+
+	va_start(_args, _type);
+
+	result = _json_set	// TODO: Implement the insertion of an array of type `_type`
+}
+
 int		json_unset(
 	JSON *_json,
 	const char *restrict _field,

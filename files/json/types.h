@@ -30,12 +30,12 @@ typedef struct s_json	JSON;
 
 enum e_json_token
 {
-	json_tok_null,
-	json_tok_bool,
-	json_tok_nbr,
-	json_tok_str,
-	json_tok_array,
-	json_tok_obj,
+	json_tok_null = 1 << 0,
+	json_tok_bool = 1 << 1,
+	json_tok_nbr = 1 << 2,
+	json_tok_str = 1 << 3,
+	json_tok_array = 1 << 4,
+	json_tok_obj = 1 << 5,
 };
 
 enum e_json_error

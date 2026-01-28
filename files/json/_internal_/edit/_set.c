@@ -276,6 +276,11 @@ int	_json_set(
 	return (result);
 }
 
+/**
+ * for type we should be able to do thing like that:
+ * json_tok_array | json_tok_str --> this mean i pass has param a null terminated array of char *
+ * json_tok_array | json_tok_nbr --> here i pass
+*/
 int	_json_set_va_args(
 	JSON **_json,
 	const char *const restrict _field,
@@ -299,7 +304,7 @@ int	_json_set_va_args(
 	errnum = _json_fill_format(_field, _str_field, _args);
 	if (unlikely(errnum != error_none))
 		goto error;
-	
+
 	if (_type == json_tok_str)
 	{
 		_str_value = _json_new_str(INTERFACE_JSON_STRING_ALLOC_SIZE);
