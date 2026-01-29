@@ -10,7 +10,7 @@
  *
  * Notes:
  *  - No comment support
- *  - Strings: no backslash escapes handled (stop at next '"')
+ *  - Strings: backslash escapes are recognized for end-quote scanning (escapes are preserved)
  *  - null -> json_tok_null with data == NULL
  *  - bool -> json_tok_bool with data == strdup("0") or strdup("1")
  *  - numbers stored as strings in data
@@ -97,18 +97,30 @@ static char	*parse_string_raw(
 	t_json_parser *_p
 )
 {
-	size_t	_start = 0; 
+	size_t	_start = 0;
+	size_t	i = 0;
 	char	*result = NULL;
 
 	_start = _p->i;
-	while (_p->i < _p->len && _p->buf[_p->i] != '"')
-		_p->i++;
-	if (_p->i >= _p->len)
+	i = _p->i;
+	while (i < _p->len)
+	{
+		if (_p->buf[i] == '"')
+			break;
+		if (_p->buf[i] == '\\')
+		{
+			i++;
+			if (i >= _p->len)
+				return (NULL);
+		}
+		i++;
+	}
+	if (i >= _p->len)
 		return (NULL);
-	result = dup_range(_p->buf, _start, _p->i);
+	result = dup_range(_p->buf, _start, i);
 	if (unlikely(!result))
 		return (NULL);
-	_p->i++;
+	_p->i = i + 1;
 	return (result);
 }
 
