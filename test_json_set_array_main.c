@@ -29,7 +29,7 @@ int	main(void)
 	char	*dump = NULL;
 	int		err = error_none;
 
-	const char	*names[] = {"bob", "alice", "eve"};
+	const char	*names[] = {"bob", NULL, "eve"};
 	const int	nums[] = {1, 2, 3};
 	const int	flags[] = {1, 0, 1};
 
@@ -51,6 +51,11 @@ int	main(void)
 	err = _json_set_array_va_args(json, "nulls", NULL, 3, json_tok_null);
 	if (err != error_none)
 		return (5);
+
+	json_foreach(elt, json)
+	{
+		json_array_append(elt, "bob", json_tok_str);
+	}
 
 	dump = json_stringify(json, 0);
 	if (!dump)

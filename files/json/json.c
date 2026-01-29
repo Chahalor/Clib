@@ -170,6 +170,19 @@ int	json_set_from_array(
 	return (result);
 }
 
+int	json_array_append(
+	JSON *const _json,
+	void *const _value,
+	const int _type
+)
+{
+	int		result = error_none;
+
+	result = _json_append_array(_json, _value, _type);
+
+	return (result);
+}
+
 int		json_unset(
 	JSON *_json,
 	const char *restrict _field,

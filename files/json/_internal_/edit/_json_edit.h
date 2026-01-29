@@ -112,6 +112,13 @@ int	_json_set_array_va_list(
 		va_list *const restrict _args
 		);
 
+/** */
+int	_json_append_array(
+		JSON *_json,
+		void *const _value,
+		const int _type
+		);
+
 /**
  * @brief	set the array value of the node `field` to `array`.
  * 

@@ -386,6 +386,86 @@ int	_json_set_array_va_args(
 	return (errnum);
 }
 
+int	_json_append_array(
+	JSON *_json,
+	void *const _value,
+	const int _type
+)
+{
+	char		*_data = NULL;
+	JSON		*_node = NULL;
+	int			errnum = error_none;
+
+	switch (_type)
+	{
+		case (json_tok_nbr):
+		{
+			const int	_val = *((const int *)_value);
+
+			_data = _json_tool_itoa((long long)_val);
+			if (unlikely(!_data))
+			{
+				errnum = error_alloc_fail;
+				goto cleanup;
+			}
+
+			break ;
+		}
+
+		case (json_tok_str):
+		{
+			const char	*_val = (const char *)_value;
+
+			_data = _val ?
+						mem_dup(_val, strlen(_val) + 1) :
+						NULL;
+			if (unlikely(_val && !_data))
+			{
+				errnum = error_alloc_fail;
+				goto cleanup;
+			}
+
+			break ;
+		}
+
+		case (json_tok_bool):
+		{
+			const int	_val = *((const int *)_value);
+
+			_data = _val ?
+						mem_dup("true", sizeof("true")) :
+						NULL;
+			if (unlikely(_val && !_data))
+			{
+				errnum = error_alloc_fail;
+				goto cleanup;
+			}
+
+			break ;
+		}
+
+		case (json_tok_null):
+			break;
+
+		default:
+			errnum = error_invalid_arg;
+			goto cleanup;
+	}
+
+		_node = _json_new_content(NULL, _type, _data);
+		if (unlikely(!_node))
+		{
+			mem_free(_data);
+			errnum = -(error_alloc_fail);
+			goto cleanup;
+		}
+
+		_json_add_child(&_json, _node);
+
+cleanup:
+	return (errnum);
+}
+
 int	_json_set_array_va_list(
 	JSON **_json,
 	const char *const restrict _field,
@@ -421,8 +501,6 @@ int	_json_set_array_va_list(
 		goto cleanup;
 	}
 
-	if (_length == 0)
-		goto set_value;
 	if (unlikely(!_array && _type != json_tok_null))
 	{
 		errnum = error_invalid_arg;
@@ -440,20 +518,17 @@ int	_json_set_array_va_list(
 			{
 				const char	*_src = ((const char *const *)_array)[_i];
 
-				if (unlikely(!_src))
-				{
-					errnum = error_invalid_arg;
-					goto cleanup;
-				}
-				_data = mem_dup(_src, strlen(_src) + 1);
-				if (unlikely(!_data))
+				_data = _src ?
+							mem_dup(_src, strlen(_src) + 1) :
+							NULL;
+				if (unlikely(_src && !_data))
 				{
 					errnum = -(error_alloc_fail);
 					goto cleanup;
 				}
-				_node = _json_new_content(NULL, json_tok_str, _data);
-				break;
+				break ;
 			}
+
 			case (json_tok_nbr):
 			{
 				const int	_val = ((const int *)_array)[_i];
@@ -464,26 +539,24 @@ int	_json_set_array_va_list(
 					errnum = -(error_alloc_fail);
 					goto cleanup;
 				}
-				_node = _json_new_content(NULL, json_tok_nbr, _data);
-				break;
+				break ;
 			}
+
 			case (json_tok_bool):
 			{
 				const int	_val = ((const int *)_array)[_i];
-				const char	*_src = _val ? "true" : "false";
 
-				_data = mem_dup(_src, strlen(_src) + 1);
-				if (unlikely(!_data))
+				_data = _val ?
+							mem_dup("true", sizeof("true")) :
+							NULL;
+				if (unlikely(_val && !_data))
 				{
 					errnum = -(error_alloc_fail);
 					goto cleanup;
 				}
-				_node = _json_new_content(NULL, json_tok_bool, _data);
-				break;
+				break ;
 			}
-			case (json_tok_null):
-				_node = _json_new_content(NULL, json_tok_null, NULL);
-				break;
+
 			case (json_tok_obj):
 			case (json_tok_array):
 			{
@@ -510,24 +583,29 @@ int	_json_set_array_va_list(
 						goto cleanup;
 					}
 				}
-				break;
+				break ;
 			}
+
+			case (json_tok_null):
+				break ;
+
 			default:
 				errnum = error_invalid_arg;
 				goto cleanup;
 		}
 
+		_node = _json_new_content(NULL, _type, _data);
 		if (unlikely(!_node))
 		{
 			mem_free(_data);
 			errnum = -(error_alloc_fail);
 			goto cleanup;
 		}
+
 		_json_add_child(&_array_node, _node);
 		_i++;
 	}
 
-set_value:
 	errnum = _json_set_array(_json, _str_field->content, _array_node);
 
 cleanup:
