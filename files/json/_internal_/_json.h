@@ -211,7 +211,6 @@ char	*_json_stringify(
 /* -----| tools  |----- */
 #pragma region Tools
 
-inline
 int		_json_tool_is_sep(
 	const char _c
 );
