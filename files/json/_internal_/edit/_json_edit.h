@@ -112,12 +112,20 @@ int	_json_set_array_va_list(
 		va_list *const restrict _args
 		);
 
-/** */
+/**
+ * @brief	append a new value to the end of the array
+*/
 int	_json_append_array(
 		JSON *_json,
 		void *const _value,
 		const int _type
 		);
+
+/** */
+int	_json_pop_array(
+	JSON *const _json,
+	const size_t _index
+);
 
 /**
  * @brief	set the array value of the node `field` to `array`.

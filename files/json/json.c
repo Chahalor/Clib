@@ -183,6 +183,14 @@ int	json_array_append(
 	return (result);
 }
 
+int	json_array_pop(
+	JSON *const _json,
+	const size_t _index
+)
+{
+	return (_json_pop_array(_json, _index));
+}
+
 int		json_unset(
 	JSON *_json,
 	const char *restrict _field,

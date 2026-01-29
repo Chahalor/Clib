@@ -218,12 +218,22 @@ int		json_set_from_array(
 			);
 
 /**
- * TODO: docs
+ * @brief	add a new value at the end of the array.
+ * `json` should be the node of the array.
+ * `json_tok_obj` and `json`tok`array` are not suported
  */
 int		json_array_append(
 			JSON *const _json,
 			void *const _value,
 			const int _type
+			);
+
+/**
+ * @brief	remove the value at the `index`
+*/
+int		json_array_pop(
+			JSON *const _json,
+			const size_t _index
 			);
 
 /**

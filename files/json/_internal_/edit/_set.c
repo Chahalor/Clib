@@ -466,6 +466,37 @@ cleanup:
 	return (errnum);
 }
 
+int	_json_pop_array(
+	JSON *const _array,
+	const size_t _index
+)
+{
+	JSON	*_prev = NULL;
+	JSON	*_curr;
+	size_t	_i = 0;
+
+	_curr = _array->child;
+
+	while (_curr && _i < _index)
+	{
+		_prev = _curr;
+		_curr = _curr->next;
+		_i++;
+	}
+
+	if (!_curr)
+		return (-1);
+
+	if (_prev)
+		_prev->next = _curr->next;
+	else
+		_array->child = _curr->next;
+
+	_curr->next = NULL;
+	_json_free_all(_curr);
+	return (0);
+}
+
 int	_json_set_array_va_list(
 	JSON **_json,
 	const char *const restrict _field,

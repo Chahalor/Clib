@@ -57,6 +57,8 @@ int	main(void)
 		json_array_append(elt, "bob", json_tok_str);
 	}
 
+	json_array_pop(json_get(json, "nulls"), 3);
+
 	dump = json_stringify(json, 0);
 	if (!dump)
 		return (6);
