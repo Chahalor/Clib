@@ -98,29 +98,29 @@ static char	*parse_string_raw(
 )
 {
 	size_t	_start = 0;
-	size_t	i = 0;
+	size_t	_i = 0;
 	char	*result = NULL;
 
 	_start = _p->i;
-	i = _p->i;
-	while (i < _p->len)
+	_i = _p->i;
+	while (_i < _p->len)
 	{
-		if (_p->buf[i] == '"')
+		if (_p->buf[_i] == '"')
 			break;
-		if (_p->buf[i] == '\\')
+		else if (_p->buf[_i] == '\\')
 		{
-			i++;
-			if (i >= _p->len)
+			_i++;
+			if (_i >= _p->len)
 				return (NULL);
 		}
-		i++;
+		_i++;
 	}
-	if (i >= _p->len)
+	if (_i >= _p->len)
 		return (NULL);
-	result = dup_range(_p->buf, _start, i);
+	result = dup_range(_p->buf, _start, _i);
 	if (unlikely(!result))
 		return (NULL);
-	_p->i = i + 1;
+	_p->i = _i + 1;
 	return (result);
 }
 
