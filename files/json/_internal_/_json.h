@@ -36,6 +36,7 @@
 /* ************************************************************************** */
 
 /* -----| memory |----- */
+#pragma region Memory
 
 JSON	*_json_new_root(
 			const char *const restrict _filename
@@ -68,7 +69,7 @@ t_json	*_json_clone_node(
 			);
 
 /* -----| format |----- */
-
+#pragma region Format
 /**
  * @brief	va remplir le string result en se basant sur le format _str
  *
@@ -130,6 +131,7 @@ t_json	*_json_clone_node(
 					);
 
 /* -----| get    |----- */
+#pragma region GET
 
 /** */
 int		_json_get(
@@ -140,6 +142,7 @@ int		_json_get(
 			);
 
 /* -----| parser |----- */
+#pragma region Parser
 
 /**
  * @brief	parse and load a JSON variable based on the given format
@@ -168,6 +171,7 @@ int		_json_parser_file(
 			);
 
 /* -----| access |----- */
+#pragma region Access
 
 t_json	*_json_get_field(
 			t_json *_json,
@@ -190,6 +194,7 @@ size_t	_json_access_len(
 			);
 
 /* -----| Saving |----- */
+#pragma region Saving
 
 int		_json_dump(
 			JSON *const restrict _json,
@@ -204,6 +209,7 @@ char	*_json_stringify(
 			);
 
 /* -----| tools  |----- */
+#pragma region Tools
 
 static inline
 int		_json_tool_is_sep(
@@ -211,6 +217,46 @@ int		_json_tool_is_sep(
 )
 {
 	return (_c == '.' || _c == '/');
+}
+
+static inline
+int		_json_is_type_complex(
+	const int _type
+)
+{
+	return (_type & json_tok_array || _type & json_tok_obj);
+}
+
+static inline
+int		_json_is_type_nbr(
+	const int _type
+)
+{
+	return (_type & json_tok_nbr);
+}
+
+static inline
+int		_json_is_type_str(
+	const int _type
+)
+{
+	return (_type & json_tok_str);
+}
+
+static inline
+int		_json_is_type_bool(
+	const int _type
+)
+{
+	return (_type & json_tok_bool);
+}
+
+static inline
+int		_json_is_type_null(
+	const int _type
+)
+{
+	return (_type & json_tok_null);
 }
 
 int		_json_tool_count_field(
@@ -231,6 +277,7 @@ size_t	_json_tool_array_len(
 			);
 
 /* -----| debug |----- */
+#pragma region Debug
 
 void	print_json_tree(
 			t_json *node,
