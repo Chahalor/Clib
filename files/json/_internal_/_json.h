@@ -220,11 +220,27 @@ int		_json_tool_is_sep(
 }
 
 static inline
+int		_json_is_type_array(
+	const int _type
+)
+{
+	return (_type & json_tok_array);
+}
+
+static inline
+int		_json_is_type_obj(
+	const int _type
+)
+{
+	return (_type & json_tok_obj);
+}
+
+static inline
 int		_json_is_type_complex(
 	const int _type
 )
 {
-	return (_type & json_tok_array || _type & json_tok_obj);
+	return (_json_is_type_array(_type) || _json_is_type_obj(_type));
 }
 
 static inline
