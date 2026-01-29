@@ -211,69 +211,45 @@ char	*_json_stringify(
 /* -----| tools  |----- */
 #pragma region Tools
 
-static inline
+inline
 int		_json_tool_is_sep(
 	const char _c
-)
-{
-	return (_c == '.' || _c == '/');
-}
+);
 
-static inline
+inline
 int		_json_is_type_array(
 	const int _type
-)
-{
-	return (_type & json_tok_array);
-}
+);
 
-static inline
+inline
 int		_json_is_type_obj(
 	const int _type
-)
-{
-	return (_type & json_tok_obj);
-}
+);
 
-static inline
+inline
 int		_json_is_type_complex(
 	const int _type
-)
-{
-	return (_json_is_type_array(_type) || _json_is_type_obj(_type));
-}
+);
 
-static inline
+inline
 int		_json_is_type_nbr(
 	const int _type
-)
-{
-	return (_type & json_tok_nbr);
-}
+);
 
-static inline
+inline
 int		_json_is_type_str(
 	const int _type
-)
-{
-	return (_type & json_tok_str);
-}
+);
 
-static inline
+inline
 int		_json_is_type_bool(
 	const int _type
-)
-{
-	return (_type & json_tok_bool);
-}
+);
 
-static inline
+inline
 int		_json_is_type_null(
 	const int _type
-)
-{
-	return (_type & json_tok_null);
-}
+);
 
 int		_json_tool_count_field(
 			const char *const restrict _str
