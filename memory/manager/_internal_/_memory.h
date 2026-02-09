@@ -15,7 +15,7 @@
 
 /* -----| Internals |----- */
 # include "_types.h"
-# include "../memory.h"
+# include "../../memory.h"
 
 /* -----| Modules   |----- */
 	//...
