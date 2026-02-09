@@ -33,3 +33,14 @@ t_args_output	*args_parse(
 
 	return (_args_parse(_parser, _argc, _argv));
 }
+
+void	args_show_help(
+	const t_args_parser *const _parser,
+	const int _exit
+)
+{
+	_t_args_config	*_config = _args_config_get();
+
+	_config->exit_on_help = _exit;
+	_args_builtin_help(_parser, _config, 0);
+}

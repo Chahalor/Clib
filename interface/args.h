@@ -123,6 +123,14 @@ t_args_output	*args_parse(
 	const char *const _argv[]
 );
 
+/**
+ * TODO: doc of this function
+*/
+void	args_show_help(
+	const t_args_parser *const _parser,
+	const int _exit
+);
+
 #pragma region Sub-parsers
 
 /**
