@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "interface/args.h"
 #include "files/json.h"
@@ -88,12 +89,34 @@ int main(
 			goto error;
 		}
 	}
-	else
-		_config = json_load("config.json");
+	// else
+	// 	_config = json_load("config.json");
 
 	if (args_has_option(out, "silent"))
 	{
 		fclose(stdout);	// TODO: move this to the usage of the module Logs
+	}
+
+	if (!strcmp("pull", args_active_subcommand(out)))
+	{
+		t_args_output_parser	*_sub = args_get_sub_output(out);
+		char					**_path;
+		unsigned int			_n = 0;
+		char					*file = 
+
+		args_output_parser_get_param(_sub, "todo", (void *)&_path, &_n);
+		if (!_n)
+		{
+			args_output_parser_get_param((void *)out, "todo", (void *)&_path, &_n);
+			if (!_n)
+				file = NULL;
+			else
+				file = _path[0];
+		}
+		else
+			file = _path[0];
+
+		printf("file='%s'\n", file);
 	}
 
 

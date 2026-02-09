@@ -142,7 +142,7 @@ char	*_args_output_parser_get_param(
 	char			**result = NULL;
 	unsigned int	_i = 0;
 
-	if (unlikely(!_output || !_name || !_values || !_count))
+	if (unlikely(!_output || !_name || !_values || !_count || !_output->params))
 		return (NULL);
 
 	*_values = NULL;
