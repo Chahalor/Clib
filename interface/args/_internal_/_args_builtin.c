@@ -17,25 +17,27 @@
 /* ----| Internals  |----- */
 
 static void	_print_params(
-	const _t_args_param *p
+	const _t_args_param *p,
+	const int _pretty
 )
 {
 	while (p)
 	{
-		printf("  %s", p->name);
+		printf("%*s  %s", _pretty, " ", p->name);
 		if (p->specs & args_param_specs_nargs)
 			printf("...");
 		if (p->specs & args_param_specs_require)
 			printf(" (required)");
 		if (p->desc)
-			printf("\n      %s", p->desc);
+			printf("\n%*s      %s", _pretty, " ", p->desc);
 		printf("\n");
 		p = p->next;
 	}
 }
 
 static void	_print_options(
-	const _t_args_option *o
+	const _t_args_option *o,
+	const int _pretty
 )
 {
 	while (o)
@@ -56,7 +58,7 @@ static void	_print_options(
 		if (o->params)
 		{
 			printf("      params:\n");
-			_print_params(o->params);
+			_print_params(o->params, _pretty);
 		}
 		o = o->next;
 	}
@@ -81,7 +83,8 @@ static void	_print_subparsers(
 
 int	_args_builtin_help(
 	const _t_args_parser *const _parser,
-	const _t_args_config *const _config
+	const _t_args_config *const _config,
+	const int _pretty
 )
 {
 	if (!_parser /* || !_config */)
@@ -90,7 +93,6 @@ int	_args_builtin_help(
 	// if (!_config->auto_help)
 	// 	return (args_error_none);
 
-	/* ---------- Header ---------- */
 	printf("Usage:\n");
 	printf("  %s", _parser->name ? _parser->name : "program");
 
@@ -103,30 +105,26 @@ int	_args_builtin_help(
 
 	printf("\n\n");
 
-	/* ---------- Description ---------- */
 	if (_parser->desc)
 	{
 		printf("Description:\n");
 		printf("  %s\n\n", _parser->desc);
 	}
 
-	/* ---------- Options ---------- */
 	if (_parser->options)
 	{
 		printf("Options:\n");
-		_print_options(_parser->options);
+		_print_options(_parser->options, _pretty + 4);
 		printf("\n");
 	}
 
-	/* ---------- Params ---------- */
 	if (_parser->params)
 	{
 		printf("Parameters:\n");
-		_print_params(_parser->params);
+		_print_params(_parser->params, _pretty + 4);
 		printf("\n");
 	}
 
-	/* ---------- Sub-commands ---------- */
 	if (_parser->sub_parsers)
 	{
 		printf("Commands:\n");
@@ -134,7 +132,6 @@ int	_args_builtin_help(
 		printf("\n");
 	}
 
-	// /* ---------- Exit policy ---------- */
 	// if (_config->exit_on_help)
 		exit(0);
 

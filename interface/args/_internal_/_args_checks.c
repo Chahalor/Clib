@@ -246,7 +246,7 @@ static inline int	_check_output_parser(
 
 	if (_args_output_parser_has_option(_out, "help") ||
 		_args_output_parser_has_option(_out, "-h"))
-		_args_builtin_help(_parser, NULL);
+		_args_builtin_help(_target, NULL, 4);
 
 	result = _check_output_options(_target->options, _out->options);
 	result = !result ?

@@ -536,7 +536,8 @@ int	_args_check_output(
 
 int	_args_builtin_help(
 	const _t_args_parser *const _parser,
-	const _t_args_config *const _config
+	const _t_args_config *const _config,
+	const int _pretty
 );
 
 

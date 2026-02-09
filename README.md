@@ -23,5 +23,6 @@ rm -rf build
 ```bash
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build
-cc .dev/main.c ./build/libclib.a -I./standards -I./ -Iinterface -g3
+cc tests/test_args.c  build/libclib.a -Ifiles -Iinterface -I./
+# cc .dev/main.c ./build/libclib.a -I./standards -I./ -Iinterface -g3
 ```
