@@ -13,7 +13,7 @@
 	//...
 
 /* -----| Internals |----- */
-# include "../buffer.h"
+// # include "../buffer.h"
 
 /* -----| Modules   |----- */
 	//...
@@ -47,10 +47,13 @@
 /*                                 Structs                                    */
 /* ************************************************************************** */
 
+/**
+ * @struct	mem_buffer
+*/
 struct s_mem_buffer
 {
-	void	*content;	// content of the buffer
-	size_t	length;		// length of the buffer data
-	size_t	capacity;	// capacity of the buffer (alloc size)
-	size_t	elt_size;	// size of each element of the buffer
+	void			*content;	// content of the buffer
+	size_t			length;		// length of the buffer data
+	size_t			capacity;	// capacity of the buffer (alloc size)
+	const size_t	elt_size;	// size of each element of the buffer
 };
