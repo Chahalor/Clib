@@ -23,90 +23,22 @@
 
 /* ----| Public     |----- */
 
-//TODO: manager call have to be changed to va_arg
-s_file	*file_open(
-	const char *const restrict _filename,
-	const int _mode,
-	...
+__attribute__((malloc))
+char	*get_line(
+	FILE *const _file
 )
 {
-	s_file	*result;
-	va_list	_list;
-	int		_perms = 0;
+	char	*result;
+	char	_buff[BUFFER_SIZE + 1];
+	ssize_t	_s;
 
-	if (unlikely(!_filename))
-		return (error_invalid_arg);
-	
-	if (_mode & O_CREAT)
+	while ((_s = fread(_buff, sizeof(char), BUFFER_SIZE, _file)) == BUFFER_SIZE)
 	{
-		va_start(_list, _mode);
-		_perms = va_arg(_list, int);
-		va_end(_list);
+		char	*_pos = strchr(_buff, '\n');
+		
 	}
-	return (file_manager(_file_storage_open, (void *)&result, _filename, _mode, _perms));
-}
-
-int	file_close(
-	s_file *const restrict _file
-
-)
-{
-	if (unlikely(!_file))
-		return (error_invalid_arg);
-
-	return (_file_manager(_file_storage_close, NULL, _file));
-}
-
-int	file_is_open(
-	const char *const restrict _filename
-)
-{
-	int	result = 0;
-
-	if (unlikely(!_filename))
-		return (0);
-
-	_file_manager(_file_storage_is_open, &result, _filename);
-	return (result);
-}
-
-ssize_t	file_write(
-	s_file *const restrict _file,
-	const void *const restrict _buffer,
-	const size_t _size
-)
-{
-	ssize_t	result = 0;
-	int		_error = error_none;
-
-	if (unlikely(!_file || !_buffer || _size < 0))
-		return (error_invalid_arg);
-	else if (unlikely(!_size))
-		return (error_none);
-
-	_error = _file_manager(_file_storage_write, &result, _file, _buffer, _size);
-	return (_error != error_none
-			? _error
-			: result);
-}
-
-ssize_t	file_printf(
-	s_file *const restrict _file,
-	const char *const restrict _format,
-	...
-)
-{
-
-	va_list	_list;
-	ssize_t	result = 0;
-
-	if (unlikely(!_file || !_format))
-		return (error_invalid_arg);
-
-	va_start(_list, _format);
 
 
-
-	va_end(_list);
+error:
 	return (result);
 }
