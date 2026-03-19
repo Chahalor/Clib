@@ -1,6 +1,7 @@
 # add_subdirectory(csv)
 add_subdirectory(json)
 # add_subdirectory(yml)
+# add_subdirectory(conf)
 
 if (TARGET clib)
 	target_sources(clib PRIVATE
