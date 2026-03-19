@@ -2,8 +2,8 @@
  * 
 */
 
-#ifndef LIB_NET_PROTOCOLS_HTTP_ERROR_H
-# define LIB_NET_PROTOCOLS_HTTP_ERROR_H
+#ifndef LIB_NET_PROTOCOLS_HTTP_SETTINGS_H
+# define LIB_NET_PROTOCOLS_HTTP_SETTINGS_H
 
 # pragma once
 
@@ -19,31 +19,31 @@
 	//...
 
 /* -----| Globals   |----- */
-# include "lib_config.h"
-# include "lib_standards.h"
+	//...
 
 /* -----| Internals |----- */
-# include "types.h"
+	//...
 
 /* -----| Modules   |----- */
 	//...
 
+
 /* ************************************************************************** */
 /*                                 Enums                                      */
 /* ************************************************************************** */
+	//...
 
-enum	e_net_prot_http_errors
+/* ************************************************************************** */
+/*                                 Structs                                    */
+/* ************************************************************************** */
+
+typedef struct s_http_settings
 {
-	HTTP_NO_ERROR = error_none,
-	HTTP_ERROR_SYSCALL,
-	HTTP_ERROR_BAD_REQUEST,
-};
+	int		version_min;
+	int		version_max;
+	void	*allocator;	// showed has `void *` but this is an internal struct
+}	t_http_settings;
 
-/* ************************************************************************** */
-/*                                 Prototypes                                 */
-/* ************************************************************************** */
+extern t_http_settings	g_net_prot_http_settings;
 
-int			net_prot_http_errno(void);
-const char	*net_prot_http_strerror(const int code);
-
-#endif	// LIB_NET_PROTOCOLS_HTTP_ERROR_H
+#endif	// LIB_NET_PROTOCOLS_HTTP_SETTINGS_H

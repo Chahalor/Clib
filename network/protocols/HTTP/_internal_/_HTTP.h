@@ -2,13 +2,6 @@
  * 
 */
 
-#ifndef LIB_NET_PROTOCOLS_HTTP_ERROR_H
-# define LIB_NET_PROTOCOLS_HTTP_ERROR_H
-
-# pragma once
-
-// Header
-
 # pragma once
 
 /* ************************************************************************** */
@@ -23,27 +16,26 @@
 # include "lib_standards.h"
 
 /* -----| Internals |----- */
-# include "types.h"
+# include "_types.h"
 
 /* -----| Modules   |----- */
 	//...
 
 /* ************************************************************************** */
-/*                                 Enums                                      */
+/*                                 Macros                                     */
 /* ************************************************************************** */
-
-enum	e_net_prot_http_errors
-{
-	HTTP_NO_ERROR = error_none,
-	HTTP_ERROR_SYSCALL,
-	HTTP_ERROR_BAD_REQUEST,
-};
+	//...
 
 /* ************************************************************************** */
 /*                                 Prototypes                                 */
 /* ************************************************************************** */
 
-int			net_prot_http_errno(void);
-const char	*net_prot_http_strerror(const int code);
+t_http	*_http_new(
+	const float version,
+	const t_http_methods method,
+	t_http_header_list *const headers,
+	t_http_body *const body
+)
+{
 
-#endif	// LIB_NET_PROTOCOLS_HTTP_ERROR_H
+}

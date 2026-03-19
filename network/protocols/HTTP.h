@@ -36,11 +36,11 @@
 
 # define	HTTP_MAX_SUPPORTED_VERSION	HTTP_1_0
 
-// 
-#define	http_alloc(var) _Generic((var), \
+
+# define	http_alloc(var) _Generic((var), \
 	const char *const:	http_parse_str(var), \
-	const int:			http_recv(var), \
-	default:			http_new() \
+	const int:			http_recv(var),       \
+	default:			http_new()             \
 )
 
 /* ************************************************************************** */
