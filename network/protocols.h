@@ -2,8 +2,8 @@
  * 
 */
 
-#ifndef LIB_NET_H
-# define LIB_NET_H
+#ifndef LIB_NET_PROTOCOLS_H
+# define LIB_NET_PROTOCOLS_H
 
 # pragma once
 
@@ -15,12 +15,11 @@
 	//...
 
 /* -----| Globals   |----- */
-# include "standards/lib_config.h"
-# include "standards/lib_standards.h"
+# include "../standards/lib_config.h"
+# include "../standards/lib_standards.h"
 
 /* -----| Internals |----- */
-#include "network/communication.h"
-#include "network/protocols.h"
+# include "protocols/HTTP.h"
 
 /* -----| Modules   |----- */
 	//...
@@ -35,4 +34,4 @@
 /* ************************************************************************** */
 	//...
 
-#endif	// LIB_NET_H
+#endif	// LIB_NET_PROTOCOLS_H

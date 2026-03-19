@@ -1,0 +1,92 @@
+/**
+ * 
+*/
+
+#ifndef LIB_NET_PROTOCOLS_HTTP_CODE_H
+# define LIB_NET_PROTOCOLS_HTTP_CODE_H
+
+/**
+ * @enum http_codes
+*/
+enum e_http_codes
+{
+	// 1xx — Infos
+	CONTINUE							= 100u,
+	SWITCHING_PROTOCOLS					= 101u,
+	PROCESSING							= 102u,
+	EARLY_HINTS							= 103u,
+	// >>>
+	// 2xx — Success
+	OK									= 200u,
+	CREATED								= 201u,
+	ACCEPTED							= 202u,
+	NON_AUTHORITATIVE_INFORMATION		= 203u,
+	NO_CONTENT							= 204u,
+	RESET_CONTENT						= 205u,
+	PARTIAL_CONTENT						= 206u,
+	MULTI_STATUS						= 207u,
+	ALREADY_REPORTED					= 208u,
+	IM_USED								= 226u,
+	// >>>
+	// 3xx — Redirection
+	MULTIPLE_CHOICES					= 300u,
+	MOVED_PERMANENTLY					= 301u,
+	FOUND								= 302u,
+	SEE_OTHER							= 303u,
+	NOT_MODIFIED						= 304u,
+	USE_PROXY							= 305u,
+	UNUSED								= 306u,
+	TEMPORARY_REDIRECT					= 307u,
+	PERMANENT_REDIRECT					= 308u,
+	// >>>
+	// 4xx — Client
+	BAD_REQUEST							= 400u,
+	UNAUTHORIZED						= 401u,
+	PAYMENT_REQUIRED					= 402u,
+	FORBIDDEN							= 403u,
+	NOT_FOUND							= 404u,
+	METHOD_NOT_ALLOWED					= 405u,
+	NOT_ACCEPTABLE						= 406u,
+	PROXY_AUTH_REQUIRED					= 407u,
+	REQUEST_TIMEOUT						= 408u,
+	CONFLICT							= 409u,
+	GONE								= 410u,
+	LENGTH_REQUIRED						= 411u,
+	PRECONDITION_FAILED					= 412u,
+	PAYLOAD_TOO_LARGE					= 413u,
+	URI_TOO_LONG						= 414u,
+	UNSUPPORTED_MEDIA_TYPE				= 415u,
+	RANGE_NOT_SATISFIABLE				= 416u,
+	EXPECTATION_FAILED					= 417u,
+	IM_A_TEAPOT							= 418u,
+	MISDIRECTED_REQUEST					= 421u,
+	UNPROCESSABLE_ENTITY				= 422u,
+	LOCKED								= 423u,
+	FAILED_DEPENDENCY					= 424u,
+	TOO_EARLY							= 425u,
+	UPGRADE_REQUIRED					= 426u,
+	PRECONDITION_REQUIRED				= 428u,
+	TOO_MANY_REQUESTS					= 429u,
+	REQUEST_HEADER_FIELDS_TOO_LARGE		= 431u,
+	UNAVAILABLE_FOR_LEGAL_REASONS		= 451u,
+	// >>>
+	// 5xx — Server
+	INTERNAL_SERVER_ERROR				= 500u,
+	NOT_IMPLEMENTED						= 501u,
+	BAD_GATEWAY							= 502u,
+	SERVICE_UNAVAILABLE					= 503u,
+	GATEWAY_TIMEOUT						= 504u,
+	VERSION_NOT_SUPPORTED				= 505u,
+	VARIANT_ALSO_NEGOTIATES				= 506u,
+	INSUFFICIENT_STORAGE				= 507u,
+	LOOP_DETECTED						= 508u,
+	NOT_EXTENDED						= 510u,
+	NETWORK_AUTHENTICATION_REQUIRED		= 511
+};
+
+/** */
+inline const char	*net_prot_http_code_to_str(
+	const enum e_http_codes code
+);
+
+#endif	// LIB_NET_PROTOCOLS_HTTP_CODE_H
