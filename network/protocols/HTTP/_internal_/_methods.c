@@ -1,6 +1,7 @@
 /**
- * 
-*/
+ * @file _methods.c
+ * @brief Internal HTTP method string conversion helpers.
+ */
 
 /* ----| Headers    |----- */
 	/* Standard */

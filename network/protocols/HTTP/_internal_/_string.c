@@ -1,6 +1,7 @@
 /**
- * 
-*/
+ * @file _string.c
+ * @brief Internal HTTP request serialization helpers.
+ */
 
 /* ----| Headers    |----- */
 	/* Standard */

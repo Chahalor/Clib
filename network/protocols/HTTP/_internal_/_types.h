@@ -1,6 +1,7 @@
 /**
- * 
-*/
+ * @file _types.h
+ * @brief Internal allocator type declarations for the HTTP module.
+ */
 
 #ifndef LIB_NET_PROTOCOLS_HTTP__TYPES_H
 # define LIB_NET_PROTOCOLS_HTTP__TYPES_H

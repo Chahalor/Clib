@@ -1,6 +1,7 @@
 /**
- * 
-*/
+ * @file _memory.c
+ * @brief Internal allocation and ownership helpers for HTTP objects.
+ */
 
 /* ----| Headers    |----- */
 	/* Standard */
@@ -49,8 +50,8 @@ t_http	*_http_new(
 	const float version,
 	const t_http_methods method,
 	const char *const path,
-	t_http_header_list headers,
-	t_http_body body
+	const t_http_header_list *const headers,
+	const t_http_body *const body
 )
 {
 	t_http	*result = NULL;
@@ -73,12 +74,18 @@ t_http	*_http_new(
 		return (NULL);
 	}
 	strcpy(result->path, path);
-	result->headers = headers;
-	result->body = body;
-	if (body.capacity)
+	if (headers)
+		result->headers = *headers;
+	if (body)
 	{
-		length = strlen(body.content);
-		result->content_length = length;
+		result->body = *body;
+		if (body->capacity)
+		{
+			length = strlen(body->content);
+			result->content_length = length;
+		}
+		else
+			result->content_length = 0;
 	}
 	else
 		result->content_length = 0;

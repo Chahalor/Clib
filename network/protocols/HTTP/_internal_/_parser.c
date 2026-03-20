@@ -1,6 +1,7 @@
 /**
- * 
-*/
+ * @file _parser.c
+ * @brief Internal HTTP request parsing helpers.
+ */
 /* Exemple:
 POST /users HTTP/1.1
 Host: example.com
