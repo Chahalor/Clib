@@ -109,3 +109,33 @@ const char	*_http_methods_str(
 t_http_methods	_http_str_to_method(
 	const char *str
 );
+
+#pragma region Parsing
+
+
+t_http_version	_http_parse_version(
+	const char *str
+);
+
+/**
+ * @note `buf` should have the rigth size to store the string
+*/
+char	*_http_version_to_str(
+	t_http_version v,
+	char *const buf
+);
+
+t_http	*_http_parse_1_0(
+	const char *const raw,
+	const ssize_t size,
+	int *const error
+);
+
+
+#pragma region Strings
+
+char	*_http_request_raw(
+	const t_http *const http,
+	char *const buff,
+	size_t size
+);
