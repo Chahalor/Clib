@@ -33,6 +33,8 @@ extern struct _s_http_allocators	_g_net_prot_http_allocator;
 /*                                 Prototypes                                 */
 /* ************************************************************************** */
 
+#pragma region Memory
+
 static inline void	_lower(
 	char *str
 )
@@ -43,7 +45,6 @@ static inline void	_lower(
 		str++;
 	}
 }
-
 
 t_http	*_http_new(
 	const float version,
@@ -92,4 +93,14 @@ void	_http_free_header(
 void	_http_free_list(
 	t_http_header_list *const list,
 	const int recursive
+);
+
+#pragma region Methods
+
+const char	*_http_methods_str(
+	const t_http_methods method
+);
+
+t_http_methods	_http_str_to_method(
+	const char *str
 );
