@@ -1,0 +1,3 @@
+ - [ ] an internal mem dup function
+ - [ ] look anf fix all the issues register by codex ( * @par Issues)
+ - [ ] controls for this module

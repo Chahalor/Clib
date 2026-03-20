@@ -101,8 +101,8 @@ static inline void	_lower(
 t_http	*_http_new(
 	const float version,
 	const t_http_methods method,
-	t_http_header_list headers,
-	t_http_body body
+	const t_http_header_list *const headers,
+	const t_http_body *const body
 );
 
 /**

@@ -49,27 +49,58 @@
 //--- Memory ---//
 // - Alloc
 
-t_http				*http_new(void);
+
+t_http	*http_new(void);
 
 /**
  * @brief	will choose automaticly the rigth version parsing based on the request header
  */
-t_http				*http_parse_str(const char *s);
-t_http				*http_dup(const t_http *const first);
+t_http	*http_parse_str(
+	const char *s
+);
+
+t_http	*http_dup(
+	const t_http *const first
+);
 
 t_http_header_list	*http_new_list(void);
-t_http_header_list	*http_new_list_size_t(const size_t size);
-int					http_add_header(t_http_header_list *const list, const char *const key, const char *const value);
+
+t_http_header_list	*http_new_list_size_t(
+	const size_t size
+);
+
+int	http_add_header(
+	t_http_header_list *const list,
+	t_http_header *const header
+);
+
+int	http_add_header_raw(
+	t_http_header_list *const list,
+	const char *const key,
+	const char *const value
+);
 
 /**
  * if `buffer` == NULL --> allocate a new char *
  * else                --> write the raw request to the `buffer`
 */
-char				*http_to_raw(const t_http *const http, char *const buffer);
+char	*http_to_raw(
+	const t_http *const http,
+	char *const buffer,
+	const size_t size
+);
 
 // - Free
-void				http_free(t_http *const);
-void				http_free_header_list(t_http_header_list *const list);
-void				http_free_header(t_http_header *const header);
+void	http_free(
+	t_http *const target
+);
+
+void				http_free_header_list(
+	t_http_header_list *const list
+);
+
+void	http_free_header(
+	t_http_header *const header
+);
 
 #endif	// LIB_NET_PROTOCOLS_HTTP_H
