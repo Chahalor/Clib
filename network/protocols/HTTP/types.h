@@ -28,7 +28,7 @@
 /* ************************************************************************** */
 /* -----| Typename  |----- */
 
-typedef float	t_http_version;
+typedef uint16_t	t_http_version;
 
 /* -----| Enums     |----- */
 
@@ -83,14 +83,16 @@ enum e_http_methods
 
 struct s_http_header
 {
-	char	*key;
-	char	*value;
+	char			*key;
+	char			*value;
+	t_http_header	*next;
 };
 
 struct s_http_header_list
 {
-	t_http_header	*data;	// probably an hash map
-	int				size;
+	t_http_header	**data;		// an hash map
+	int				capacity;	// size of the has map
+	int				size;		// number of headers
 };
 
 struct s_http_body
@@ -101,7 +103,7 @@ struct s_http_body
 
 struct s_http
 {
-	t_http_version		version;
+	t_http_version		version;	// 100 = 1.0, 101 = 1.1
 	t_http_methods		method;
 	t_http_header_list	headers;
 	t_http_body			body;
