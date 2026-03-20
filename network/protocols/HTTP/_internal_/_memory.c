@@ -6,7 +6,6 @@
 	/* Standard */
 #include <string.h>
 #include <stdint.h>
-#include <ctype.h>
 
 	/* Internal */
 #include "_HTTP.h"
@@ -36,17 +35,6 @@ static uint32_t	_hash(
 		hash *= 16777619u;
 	}
 	return (hash);
-}
-
-static void	_lower(
-	char *str
-)
-{
-	while (*str)
-	{
-		*str = tolower(*str);
-		str++;
-	}
 }
 
 /* ----| Public     |----- */

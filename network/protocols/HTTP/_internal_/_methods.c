@@ -1,0 +1,104 @@
+/**
+ * 
+*/
+
+/* ----| Headers    |----- */
+	/* Standard */
+#include <string.h>
+
+	/* Internal */
+#include "_HTTP.h"
+
+	/* External */
+		//...
+
+/* ----| Prototypes |----- */
+	//...
+
+/* ----| Internals  |----- */
+	//...
+
+/* ----| Public     |----- */
+
+#ifndef _NET_PROT_HTTP_METHODS_NB_STRING
+# if HTTP_MAX_SUPPORTED_VERSION == HTTP_1_0
+#  define	_NET_PROT_HTTP_METHODS_NB_STRING	3
+# elif HTTP_MAX_SUPPORTED_VERSION >= HTTP_1_1
+#  define	_NET_PROT_HTTP_METHODS_NB_STRING	8
+# else
+#  define	_NET_PROT_HTTP_METHODS_NB_STRING	9
+# endif
+#endif
+
+const char	*_http_methods_str(
+	const t_http_methods method
+)
+{
+	const char	*strings[_NET_PROT_HTTP_METHODS_NB_STRING + 1] = {
+		# if HTTP_MAX_SUPPORTED_VERSION == HTTP_1_0
+		[HTTP_ERROR] = "ERROR", [HTTP_GET] = "GET", [HTTP_POST] = "POST", [HTTP_HEAD] = "HEAD"
+		# elif HTTP_MAX_SUPPORTED_VERSION >= HTTP_1_1
+		, [HTTP_PUT] = "PUT", [HTTP_DELETE] = "DELETE", [HTTP_OPTIONS] = "OPTIONS", [HTTP_TRACE] = "TRACE", [HTTP_CONNECT] = "CONNECT"
+		# else
+		, [HTTP_PATCH] = "PATCH"
+		# endif
+	};
+
+	return (strings[method]);
+}
+
+t_http_methods	_http_str_to_method(
+	const char *str
+)
+{
+	if (!str)
+		return (HTTP_ERROR);
+
+	switch (str[0])
+	{
+		case 'G':
+			if (!strcmp(str, "GET"))
+				return (HTTP_GET);
+			break;
+
+		case 'P':
+			if (!strcmp(str, "POST"))
+				return (HTTP_POST);
+#if HTTP_MAX_SUPPORTED_VERSION >= HTTP_1_1
+			if (!strcmp(str, "PUT"))
+				return (HTTP_PUT);
+			if (!strcmp(str, "PATCH"))
+				return (HTTP_PATCH);
+#endif
+			break;
+
+		case 'H':
+			if (!strcmp(str, "HEAD"))
+				return (HTTP_HEAD);
+			break;
+
+#if HTTP_MAX_SUPPORTED_VERSION >= HTTP_1_1
+		case 'D':
+			if (!strcmp(str, "DELETE"))
+				return (HTTP_DELETE);
+			break;
+
+		case 'O':
+			if (!strcmp(str, "OPTIONS"))
+				return (HTTP_OPTIONS);
+			break;
+
+		case 'T':
+			if (!strcmp(str, "TRACE"))
+				return (HTTP_TRACE);
+			break;
+
+		case 'C':
+			if (!strcmp(str, "CONNECT"))
+				return (HTTP_CONNECT);
+			break;
+#endif
+	}
+
+	return (HTTP_ERROR);
+}
