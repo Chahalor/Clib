@@ -43,6 +43,15 @@
 	default:			http_new()             \
 )
 
+# define	http_header_alloc(list, var, ...)	_Generic((var),       \
+	t_http_header *const:	http_add_header(list, var),                \
+	const char *const:		http_add_header_raw(list, var, __VA_ARGS__) \
+)
+
+# define	http_free(var)	_Generic((var), \
+	// TODO: one free MACRO for each struct
+)
+
 /* ************************************************************************** */
 /*                                 Prototypes                                 */
 /* ************************************************************************** */
