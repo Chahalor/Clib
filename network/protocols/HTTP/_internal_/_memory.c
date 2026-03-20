@@ -48,6 +48,7 @@ struct _s_http_allocators	_g_net_prot_http_allocator = (struct _s_http_allocator
 t_http	*_http_new(
 	const float version,
 	const t_http_methods method,
+	const char *const path,
 	t_http_header_list headers,
 	t_http_body body
 )
@@ -58,12 +59,20 @@ t_http	*_http_new(
 	result = _g_net_prot_http_allocator.alloc(sizeof(t_http));
 	if (unlikely(!result))
 	{
-		g_net_prot_http_settings.errno = HTTP_ERROR_SYSCALL;
+		g_net_prot_http_settings.errno = error_alloc_fail;
 		return (NULL);
 	}
 
 	result->version = version;
 	result->method = method;
+	result->path = _g_net_prot_http_allocator.alloc(sizeof(char) * (strlen(path) + 1));
+	if (unlikely(!result->path))
+	{
+		g_net_prot_http_settings.errno = error_alloc_fail;
+		_g_net_prot_http_allocator.free(result);
+		return (NULL);
+	}
+	strcpy(result->path, path);
 	result->headers = headers;
 	result->body = body;
 	if (body.capacity)
@@ -104,6 +113,10 @@ t_http_header	*_http_new_header(
 	_lower(result->key);
 	strcpy(result->value, value);
 
+	result->next = NULL;
+	result->order_prev = NULL;
+	result->order_next = NULL;
+
 	return (result);
 }
 
@@ -122,6 +135,8 @@ int	_http_setup_header_list(
 	}
 	list->capacity = capacity;
 	list->data = map;
+	list->head = NULL;
+	list->tail = NULL;
 
 	return (error_none);
 }
@@ -132,46 +147,87 @@ int	_http_add_header(
 )
 {
 	const int		_index = _hash(header->key) % list->capacity;
-	t_http_header	*_target = list->data[_index];
+	t_http_header	*_this = list->data[_index];
 
-	for (t_http_header	*_this = list->data[_index];
-		_this != NULL;
-		_this = _this->next
-	)
+	header->next = NULL;
+	header->order_next = NULL;
+	header->order_prev = list->tail;
+
+	if (list->tail)
+		list->tail->order_next = header;
+	else
+		list->head = header;
+
+	list->tail = header;
+
+	if (!_this)
 	{
-		if (unlikely(!strcmp(_this->key, header->key)))
-		{
-			t_http_header	*_next = _this->next;
-
-			_target->next = header;
-			header->next = _next;
-			list->size++;
-
-			return (error_none);
-		}
-
-		_target = _this;
+		list->data[_index] = header;
+	}
+	else
+	{
+		while (_this->next)
+			_this = _this->next;
+		_this->next = header;
 	}
 
-	if (_target)
-		_target->next = header;
-	else
-		list->data[_index] = header;
-
+	list->size++;
 	return (error_none);
 }
 
 void	_http_remove_header(
 	t_http_header_list *const list,
 	const char *const key,
-	const int free
+	const int do_free
 )
 {
 	if (!list->size)
 		return ;
 
 	const int		_index = _hash(key) % list->capacity;
-	t_http_header	*_target = list->data[_index];
+	t_http_header	*_this = list->data[_index];
+	t_http_header	*_prev = NULL;
+
+	while (_this)
+	{
+		if (!strcmp(_this->key, key))
+		{
+			// unlink hash chain
+			if (_prev)
+				_prev->next = _this->next;
+			else
+				list->data[_index] = _this->next;
+
+			// unlink order list
+			if (_this->order_prev)
+				_this->order_prev->order_next = _this->order_next;
+			else
+				list->head = _this->order_next;
+
+			if (_this->order_next)
+				_this->order_next->order_prev = _this->order_prev;
+			else
+				list->tail = _this->order_prev;
+
+			list->size--;
+
+			if (do_free)
+				_http_free_header(_this, 0);
+
+			return ;
+		}
+
+		_prev = _this;
+		_this = _this->next;
+	}
+}
+
+t_http_header	*_http_header_find(
+	t_http_header_list *const list,
+	const char *const key
+)
+{
+	const uint32_t	_index = _hash(key) % list->capacity;
 
 	for (t_http_header	*_this = list->data[_index];
 		_this != NULL;
@@ -179,19 +235,10 @@ void	_http_remove_header(
 	)
 	{
 		if (unlikely(!strcmp(_this->key, key)))
-		{
-			t_http_header	*_next = _this->next;
-
-			if (free)
-				_g_net_prot_http_allocator.free(_this);
-
-			_target->next = _next;
-
-			return ;
-		}
-
-		_target = _this;
+			return (_this);
 	}
+
+	return (NULL);
 }
 
 /**
@@ -205,6 +252,7 @@ void	_http_free(
 	if (all)
 		_http_free_list(&target->headers, 1);
 
+	_g_net_prot_http_allocator.free(target->path);
 	_g_net_prot_http_allocator.free(target);
 }
 

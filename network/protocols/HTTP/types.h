@@ -85,12 +85,18 @@ struct s_http_header
 {
 	char			*key;
 	char			*value;
-	t_http_header	*next;
+
+	t_http_header	*next;			// hash-map linked list
+	t_http_header	*order_prev;	// prev in insert order
+	t_http_header	*order_next;	// next in insert order
 };
 
 struct s_http_header_list
 {
 	t_http_header	**data;		// an hash map
+	t_http_header	*head;
+	t_http_header	*tail;
+
 	int				capacity;	// size of the has map
 	int				size;		// number of headers
 };
@@ -107,6 +113,7 @@ struct s_http
 	t_http_methods		method;
 	t_http_header_list	headers;
 	t_http_body			body;
+	char				*path;
 	size_t				content_length;
 };
 

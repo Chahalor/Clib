@@ -74,6 +74,11 @@ void	_http_remove_header(
 	const int free
 );
 
+t_http_header	*_http_header_find(
+	t_http_header_list *const list,
+	const char *const key
+);
+
 /**
  * if `all` == 1 also free the list of header
 */

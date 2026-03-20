@@ -16,7 +16,22 @@
 	//...
 
 /* ----| Internals  |----- */
-	//...
+
+/**
+ * @brief	compare `s1` and `s2`, by a max of strlen(`s2`) bytes, the first word of `s1` should be followed by a space of a `\0`
+*/
+static bool	_cmp(
+	const char *const s1,
+	const char *const s2
+)
+{
+	size_t	_size = strlen(s2);
+
+	return (
+		strncmp(s1, s2, _size) &&
+		(isspace(s1[_size] || !s1[_size])
+	));
+}
 
 /* ----| Public     |----- */
 
