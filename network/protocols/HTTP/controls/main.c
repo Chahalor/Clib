@@ -17,7 +17,7 @@ static int	g_tests_failed = 0;
 #define EXPECT_TRUE(cond) \
 	do { \
 		if (!(cond)) { \
-			fprintf(stderr, "  assertion failed at %s:%d: %s\n", __FILE__, __LINE__, #cond); \
+			fprintf(stderr, " - assertion failed at " UNDERLINE "%s:%d" RESET ": %s\n", __FILE__, __LINE__, #cond); \
 			return (1); \
 		} \
 	} while (0)
@@ -30,7 +30,7 @@ static int	g_tests_failed = 0;
 		long long _a = (long long)(actual); \
 		long long _e = (long long)(expected); \
 		if (_a != _e) { \
-			fprintf(stderr, "  assertion failed at %s:%d: got=%lld expected=%lld\n", __FILE__, __LINE__, _a, _e); \
+			fprintf(stderr, " - assertion failed at " UNDERLINE "%s:%d" RESET ": got=%lld expected=%lld\n", __FILE__, __LINE__, _a, _e); \
 			return (1); \
 		} \
 	} while (0)
@@ -40,7 +40,7 @@ static int	g_tests_failed = 0;
 		const char *_a = (actual); \
 		const char *_e = (expected); \
 		if (!_a || !_e || strcmp(_a, _e)) { \
-			fprintf(stderr, "  assertion failed at %s:%d: got=\"%s\" expected=\"%s\"\n", __FILE__, __LINE__, _a ? _a : "(null)", _e ? _e : "(null)"); \
+			fprintf(stderr, " - assertion failed at " UNDERLINE "%s:%d" RESET ": got=\"%s\" expected=\"%s\"\n", __FILE__, __LINE__, _a ? _a : "(null)", _e ? _e : "(null)"); \
 			return (1); \
 		} \
 	} while (0)
@@ -276,6 +276,8 @@ static int	test_http_new_no_crash(void)
 
 int	main(void)
 {
+	char	*color_total;
+
 	run_test("parse_version_valid", test_parse_version_valid);
 	run_test("parse_version_invalid", test_parse_version_invalid);
 	run_test("version_to_str", test_version_to_str);
@@ -288,8 +290,17 @@ int	main(void)
 	run_test("http_parse_str_valid_request", test_http_parse_str_valid_request);
 	run_test("http_new_no_crash", test_http_new_no_crash);
 
-	printf("\n[SUMMARY] total=%d passed=%d failed=%d\n",
+	if (g_tests_failed == 0)
+		color_total = GREEN;
+	else if (g_tests_run - g_tests_failed != 0)
+		color_total = YELLOW;
+	else
+		color_total = RED;
+
+	printf("\n[SUMMARY] total=%s%d" RESET " passed=%s%d" RESET " failed=%d\n",
+		color_total,
 		g_tests_run,
+		color_total,
 		g_tests_run - g_tests_failed,
 		g_tests_failed);
 

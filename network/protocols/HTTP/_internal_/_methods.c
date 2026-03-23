@@ -6,6 +6,7 @@
 /* ----| Headers    |----- */
 	/* Standard */
 #include <string.h>
+#include <stdio.h>
 
 	/* Internal */
 #include "_HTTP.h"
@@ -73,44 +74,44 @@ t_http_methods	_http_str_to_method(
 	switch (str[0])
 	{
 		case 'G':
-			if (!strcmp(str, "GET"))
+			if (!strncmp(str, "GET", 3))
 				return (HTTP_GET);
 			break;
 
 		case 'P':
-			if (!strcmp(str, "POST"))
+			if (!strncmp(str, "POST", 4))
 				return (HTTP_POST);
 #if HTTP_MAX_SUPPORTED_VERSION >= HTTP_VERSION(1, 1)
-			if (!strcmp(str, "PUT"))
+			if (!strncmp(str, "PUT", 3))
 				return (HTTP_PUT);
-			if (!strcmp(str, "PATCH"))
+			if (!strncmp(str, "PATCH", 5))
 				return (HTTP_PATCH);
 #endif
 			break;
 
 		case 'H':
-			if (!strcmp(str, "HEAD"))
+			if (!strncmp(str, "HEAD", 4))
 				return (HTTP_HEAD);
 			break;
 
 #if HTTP_MAX_SUPPORTED_VERSION >= HTTP_1_1
 		case 'D':
-			if (!strcmp(str, "DELETE"))
+			if (!strncmp(str, "DELETE", 6))
 				return (HTTP_DELETE);
 			break;
 
 		case 'O':
-			if (!strcmp(str, "OPTIONS"))
+			if (!strncmp(str, "OPTIONS", 7))
 				return (HTTP_OPTIONS);
 			break;
 
 		case 'T':
-			if (!strcmp(str, "TRACE"))
+			if (!strncmp(str, "TRACE", 5))
 				return (HTTP_TRACE);
 			break;
 
 		case 'C':
-			if (!strcmp(str, "CONNECT"))
+			if (!strncmp(str, "CONNECT", 7))
 				return (HTTP_CONNECT);
 			break;
 #endif
