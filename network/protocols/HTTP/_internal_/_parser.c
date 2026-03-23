@@ -20,6 +20,8 @@ name=FirstName+LastName&email=bsmth%40example.com
 
 	/* Internal */
 #include "_HTTP.h"
+#include "../codes.h"
+#include "HTTP.h"
 
 	/* External */
 		//...
@@ -70,7 +72,7 @@ int	_next_line(
 
 ssize_t	_str_to_nb(
 	const char *const s,
-	const char **end
+	char **end
 )
 {
 	int		_sign = 1;
@@ -92,7 +94,7 @@ ssize_t	_str_to_nb(
 	}
 
 	result *= _sign;
-	*end = &s[i];
+	*end = (char *)&s[i];
 
 	return (result);
 }
@@ -338,7 +340,7 @@ t_http	*_http_parse_1_0(
 		}
 	}
 
-	result = _http_new(_version, _method, _list, _body);
+	result = _http_new(_version, _method, _path, &_list, &_body);
 	if (unlikely(!result))
 		_internal_server_error(NULL);
 

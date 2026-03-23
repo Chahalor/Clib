@@ -22,9 +22,15 @@
 
 /* ----| Public     |----- */
 
+t_http_settings	g_net_prot_http_settings = {
+	.allocator = (void *)&_g_net_prot_http_allocator,
+	.errno = error_none
+};
+
+
 t_http	*http_new(void)
 {
-	return (_http_new(1.0f, HTTP_ERROR, NULL, NULL));
+	return (_http_new(1.0f, HTTP_ERROR, "", NULL, NULL));
 }
 
 /**

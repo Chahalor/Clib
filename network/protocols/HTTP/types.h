@@ -13,15 +13,20 @@
 
 /* -----| Systems   |----- */
 #include <stddef.h>
+#include <stdint.h>
 
 /* -----| Globals   |----- */
 	//...
 
 /* -----| Internals |----- */
-#include "../HTTP.h"
+// #include "../HTTP.h"
 
 /* -----| Modules   |----- */
 	//...
+
+# ifndef HTTP_VERSION
+#  define	HTTP_VERSION(major, minor)	((major) * 100 + (minor))
+# endif	//HTTP_VERSION
 
 /* ************************************************************************** */
 /*                                 Typedefs                                   */

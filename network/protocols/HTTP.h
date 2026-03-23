@@ -29,7 +29,9 @@
 /*                                 Macros                                     */
 /* ************************************************************************** */
 
-# define	HTTP_VERSION(major, minor)	((major) * 100 + (minor))
+# ifndef HTTP_VERSION
+#  define	HTTP_VERSION(major, minor)	((major) * 100 + (minor))
+# endif	//HTTP_VERSION
 
 # define	HTTP_1_0					HTTP_VERSION(1, 0)
 # define	HTTP_1_1					HTTP_VERSION(1, 1)
@@ -41,15 +43,6 @@
 	const char *const:	http_parse_str(var), \
 	const int:			http_recv(var),       \
 	default:			http_new()             \
-)
-
-# define	http_header_alloc(list, var, ...)	_Generic((var),       \
-	t_http_header *const:	http_add_header(list, var),                \
-	const char *const:		http_add_header_raw(list, var, __VA_ARGS__) \
-)
-
-# define	http_free(var)	_Generic((var), \
-	// TODO: one free MACRO for each struct
 )
 
 /* ************************************************************************** */
@@ -104,7 +97,7 @@ void	http_free(
 	t_http *const target
 );
 
-void				http_free_header_list(
+void	http_free_header_list(
 	t_http_header_list *const list
 );
 

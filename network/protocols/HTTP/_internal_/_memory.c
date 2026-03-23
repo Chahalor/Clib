@@ -7,6 +7,7 @@
 	/* Standard */
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 	/* Internal */
 #include "_HTTP.h"
@@ -93,6 +94,45 @@ t_http	*_http_new(
 	return (result);
 }
 
+t_http	*_http_dup(
+	const t_http *const first
+)
+{
+	t_http_header_list	_list;
+	t_http_body			*_body;
+	t_http				*result;
+
+	if (unlikely(_http_setup_header_list(&_list, first->headers.capacity) != error_none))
+		return (NULL);
+
+	for (t_http_header	*_this = first->headers.head;
+		_this != NULL && _this != first->headers.tail;
+		_this = _this->order_next
+	)
+	{
+		t_http_header	*_new = _http_new_header(_this->key, _this->value);
+
+		if (unlikely(!_new))
+		{
+			_http_free_list(&_list, true);
+			return (NULL);
+		}
+
+		_http_add_header(&_list, _new);
+	}
+
+	_body->capacity = first->body.capacity;
+	_body->content = _g_net_prot_http_allocator.alloc(sizeof(char) * _body->capacity);
+	if (unlikely(!_body->content))
+	{
+		_http_free_list(&_list, true);
+		return (NULL);
+	}
+	memcpy(_body->content, first->body.content, _body->capacity);
+
+	return (_http_new(first->version, first->method, first->path, &_list, &first->body));
+}
+
 t_http_header	*_http_new_header(
 	const char *const key,
 	const char *const value
@@ -108,7 +148,7 @@ t_http_header	*_http_new_header(
 		return (NULL);
 	}
 
-	result->value = _g_net_prot_http_allocator.alloc(sizeof(char) * strlen(value));
+	result->value = _g_net_prot_http_allocator.alloc(sizeof(char) * (strlen(value) + 1));
 	if (unlikely(!result->value))
 	{
 		_g_net_prot_http_allocator.free(result);
@@ -142,6 +182,9 @@ int	_http_setup_header_list(
 	}
 	list->capacity = capacity;
 	list->data = map;
+	if (_g_net_prot_http_allocator.alloc != calloc)
+		memset(list->data, 0, sizeof(t_http_header *) * capacity);
+
 	list->head = NULL;
 	list->tail = NULL;
 
@@ -155,6 +198,7 @@ int	_http_add_header(
 {
 	const int		_index = _hash(header->key) % list->capacity;
 	t_http_header	*_this = list->data[_index];
+	bool			_insert = false;
 
 	header->next = NULL;
 	header->order_next = NULL;
@@ -173,9 +217,25 @@ int	_http_add_header(
 	}
 	else
 	{
+		t_http_header	*_prev;
+
 		while (_this->next)
+		{
+			_prev = _this;
+
+			if (!strcmp(_this->key, header->key))
+			{
+				_prev->next = header;
+				header->next = _this->next;
+				_insert = true;
+				break ;
+			}
+
 			_this = _this->next;
-		_this->next = header;
+		}
+
+		if (!_insert)
+			_this->next = header;
 	}
 
 	list->size++;
@@ -259,6 +319,7 @@ void	_http_free(
 	if (all)
 		_http_free_list(&target->headers, 1);
 
+	_g_net_prot_http_allocator.free(target->body.content);
 	_g_net_prot_http_allocator.free(target->path);
 	_g_net_prot_http_allocator.free(target);
 }
@@ -285,7 +346,7 @@ void	_http_free_list(
 	const int recursive
 )
 {
-	for (int	 i = 0;
+	for (int	i = 0;
 		recursive && i < list->capacity;
 		i++
 	)
@@ -295,15 +356,10 @@ void	_http_free_list(
 		if (!list->data[i])
 			continue ;
 
-		for (t_http_header	*_this = list->data[i];
-			_this != NULL;
-			_this = _next
-		)
-		{
-			_next = _this->next;
-			_http_free_header(_this, recursive);
-		}
+		_http_free_header(list->data[i], recursive);
 	}
 
 	_g_net_prot_http_allocator.free(list->data);
+	memset(list, 0, sizeof(*list));
 }
+

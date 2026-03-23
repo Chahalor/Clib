@@ -22,9 +22,7 @@ add_subdirectory(times)
 target_link_libraries(clib PRIVATE
 	clib_internal
 	clib_standards
-	clib_interface
 	clib_memory
-	clib_network
 	clib_random
 	clib_times
 )
@@ -35,7 +33,6 @@ target_include_directories(clib PUBLIC
 
 target_sources(clib PRIVATE
 	$<TARGET_OBJECTS:clib_memory>
-	$<TARGET_OBJECTS:clib_network>
 	$<TARGET_OBJECTS:clib_random>
 )
 

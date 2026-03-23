@@ -80,7 +80,7 @@ t_http_methods	_http_str_to_method(
 		case 'P':
 			if (!strcmp(str, "POST"))
 				return (HTTP_POST);
-#if HTTP_MAX_SUPPORTED_VERSION >= HTTP_1_1
+#if HTTP_MAX_SUPPORTED_VERSION >= HTTP_VERSION(1, 1)
 			if (!strcmp(str, "PUT"))
 				return (HTTP_PUT);
 			if (!strcmp(str, "PATCH"))

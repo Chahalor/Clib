@@ -67,12 +67,11 @@ extern struct _s_http_allocators	_g_net_prot_http_allocator;
 #pragma region Memory
 
 /**
- * @brief Lowercase a NUL-terminated string in place.
- * @param str Mutable string to normalize.
- * @note Used to normalize header keys before hashing.
- * @par Issues
- * No NULL guard.
- * `tolower` is called with `char` directly, which is undefined for negative values.
+ * @brief	Lowercase a NUL-terminated string in place.
+ * 
+ * @param	str Mutable string to normalize.
+ * 
+ * @note	Used to normalize header keys before hashing.
  */
 static inline void	_lower(
 	char *str
@@ -86,34 +85,40 @@ static inline void	_lower(
 }
 
 /**
- * @brief Allocate and initialize an HTTP request container.
- * @param version Encoded HTTP version.
- * @param method HTTP method enum.
- * @param headers Header collection moved into the returned object.
- * @param body Body descriptor moved into the returned object.
- * @return Allocated request object, or `NULL` on allocation failure.
- * @note On allocation failure, `g_net_prot_http_settings.errno` is set.
- * @par Issues
- * Implementation currently uses signature
- * `_http_new(version, method, path, headers_ptr, body_ptr)` in `_memory.c`,
- * but this declaration does not expose `path` nor pointer arguments.
+ * @brief	Allocate and initialize an HTTP request container.
+ * 
+ * @param	version Encoded HTTP version.
+ * @param	method HTTP method enum.
+ * @param	headers Header collection moved into the returned object.
+ * @param	body Body descriptor moved into the returned object.
+ * @return	Allocated request object, or `NULL` on allocation failure.
+ * 
+ * @note	On allocation failure, `g_net_prot_http_settings.errno` is set.
  */
 t_http	*_http_new(
 	const float version,
 	const t_http_methods method,
+	const char *const path,
 	const t_http_header_list *const headers,
 	const t_http_body *const body
 );
 
 /**
- * @brief Allocate a header node and copy key/value strings.
- * @param key Header key (stored normalized to lowercase).
- * @param value Header value.
- * @return New header node, or `NULL` on allocation failure.
+ * 
+*/
+t_http	*_http_dup(
+	const t_http *const first
+);
+
+/**
+ * @brief	Allocate a header node and copy key/value strings.
+ * 
+ * @param	key Header key (stored normalized to lowercase).
+ * @param	value Header value.
+ * 
+ * @return	New header node, or `NULL` on allocation failure.
+ * 
  * @note On failure, `g_net_prot_http_settings.errno` is set to `HTTP_ERROR_SYSCALL`.
- * @par Issues
- * Implementation allocates `strlen(value)` bytes (missing `+1`) before `strcpy`,
- * which can overflow.
  */
 t_http_header	*_http_new_header(
 	const char *const key,
@@ -121,14 +126,14 @@ t_http_header	*_http_new_header(
 );
 
 /**
- * @brief Allocate the hash bucket array for a header list.
- * @param list Target list to initialize.
- * @param capacity Number of hash buckets.
- * @return `error_none` on success, `error_alloc_fail` on allocation failure.
- * @note On allocation failure, `g_net_prot_http_settings.errno` is set to `HTTP_ERROR_SYSCALL`.
- * @par Issues
- * Bucket memory is not zero-initialized and `list->size` is not reset here.
- * `capacity <= 0` is not rejected.
+ * @brief	Allocate the hash bucket array for a header list.
+ * 
+ * @param	list Target list to initialize.
+ * @param	capacity Number of hash buckets.
+ * 
+ * @return	`error_none` on success, `error_alloc_fail` on allocation failure.
+ * 
+ * @note	On allocation failure, `g_net_prot_http_settings.errno` is set to `HTTP_ERROR_SYSCALL`.
  */
 int	_http_setup_header_list(
 	t_http_header_list *const list,
@@ -136,13 +141,15 @@ int	_http_setup_header_list(
 );
 
 /**
- * @brief Insert a header into both hash chain and insertion-order list.
- * @param list Destination list.
- * @param header Header node to append.
- * @return Always `error_none` in current implementation.
- * @note Insertion order is tracked via `order_prev/order_next`.
- * @par Issues
- * No NULL/capacity validation and no duplicate-key handling.
+ * @brief	Insert a header into both hash chain and insertion-order list.
+ * 
+ * @param	list Destination list.
+ * @param	header Header node to append.
+ * 
+ * @return	Always `error_none` in current implementation.
+ * 
+ * @note	Insertion order is tracked via `order_prev/order_next`.
+ * @note	If a duplicate key is found, it will be replaced by the newly inserted one
  */
 int	_http_add_header(
 	t_http_header_list *const list,
@@ -150,14 +157,14 @@ int	_http_add_header(
 );
 
 /**
- * @brief Remove the first header matching `key`.
- * @param list Header list.
- * @param key Header key to remove.
- * @param free When non-zero, free the removed node.
- * @note Updates both hash-chain links and insertion-order links.
- * @par Issues
- * Matching is exact and case-sensitive; callers must pass normalized keys.
- * No NULL/capacity validation.
+ * @brief	Remove the first header matching `key`.
+ * 
+ * @param	list Header list.
+ * @param	key Header key to remove.
+ * @param	free When non-zero, free the removed node.
+ * 
+ * @note	Updates both hash-chain links and insertion-order links.
+ * @note	Matching is exact and case-sensitive; callers must pass normalized keys.
  */
 void	_http_remove_header(
 	t_http_header_list *const list,
@@ -167,12 +174,13 @@ void	_http_remove_header(
 
 /**
  * @brief Find a header by key in the hash map.
- * @param list Header list.
- * @param key Header key (expected normalized).
- * @return Matching header pointer, or `NULL` if not found.
- * @par Issues
- * No NULL/capacity validation.
- * Matching is exact and does not normalize input.
+ * 
+ * @param	list Header list.
+ * @param	key Header key (expected normalized).
+ * 
+ * @return	Matching header pointer, or `NULL` if not found.
+ * 
+ * @note Matching is exact and does not normalize input.
  */
 t_http_header	*_http_header_find(
 	t_http_header_list *const list,
@@ -180,12 +188,10 @@ t_http_header	*_http_header_find(
 );
 
 /**
- * @brief Free an HTTP object.
- * @param target Object to free.
- * @param all When non-zero, also free the header-list internals recursively.
- * @par Issues
- * Body payload memory is not released here.
- * No NULL guard.
+ * @brief	Free an HTTP object.
+ * 
+ * @param	target Object to free.
+ * @param	all When non-zero, also free the header-list internals recursively.
  */
 void	_http_free(
 	t_http *const target,
@@ -193,12 +199,12 @@ void	_http_free(
 );
 
 /**
- * @brief Free one header node.
- * @param header Header to free.
- * @param recursive When non-zero, recursively free `header->next`.
- * @note Recursion follows hash-chain `next`, not insertion-order links.
- * @par Issues
- * No NULL guard.
+ * @brief	Free one header node.
+ * 
+ * @param	header Header to free.
+ * @param	recursive When non-zero, recursively free `header->next`.
+ * 
+ * @note	Recursion follows hash-chain `next`, not insertion-order links.
  */
 void	_http_free_header(
 	t_http_header *const header,
@@ -206,14 +212,10 @@ void	_http_free_header(
 );
 
 /**
- * @brief Free a header-list bucket array and optionally all headers.
- * @param list List to release.
- * @param recursive When non-zero, free headers in each bucket.
- * @par Issues
- * Current recursive path can double-free/use-after-free because both
- * `_http_free_list` and `_http_free_header` walk `next`.
- * With `recursive == 0`, headers are leaked.
- * Fields are not reset after free.
+ * @brief	Free a header-list bucket array and optionally all headers.
+ * 
+ * @param	list List to release.
+ * @param	recursive When non-zero, free headers in each bucket.
  */
 void	_http_free_list(
 	t_http_header_list *const list,
@@ -278,7 +280,7 @@ int	_next_line(
  */
 ssize_t	_str_to_nb(
 	const char *const s,
-	const char **end
+	char **end
 );
 
 /**
