@@ -220,7 +220,19 @@ int		json_set_from_array(
 /**
  * @brief	add a new value at the end of the array.
  * `json` should be the node of the array.
- * `json_tok_obj` and `json`tok`array` are not suported
+ * 
+ * @param	json	the current array node to the data will be append
+ * @param	value	the value du be append to the array
+ * @param	type	the type of `value`
+ * 
+ * @return	errnum of the action
+ * 
+ * @example:
+ * JSON	*array = json_get(main_json, "data.array");	// we get the node of the array
+ * json_array_append(array, "hello", json_tok_str);
+ * json_array_append(array, other_json, json_tok_obj);
+ * 
+ * @version	2.0.0
  */
 int		json_array_append(
 			JSON *const _json,

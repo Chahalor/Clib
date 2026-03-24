@@ -392,9 +392,9 @@ int	_json_append_array(
 	const int _type
 )
 {
-	char		*_data = NULL;
-	JSON		*_node = NULL;
-	int			errnum = error_none;
+	char	*_data = NULL;
+	JSON	*_node = NULL;
+	int		errnum = error_none;
 
 	switch (_type)
 	{
@@ -444,6 +444,15 @@ int	_json_append_array(
 			break ;
 		}
 
+		case (json_tok_array):
+		case (json_tok_obj):
+		{
+			JSON	*_val = (t_json *)_value;
+
+			_json_add_child(&_json, _val);
+			goto cleanup;
+		}
+
 		case (json_tok_null):
 			break;
 
@@ -452,15 +461,16 @@ int	_json_append_array(
 			goto cleanup;
 	}
 
-		_node = _json_new_content(NULL, _type, _data);
-		if (unlikely(!_node))
-		{
+	_node = _json_new_content(NULL, _type, _data);
+	if (unlikely(!_node))
+	{
+		if (_type != json_tok_obj && _type != json_tok_array)
 			mem_free(_data);
-			errnum = -(error_alloc_fail);
-			goto cleanup;
-		}
+		errnum = -(error_alloc_fail);
+		goto cleanup;
+	}
 
-		_json_add_child(&_json, _node);
+	_json_add_child(&_json, _node);
 
 cleanup:
 	return (errnum);
