@@ -169,7 +169,7 @@ static int	parse_literal(
 		_p->i += 4;
 		_n = _json_new_content(_key, json_tok_null, NULL);
 		if (unlikely(!_n))
-			return (_error_alloc);
+			return (json_error_alloc);
 		*_out = _n;
 		return (json_error_none);
 	}
@@ -178,12 +178,12 @@ static int	parse_literal(
 		_p->i += 4;
 		_d = mem_dup("true", 5);
 		if (unlikely(!_d))
-			return (_error_alloc);
+			return (json_error_alloc);
 		_n = _json_new_content(_key, json_tok_bool, _d);
 		if (unlikely(!_n))
 		{
 			mem_free(_d);
-			return (_error_alloc);
+			return (json_error_alloc);
 		}
 		*_out = _n;
 		return (json_error_none);
@@ -193,12 +193,12 @@ static int	parse_literal(
 		_p->i += 5;
 		_d = mem_dup("false", 6);
 		if (unlikely(!_d))
-			return (_error_alloc);
+			return (json_error_alloc);
 		_n = _json_new_content(_key, json_tok_bool, _d);
 		if (unlikely(!_n))
 		{
 			mem_free(_d);
-			return (_error_alloc);
+			return (json_error_alloc);
 		}
 		*_out = _n;
 		return (json_error_none);
@@ -218,7 +218,8 @@ static int	parse_array(
 	
 	_arr = _json_new_content(_key, json_tok_array, NULL);
 	if (unlikely(!_arr))
-		return (_error_alloc);
+		return (json_error_alloc);
+
 	skip_ws(_p);
 	if (_p->i < _p->len && _p->buf[_p->i] == ']')
 	{
@@ -239,7 +240,7 @@ static int	parse_array(
 		else if (unlikely(append_child(&_arr->child, _elem) != json_error_none))
 		{
 			_json_free_content(_arr);
-			return (_error_alloc);
+			return (json_error_alloc);
 		}
 
 		skip_ws(_p);
@@ -281,7 +282,7 @@ int	parse_object(
 	
 	obj = _json_new_content(key, json_tok_obj, NULL);
 	if (unlikely(!obj))
-		return (_error_alloc);
+		return (json_error_alloc);
 	skip_ws(_p);
 	if (_p->i < _p->len && _p->buf[_p->i] == '}')
 	{
@@ -324,7 +325,7 @@ int	parse_object(
 		else if (append_child(&obj->child, val) != json_error_none)
 		{
 			_json_free_content(obj);
-			return (_error_alloc);
+			return (json_error_alloc);
 		}
 
 		skip_ws(_p);
@@ -386,7 +387,7 @@ static int	parse_value(
 			return (json_error_parsing);
 		n = _json_new_content(key, json_tok_str, s);
 		if (unlikely(!n))
-			return (mem_free(s), _error_alloc);
+			return (mem_free(s), json_error_alloc);
 		*_out = n;
 		return (json_error_none);
 	}
@@ -397,7 +398,7 @@ static int	parse_value(
 			return (json_error_parsing);
 		n = _json_new_content(key, json_tok_nbr, s);
 		if (unlikely(!n))
-			return (mem_free(s), _error_alloc);
+			return (mem_free(s), json_error_alloc);
 		*_out = n;
 		return (json_error_none);
 	}

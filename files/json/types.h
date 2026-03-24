@@ -43,7 +43,7 @@ enum e_json_error
 	json_error_none = error_none,
 	json_error_no_file,
 	json_error_parsing,
-	jso,_error_alloc,
+	json_error_alloc,
 	json_error_io,
 	json_error_arg
 };

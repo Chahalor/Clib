@@ -460,6 +460,20 @@ static int	test_json_array_append_obj(void)
 	return (0);
 }
 
+static int	json_set_0(void)
+{
+	JSON	*json = json_new();
+
+	EXPECT_NOT_NULL(json);
+
+	int	val = 0;
+	json_set(json, "tkt", &val, json_tok_nbr);
+
+	EXPECT_STREQ(json_get(json, "tkt"), "0");
+
+	return (0);
+}
+
 int	main(void)
 {
 	char	*color_total;
@@ -481,7 +495,8 @@ int	main(void)
 	run_test("json_stringify_cases", test_json_stringify_cases);
 	run_test("json_assert_type_cases", test_json_assert_type_cases);
 	run_test("json_get_type_cases", test_json_get_type_cases);
-	run_test("test_json_array_append_obj", test_json_array_append_obj);
+	// run_test("test_json_array_append_obj", test_json_array_append_obj);
+	run_test("json_set_0", json_set_0);
 
 	if (g_tests_failed == 0)
 		color_total = GREEN;

@@ -64,6 +64,14 @@ char	*_json_tool_itoa(
 	result = mem_alloc(sizeof(char) * (_size + 1));
 	if (unlikely(!result))
 		return (NULL);
+
+	if (unlikely(!_value))
+	{
+		result[0] = '0';
+		result[1] = '\0';
+		return (result);
+	}
+
 	while (_value)
 	{
 		_current = (_value % 10) + '0';
