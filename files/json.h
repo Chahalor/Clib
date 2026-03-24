@@ -194,20 +194,6 @@ size_t	json_len(
  * 
  * @version	3.0.0
 */
-// # define	json_set(json, field, var, ...) \
-// 	_Generic((var), \
-// 		int32_t:		json_set_int32, \
-// 		uint32_t:		json_set_uint32, \
-// 		int64_t:		json_set_int64, \
-// 		uint64_t:		json_set_uint64, \
-// 		const char *:	json_set_string, \
-// 		char *:			json_set_string, \
-// 		const JSON *:	json_set_obj, \
-// 		JSON *:			json_set_obj, \
-// 		const void *:	json_set_array, \
-// 		void *:			json_set_array, \
-// 		default:		json_set_wild \
-// 	)(json, field, var, ##__VA_ARGS__)
 # define	json_set(json, field, var, ...) \
 	_Generic((var), \
 		int32_t:		json_set_int32, \
