@@ -45,15 +45,63 @@ int	_json_tool_count_field(
 	return (count);
 }
 
-
-char	*_json_tool_itoa(
+char *_json_tool_itoa(
 	long long _value
 )
 {
-	char		*result;
-	long long	_dummy = _value;
-	int			_size = _dummy == 0;
-	char		_current;
+	char				*result;
+	// unsigned long long	_value;
+	bool				_sign = false;
+	int					_size = (_value == 0);
+
+	if (_value < 0)
+	{
+		_sign = true;
+		_value = -(unsigned long long)_value;
+		_size++;
+	}
+	else
+		_value = (unsigned long long)_value;
+
+	unsigned long long	tmp = _value;
+	while (tmp)
+	{
+		_size++;
+		tmp /= 10;
+	}
+
+	result = mem_alloc(_size + 1);
+	if (!result)
+		return NULL;
+
+	result[_size] = '\0';
+
+	if (_value == 0)
+	{
+		result[0] = '0';
+		return result;
+	}
+
+	while (_value)
+	{
+		result[--_size] = (_value % 10) + '0';
+		_value /= 10;
+	}
+
+	if (_sign)
+		result[0] = '-';
+
+	return result;
+}
+
+char	*_json_tool_unsigned_itoa(
+	unsigned long long _value
+)
+{
+	char				*result;
+	unsigned long long	_dummy = _value;
+	int					_size = _dummy == 0;
+	char				_current;
 
 	while (_dummy)
 	{

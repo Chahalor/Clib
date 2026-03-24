@@ -7,7 +7,8 @@
 /* ************************************************************************** */
 
 /* -----| Systems   |----- */
-	//...
+#include <stdarg.h>
+#include <stdint.h>
 
 /* -----| Globals   |----- */
 // # include "lib_config.h"
@@ -63,6 +64,63 @@ int	_json_unset(
 		);
 
 /* -----| Set   |----- */
+
+int	_json_set_int32(
+	JSON *const json,
+	const char *const field,
+	int32_t var, 
+	va_list *const restrict _args
+);
+
+int	_json_set_uint32(
+	JSON *const json,
+	const char *const field,
+	uint32_t var,
+	va_list *const restrict _args
+);
+
+int	_json_set_int64(
+	JSON *const json,
+	const char *const field,
+	int64_t var,
+	va_list *const restrict _args
+);
+
+int	_json_set_uint64(
+	JSON *const json,
+	const char *const field,
+	uint64_t var,
+	va_list *const restrict _args
+);
+
+int	_json_set_array(
+	JSON **_json,
+	const char *const restrict _field,
+	const void *_value
+);
+
+int	_json_set_obj(
+	JSON **_json,
+	const char *const restrict _field,
+	const void *_value
+);
+
+int	_json_set_str(
+	JSON **_json,
+	const char *const restrict _field,
+	const void *_value
+);
+
+int	_json_set_bool(
+	JSON **_json,
+	const char *const restrict _field,
+	const void *_value
+);
+
+int	_json_set_null(
+	JSON **_json,
+	const char *const restrict _field
+);
 
 /**
  * @brief	set the value of `field` to `data`.

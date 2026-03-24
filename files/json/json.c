@@ -129,23 +129,189 @@ size_t	json_len(
 
 #pragma region Writing
 
-int		json_set(
-	JSON *_json,
-	const char *const restrict _field,
-	const void *_value,
-	const unsigned int _type,
-	...
+// int		json_set(
+// 	JSON *_json,
+// 	const char *const restrict _field,
+// 	const void *_value,
+// 	const unsigned int _type,
+// 	...
+// )
+// {
+// 	va_list	_args;
+// 	int		result = error_none;
+
+// 	if (unlikely(!_json || !_field || _type > json_tok_obj))
+// 		return (error_invalid_arg);
+
+// 	va_start(_args, _type);
+
+// 	result = _json_set_va_args(&_json, _field, _value, _type, &_args);
+
+// 	va_end(_args);
+// 	return (result);
+// }
+
+
+int	json_set_int32(
+	JSON *const json,
+	const char *const field,
+	int32_t var, ...
 )
 {
 	va_list	_args;
 	int		result = error_none;
 
-	if (unlikely(!_json || !_field || _type > json_tok_obj))
+	if (unlikely(!json || !field))
 		return (error_invalid_arg);
 
-	va_start(_args, _type);
+	va_start(_args, var);
 
-	result = _json_set_va_args(&_json, _field, _value, _type, &_args);
+	result = _json_set_int32(json, field, var, &_args);
+
+	va_end(_args);
+	return (result);
+}
+
+int	json_set_uint32(
+	JSON *const json,
+	const char *const field,
+	uint32_t var, ...
+)
+{
+	va_list	_args;
+	int		result = error_none;
+
+	if (unlikely(!json || !field))
+		return (error_invalid_arg);
+
+	va_start(_args, var);
+
+	result = _json_set_uint32(json, field, var, &_args);
+
+	va_end(_args);
+	return (result);
+}
+
+int	json_set_int64(
+	JSON *const json,
+	const char *const field,
+	int64_t var, ...
+)
+{
+	va_list	_args;
+	int		result = error_none;
+
+	if (unlikely(!json || !field))
+		return (error_invalid_arg);
+
+	va_start(_args, var);
+
+	result = _json_set_int64(json, field, var, &_args);
+
+	va_end(_args);
+	return (result);
+}
+
+int	json_set_uint64(
+	JSON *const json,
+	const char *const field,
+	uint64_t var, ...
+)
+{
+	va_list	_args;
+	int		result = error_none;
+
+	if (unlikely(!json || !field))
+		return (error_invalid_arg);
+
+	va_start(_args, var);
+
+	result = _json_set_uint64(json, field, var, &_args);
+
+	va_end(_args);
+	return (result);
+}
+
+int	json_set_string(
+	JSON *const json,
+	const char *const field,
+	char *var, ...
+)
+{
+	va_list	_args;
+	int		result = error_none;
+	JSON	*_json = json;
+
+	if (unlikely(!json || !field || !var))
+		return (error_invalid_arg);
+
+	va_start(_args, var);
+
+	result = _json_set_va_args(&_json, field, var, json_tok_str, &_args);
+
+	va_end(_args);
+	return (result);
+}
+
+int	json_set_obj(
+	JSON *const json,
+	const char *const field,
+	JSON *var, ...
+)
+{
+	va_list	_args;
+	int		result = error_none;
+	JSON	*_json = json;
+
+	if (unlikely(!json || !field))
+		return (error_invalid_arg);
+
+	va_start(_args, var);
+
+	result = _json_set_va_args(&_json, field, var, json_tok_obj, &_args);
+
+	va_end(_args);
+	return (result);
+}
+
+int	json_set_array(
+	JSON *const json,
+	const char *const field,
+	void *var, ...
+)
+{
+	va_list	_args;
+	int		result = error_none;
+	JSON	*_json = json;
+
+	if (unlikely(!json || !field))
+		return (error_invalid_arg);
+
+	va_start(_args, var);
+
+	result = _json_set_va_args(&_json, field, var, json_tok_array, &_args);
+
+	va_end(_args);
+	return (result);
+}
+
+int	json_set_wild(
+	JSON *const json,
+	const char *const field,
+	void *var,
+	int type, ...
+)
+{
+	va_list	_args;
+	int		result = error_none;
+	JSON	*_json = json;
+
+	if (unlikely(!json || !field))
+		return (error_invalid_arg);
+
+	va_start(_args, type);
+
+	result = _json_set_va_args(&_json, field, var, type, &_args);
 
 	va_end(_args);
 	return (result);

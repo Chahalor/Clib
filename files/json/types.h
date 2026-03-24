@@ -33,9 +33,10 @@ enum e_json_token
 	json_tok_null = 1 << 0,
 	json_tok_bool = 1 << 1,
 	json_tok_nbr = 1 << 2,
-	json_tok_str = 1 << 3,
-	json_tok_array = 1 << 4,
-	json_tok_obj = 1 << 5,
+	json_tok_unbr = 1 << 3,
+	json_tok_str = 1 << 4,
+	json_tok_array = 1 << 5,
+	json_tok_obj = 1 << 6,
 };
 
 enum e_json_error

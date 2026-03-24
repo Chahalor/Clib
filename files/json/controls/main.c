@@ -246,8 +246,71 @@ static int	test_json_set_cases(void)
 
 	EXPECT_EQ_INT(json_set(json, NULL, "x", json_tok_str), error_invalid_arg);
 	EXPECT_EQ_INT(json_set(NULL, "x", "y", json_tok_str), error_invalid_arg);
-	EXPECT_EQ_INT(json_set(json, "x", "y", 999), error_invalid_arg);
+	EXPECT_EQ_INT(json_set_wild(json, "x", "y", 999), error_invalid_arg);
 
+	EXPECT_EQ_INT(json_unload(json), error_none);
+	return (0);
+}
+
+static int	test_json_set_typed_cases(void)
+{
+	JSON	*json = json_new();
+
+	EXPECT_NOT_NULL(json);
+
+	EXPECT_EQ_INT(json_set_int32(json, "users.%s.age", (int32_t)-12, "alice"), error_none);
+	EXPECT_STREQ((const char *)json_get(json, "users.alice.age"), "-12");
+
+	EXPECT_EQ_INT(json_set_uint32(json, "users.%s.id", (uint32_t)42, "alice"), error_none);
+	EXPECT_STREQ((const char *)json_get(json, "users.alice.id"), "42");
+
+	EXPECT_EQ_INT(json_set_int64(json, "metrics.%s.delta", (int64_t)-1234567890123LL, "cpu"), error_none);
+	EXPECT_STREQ((const char *)json_get(json, "metrics.cpu.delta"), "-1234567890123");
+
+	EXPECT_EQ_INT(json_set_uint64(json, "metrics.%s.total", (uint64_t)11325610020ULL, "cpu"), error_none);
+	EXPECT_STREQ((const char *)json_get(json, "metrics.cpu.total"), "11325610020");
+
+	EXPECT_EQ_INT(json_unload(json), error_none);
+	return (0);
+}
+
+static int	test_json_set_string_format_cases(void)
+{
+	JSON	*json = json_new();
+
+	EXPECT_NOT_NULL(json);
+
+	EXPECT_EQ_INT(json_set_string(json, "profiles.%s.bio", "hello-%d", "bob", 7), error_none);
+	EXPECT_STREQ((const char *)json_get(json, "profiles.bob.bio"), "hello-7");
+
+	EXPECT_EQ_INT(json_set_string(json, "profiles.%s.tag", "%s:%d", "bob", "dev", 3), error_none);
+	EXPECT_STREQ((const char *)json_get(json, "profiles.bob.tag"), "dev:3");
+
+	EXPECT_EQ_INT(json_set_string(json, NULL, "x"), error_invalid_arg);
+	EXPECT_EQ_INT(json_set_string(NULL, "x", "y"), error_invalid_arg);
+
+	EXPECT_EQ_INT(json_unload(json), error_none);
+	return (0);
+}
+
+static int	test_json_set_complex_format_cases(void)
+{
+	JSON	*json = json_new();
+	JSON	*obj = json_load_str("{\"n\":1}");
+	JSON	*arr = json_load_str("[1,2,3]");
+
+	EXPECT_NOT_NULL(json);
+	EXPECT_NOT_NULL(obj);
+	EXPECT_NOT_NULL(arr);
+
+	EXPECT_EQ_INT(json_set_obj(json, "slot.%s.obj", obj, "a"), error_none);
+	EXPECT_STREQ((const char *)json_get(json, "slot.a.obj.n"), "1");
+
+	EXPECT_EQ_INT(json_set_array(json, "slot.%s.arr", arr, "a"), error_none);
+	EXPECT_STREQ((const char *)json_get(json, "slot.a.arr.2"), "3");
+
+	EXPECT_EQ_INT(json_unload(obj), error_none);
+	EXPECT_EQ_INT(json_unload(arr), error_none);
 	EXPECT_EQ_INT(json_unload(json), error_none);
 	return (0);
 }
@@ -474,6 +537,20 @@ static int	json_set_0(void)
 	return (0);
 }
 
+static int	json_set_big_uint64_t(void)
+{
+	JSON		*json = json_new();
+	uint64_t	val = 11325610020UL;
+
+	EXPECT_NOT_NULL(json);
+
+	json_set(json, "tkt", &val, json_tok_unbr);
+
+	EXPECT_STREQ(json_get(json, "tkt"), "11325610020");
+
+	return (0);
+}
+
 int	main(void)
 {
 	char	*color_total;
@@ -486,6 +563,9 @@ int	main(void)
 	run_test("json_sizeof_cases", test_json_sizeof_cases);
 	run_test("json_len_cases", test_json_len_cases);
 	run_test("json_set_cases", test_json_set_cases);
+	run_test("json_set_typed_cases", test_json_set_typed_cases);
+	run_test("json_set_string_format_cases", test_json_set_string_format_cases);
+	run_test("json_set_complex_format_cases", test_json_set_complex_format_cases);
 	run_test("json_set_from_array_cases", test_json_set_from_array_cases);
 	run_test("json_array_append_cases", test_json_array_append_cases);
 	run_test("json_array_pop_cases", test_json_array_pop_cases);
@@ -497,6 +577,7 @@ int	main(void)
 	run_test("json_get_type_cases", test_json_get_type_cases);
 	// run_test("test_json_array_append_obj", test_json_array_append_obj);
 	run_test("json_set_0", json_set_0);
+	run_test("json_set_big_uint64_t", json_set_big_uint64_t);
 
 	if (g_tests_failed == 0)
 		color_total = GREEN;

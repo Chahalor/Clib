@@ -258,6 +258,10 @@ char	*_json_tool_itoa(
 			long long _value
 			);
 
+char	*_json_tool_unsigned_itoa(
+			unsigned long long _value
+			);
+
 char	**_json_tool_split(
 			const char *const restrict _field
 			);

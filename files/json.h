@@ -17,6 +17,7 @@
 /* -----| Systems   |----- */
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdint.h>
 
 /* -----| Globals   |----- */
 # include "../standards/lib_config.h"
@@ -191,6 +192,67 @@ int		json_set(
 			const unsigned int _type,
 			...
 			);
+
+# define	json_set(json, field, var, ...) \
+	_Generic((var), \
+		int32_t:	json_set_int32, \
+		uint32_t:	json_set_uint32, \
+		int64_t:	json_set_int64, \
+		uint64_t:	json_set_uint64, \
+		char *:		json_set_string, \
+		JSON *:		json_set_obj, \
+		void *:		json_set_array, \
+		default:	json_set_wild \
+	)(json, field, var, ##__VA_ARGS__)
+
+int	json_set_int32(
+	JSON *const json,
+	const char *const field,
+	int32_t var, ...
+);
+
+int	json_set_uint32(
+	JSON *const json,
+	const char *const field,
+	uint32_t var, ...
+);
+
+int	json_set_int64(
+	JSON *const json,
+	const char *const field,
+	int64_t var, ...
+);
+
+int	json_set_uint64(
+	JSON *const json,
+	const char *const field,
+	uint64_t var, ...
+);
+
+int	json_set_string(
+	JSON *const json,
+	const char *const field,
+	char *var, ...
+);
+
+int	json_set_obj(
+	JSON *const json,
+	const char *const field,
+	JSON *var, ...
+);
+
+int	json_set_array(
+	JSON *const json,
+	const char *const field,
+	void *var, ...
+);
+
+int	json_set_wild(
+	JSON *const json,
+	const char *const field,
+	void *var,
+	int type, ...
+);
 
 /**
  * @brief	set the array field of the json element from a C array

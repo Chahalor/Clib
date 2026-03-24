@@ -125,7 +125,7 @@ static void	_json_string_add_tree_no_pretty(
 			break;
 
 		case json_tok_bool:
-			_json_string_add(result, ((size_t)_node->data) ? "true" : "false", 0);
+			_json_string_add(result, (_node->data && !strcmp(_node->data, "true")) ? "true" : "false", 0);
 			break;
 
 		case json_tok_null:
@@ -183,7 +183,7 @@ static void	_json_string_add_tree_pretty(
 			break;
 
 		case json_tok_bool:
-			_json_string_add(result, ((size_t)_node->data) ? "true" : "false", 0);
+			_json_string_add(result, (_node->data && !strcmp(_node->data, "true")) ? "true" : "false", 0);
 			break;
 
 		case json_tok_null:
