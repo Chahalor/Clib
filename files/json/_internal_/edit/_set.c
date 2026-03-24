@@ -192,12 +192,8 @@ int	_json_set_int32(
 	va_list *const restrict args
 )
 {
-	return (_json_set_number_va_args(json,
-						field,
-						(long long)var,
-						0ULL,
-						0,
-						args));
+	return (_json_set_number_va_args(
+		json, field, (long long)var,0ULL, 0, args));
 }
 
 int	_json_set_uint32(
@@ -207,12 +203,8 @@ int	_json_set_uint32(
 	va_list *const restrict args
 )
 {
-	return (_json_set_number_va_args(json,
-						field,
-						0LL,
-						(unsigned long long)var,
-						1,
-						args));
+	return (_json_set_number_va_args(
+		json, field, 0LL, (unsigned long long)var, 1, args));
 }
 
 int	_json_set_int64(
@@ -222,12 +214,8 @@ int	_json_set_int64(
 	va_list *const restrict args
 )
 {
-	return (_json_set_number_va_args(json,
-						field,
-						(long long)var,
-						0ULL,
-						0,
-						args));
+	return (_json_set_number_va_args(
+		json, field, (long long)var, 0ULL, 0, args));
 }
 
 int	_json_set_uint64(

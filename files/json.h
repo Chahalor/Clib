@@ -170,6 +170,15 @@ size_t	json_len(
 /*     Writing     */
 /* *************** */
 
+
+// int		json_set(
+// 			JSON *_json,
+// 			const char *const restrict _field,
+// 			const void *_value,
+// 			const unsigned int _type,
+// 			...
+// 			);
+
 /**
  * @brief	set the field of the json element with _value
  * 
@@ -183,26 +192,21 @@ size_t	json_len(
  * @example json_set(json, "data.key.git.%s", var, json_str, "user1");
  * @example json_set(json, "data.key.git.user1", "bob is %s", json_str, "bob");
  * 
- * @version	2.0.0
+ * @version	3.0.0
 */
-int		json_set(
-			JSON *_json,
-			const char *const restrict _field,
-			const void *_value,
-			const unsigned int _type,
-			...
-			);
-
 # define	json_set(json, field, var, ...) \
 	_Generic((var), \
-		int32_t:	json_set_int32, \
-		uint32_t:	json_set_uint32, \
-		int64_t:	json_set_int64, \
-		uint64_t:	json_set_uint64, \
-		char *:		json_set_string, \
-		JSON *:		json_set_obj, \
-		void *:		json_set_array, \
-		default:	json_set_wild \
+		int32_t:		json_set_int32, \
+		uint32_t:		json_set_uint32, \
+		int64_t:		json_set_int64, \
+		uint64_t:		json_set_uint64, \
+		const char *:	json_set_string, \
+		char *:			json_set_string, \
+		const JSON *:	json_set_obj, \
+		JSON *:			json_set_obj, \
+		const void *:	json_set_array, \
+		void *:			json_set_array, \
+		default:		json_set_wild \
 	)(json, field, var, ##__VA_ARGS__)
 
 int	json_set_int32(
