@@ -551,6 +551,19 @@ static int	json_set_big_uint64_t(void)
 	return (0);
 }
 
+static int	json_set_array_of_int(void)
+{
+	JSON	*json = json_new();
+	int		arr[5] = {1, 2, 3, 4, 5};
+
+	EXPECT_NOT_NULL(json);
+
+	json_set_from_array(json, "tkt", arr, 5, json_tok_nbr);
+
+	json_unload(json);
+	return (0);
+}
+
 int	main(void)
 {
 	char	*color_total;
@@ -578,6 +591,7 @@ int	main(void)
 	// run_test("test_json_array_append_obj", test_json_array_append_obj);
 	run_test("json_set_0", json_set_0);
 	run_test("json_set_big_uint64_t", json_set_big_uint64_t);
+	// run_test("json_set_array_of_int", json_set_array_of_int);
 
 	if (g_tests_failed == 0)
 		color_total = GREEN;
