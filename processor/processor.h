@@ -110,12 +110,20 @@
 /**
  * @brief	return true is `x` is a valid signed number
 */
-// #define	_is_signed(x)	(((typeof(x))(-1)) < (typeof(x))0)
-#define _is_signed(x) \
-__builtin_choose_expr( \
-    _is_integer(x), \
-    (((_decay(x))(-1)) < (_decay(x))0), \
-    0 \
+#define _is_signed(x) _Generic((x), \
+	char: ((char)-1 < (char)0), \
+	signed char: 1, \
+	unsigned char: 0, \
+	short: 1, \
+	unsigned short: 0, \
+	int: 1, \
+	unsigned int: 0, \
+	long: 1, \
+	unsigned long: 0, \
+	long long: 1, \
+	unsigned long long: 0, \
+	default: 0 \
 )
+
 
 #endif	// LIB_PROCESSOR_H
