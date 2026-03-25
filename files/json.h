@@ -29,7 +29,7 @@
 
 /* -----| Modules   |----- */
 #include "../memory.h"
-#include "../prossesor/prossesor.h"
+#include "../processor/processor.h"
 
 /* ************************************************************************** */
 /*                                 Macros                                     */
