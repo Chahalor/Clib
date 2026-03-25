@@ -14,13 +14,7 @@
  * 
  * (remove const, volatile, ...)
 */
-// # define	_decay(x)	typeof(+(x))
 #define _decay(x) typeof((x) + 0)
-
-/**
- * @brief	say if `x` is compatible with `T` using `__builtin_types_compatible_p`
-*/
-# define	IS_TYPE(x, T)		__builtin_types_compatible_p(typeof(x), T)
 
 /**
  * @brief	say if the type `T` is signed or not
@@ -28,6 +22,11 @@
 # define	IS_SIGNED_TYPE(T)	(((T)-1) < (T)0)
 
 # if __has_builtin(__builtin_types_compatible_p)
+
+/**
+ * @brief	say if `x` is compatible with `T` using `__builtin_types_compatible_p`
+*/
+#  define	IS_TYPE(x, T)	__builtin_types_compatible_p(typeof(x), T)
 
 /**
  * @brief	return true if the type `x` is a valid interger
@@ -56,35 +55,40 @@
  * @brief	return true if the type `x` if a floating point type
 */
 #  define	_is_floating(x) (	\
-	IS_TYPE(x, float) ||	\
-	IS_TYPE(x, double) ||	\
-	IS_TYPE(x, long double)	\
+	IS_TYPE(x, float) ||		\
+	IS_TYPE(x, double) ||		\
+	IS_TYPE(x, long double)		\
 )
 
+/**
+ * @brief	return true if the type of `x` is an number type
+*/
 #  define	_is_number(x) (_is_integer(x) || _is_floating(x))
 
 /**
  * @brief	return true if `x` is a string
 */
-#  define	_is_string(x) (      \
-	IS_TYPE(x, char *) ||    \
-	IS_TYPE(x, const char *) \
+#  define	_is_string(x) (		\
+	IS_TYPE(x, char *) ||		\
+	IS_TYPE(x, const char *) ||	\
+	IS_TYPE(x, char[]) ||		\
+	IS_TYPE(x, const char[])	\
 )
 
 
 # else
 
 /* in the case the compiler dont have __builtin_types_compatible_p has a builtin */
-#  define	_is_integer(x)	_Generic((x), \
-	char: 1, signed char: 1, unsigned char: 1, \
-	int: 1, unsigned int: 1, \
-	long: 1, unsigned long: 1, \
-	long long: 1, unsigned long long: 1, \
-	int8_t: 1, uint8_t: 1, \
-	int16_t: 1, uint16_t: 1, \
-	int32_t: 1, uint32_t: 1, \
-	int64_t: 1, uint64_t: 1, \
-	default: 0 \
+#  define	_is_integer(x)	_Generic((x),		\
+	char: 1, signed char: 1, unsigned char: 1,	\
+	int: 1, unsigned int: 1,					\
+	long: 1, unsigned long: 1,					\
+	long long: 1, unsigned long long: 1,		\
+	int8_t: 1, uint8_t: 1,						\
+	int16_t: 1, uint16_t: 1,					\
+	int32_t: 1, uint32_t: 1,					\
+	int64_t: 1, uint64_t: 1,					\
+	default: 0									\
 
 /**
  * @brief	return true if the type `x` if a floating point type
@@ -101,28 +105,28 @@
 /**
  * @brief	return true if `x` is a string
 */
-#  define	_is_string(x)	_Generic((x), \
-	char *: 1, const char *: 1, \
-	default: 0
+#  define	_is_string(x)	_Generic((x),	\
+	char *: 1, const char *: 1,				\
+	default: 0								\
 )
 
 # endif
 /**
  * @brief	return true is `x` is a valid signed number
 */
-#define _is_signed(x) _Generic((x), \
-	char: ((char)-1 < (char)0), \
-	signed char: 1, \
-	unsigned char: 0, \
-	short: 1, \
-	unsigned short: 0, \
-	int: 1, \
-	unsigned int: 0, \
-	long: 1, \
-	unsigned long: 0, \
-	long long: 1, \
-	unsigned long long: 0, \
-	default: 0 \
+# define	_is_signed(x) _Generic((x),	\
+	char: ((char)-1 < (char)0),			\
+	signed char: 1,						\
+	unsigned char: 0,					\
+	short: 1,							\
+	unsigned short: 0,					\
+	int: 1,								\
+	unsigned int: 0,					\
+	long: 1,							\
+	unsigned long: 0,					\
+	long long: 1,						\
+	unsigned long long: 0,				\
+	default: 0							\
 )
 
 
