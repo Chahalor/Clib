@@ -129,33 +129,10 @@ size_t	json_len(
 
 #pragma region Writing
 
-// int		json_set(
-// 	JSON *_json,
-// 	const char *const restrict _field,
-// 	const void *_value,
-// 	const unsigned int _type,
-// 	...
-// )
-// {
-// 	va_list	_args;
-// 	int		result = error_none;
-
-// 	if (unlikely(!_json || !_field || _type > json_tok_obj))
-// 		return (error_invalid_arg);
-
-// 	va_start(_args, _type);
-
-// 	result = _json_set_va_args(&_json, _field, _value, _type, &_args);
-
-// 	va_end(_args);
-// 	return (result);
-// }
-
-
-int	json_set_int32(
+int	json_set_signed_nb(
 	JSON *const json,
 	const char *const field,
-	int32_t var, ...
+	signed long long var, ...
 )
 {
 	va_list	_args;
@@ -166,16 +143,16 @@ int	json_set_int32(
 
 	va_start(_args, var);
 
-	result = _json_set_int32(json, field, var, &_args);
+	result = _json_set_signed_nb(json, field, var, &_args);
 
 	va_end(_args);
 	return (result);
 }
 
-int	json_set_uint32(
+int	json_set_unsigned_nb(
 	JSON *const json,
 	const char *const field,
-	uint32_t var, ...
+	unsigned long long var, ...
 )
 {
 	va_list	_args;
@@ -186,47 +163,7 @@ int	json_set_uint32(
 
 	va_start(_args, var);
 
-	result = _json_set_uint32(json, field, var, &_args);
-
-	va_end(_args);
-	return (result);
-}
-
-int	json_set_int64(
-	JSON *const json,
-	const char *const field,
-	int64_t var, ...
-)
-{
-	va_list	_args;
-	int		result = error_none;
-
-	if (unlikely(!json || !field))
-		return (error_invalid_arg);
-
-	va_start(_args, var);
-
-	result = _json_set_int64(json, field, var, &_args);
-
-	va_end(_args);
-	return (result);
-}
-
-int	json_set_uint64(
-	JSON *const json,
-	const char *const field,
-	uint64_t var, ...
-)
-{
-	va_list	_args;
-	int		result = error_none;
-
-	if (unlikely(!json || !field))
-		return (error_invalid_arg);
-
-	va_start(_args, var);
-
-	result = _json_set_uint64(json, field, var, &_args);
+	result = _json_set_unsigned_nb(json, field, var, &_args);
 
 	va_end(_args);
 	return (result);

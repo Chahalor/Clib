@@ -29,6 +29,7 @@
 
 /* -----| Modules   |----- */
 #include "../memory.h"
+#include "../prossesor/prossesor.h"
 
 /* ************************************************************************** */
 /*                                 Macros                                     */
@@ -194,41 +195,31 @@ size_t	json_len(
  * 
  * @version	3.0.0
 */
-# define	json_set(json, field, var, ...) \
-	_Generic((var), \
-		int32_t:		json_set_int32, \
-		uint32_t:		json_set_uint32, \
-		int64_t:		json_set_int64, \
-		uint64_t:		json_set_uint64, \
-		const char *:	json_set_string, \
-		char *:			json_set_string, \
-		const JSON *:	json_set_obj, \
-		JSON *:			json_set_obj, \
-		default:		json_set_wild \
+#define json_set(json, field, var, ...) \
+	__builtin_choose_expr( \
+		_is_number(var), \
+		__builtin_choose_expr( \
+			_is_signed(var), \
+			json_set_signed_nb, \
+			json_set_unsigned_nb \
+		), \
+		__builtin_choose_expr( \
+			_is_string(var), \
+			json_set_string, \
+			json_set_wild \
+		) \
 	)(json, field, var, ##__VA_ARGS__)
 
-int	json_set_int32(
+int	json_set_signed_nb(
 	JSON *const json,
 	const char *const field,
-	int32_t var, ...
+	signed long long var, ...
 );
 
-int	json_set_uint32(
+int	json_set_unsigned_nb(
 	JSON *const json,
 	const char *const field,
-	uint32_t var, ...
-);
-
-int	json_set_int64(
-	JSON *const json,
-	const char *const field,
-	int64_t var, ...
-);
-
-int	json_set_uint64(
-	JSON *const json,
-	const char *const field,
-	uint64_t var, ...
+	unsigned long long var, ...
 );
 
 int	json_set_string(

@@ -258,16 +258,16 @@ static int	test_json_set_typed_cases(void)
 
 	EXPECT_NOT_NULL(json);
 
-	EXPECT_EQ_INT(json_set_int32(json, "users.%s.age", (int32_t)-12, "alice"), error_none);
+	EXPECT_EQ_INT(json_set(json, "users.%s.age", (int32_t)-12, "alice"), error_none);
 	EXPECT_STREQ((const char *)json_get(json, "users.alice.age"), "-12");
 
-	EXPECT_EQ_INT(json_set_uint32(json, "users.%s.id", (uint32_t)42, "alice"), error_none);
+	EXPECT_EQ_INT(json_set(json, "users.%s.id", (uint32_t)42, "alice"), error_none);
 	EXPECT_STREQ((const char *)json_get(json, "users.alice.id"), "42");
 
-	EXPECT_EQ_INT(json_set_int64(json, "metrics.%s.delta", (int64_t)-1234567890123LL, "cpu"), error_none);
+	EXPECT_EQ_INT(json_set(json, "metrics.%s.delta", (int64_t)-1234567890123LL, "cpu"), error_none);
 	EXPECT_STREQ((const char *)json_get(json, "metrics.cpu.delta"), "-1234567890123");
 
-	EXPECT_EQ_INT(json_set_uint64(json, "metrics.%s.total", (uint64_t)11325610020ULL, "cpu"), error_none);
+	EXPECT_EQ_INT(json_set(json, "metrics.%s.total", (uint64_t)11325610020ULL, "cpu"), error_none);
 	EXPECT_STREQ((const char *)json_get(json, "metrics.cpu.total"), "11325610020");
 
 	EXPECT_EQ_INT(json_unload(json), error_none);

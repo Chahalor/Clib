@@ -65,32 +65,18 @@ int	_json_unset(
 
 /* -----| Set   |----- */
 
-int	_json_set_int32(
+int	_json_set_signed_nb(
 	JSON *const json,
 	const char *const field,
-	int32_t var, 
-	va_list *const restrict _args
+	const long long var,
+	va_list *const restrict args
 );
 
-int	_json_set_uint32(
+int	_json_set_unsigned_nb(
 	JSON *const json,
 	const char *const field,
-	uint32_t var,
-	va_list *const restrict _args
-);
-
-int	_json_set_int64(
-	JSON *const json,
-	const char *const field,
-	int64_t var,
-	va_list *const restrict _args
-);
-
-int	_json_set_uint64(
-	JSON *const json,
-	const char *const field,
-	uint64_t var,
-	va_list *const restrict _args
+	const unsigned long long var,
+	va_list *const restrict args
 );
 
 int	_json_set_array(
