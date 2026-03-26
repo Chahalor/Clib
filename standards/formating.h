@@ -6,7 +6,7 @@
 /*   By: nduvoid <nduvoid@student.42mulhouse.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/04 10:16:49 by nduvoid           #+#    #+#             */
-/*   Updated: 2026/01/20 08:25:09 by nduvoid          ###   ########.fr       */
+/*   Updated: 2026/03/26 16:42:03 by nduvoid          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@
 // colors
 
 # define BLACK			"\033[30m"
+# define GREY			"\033[2m"
+# define GRAY			GREY
 # define RED			"\033[31m"
 # define GREEN			"\033[32m"
 # define YELLOW			"\033[33m"

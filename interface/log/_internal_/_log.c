@@ -8,8 +8,10 @@
 #include <sys/time.h>
 #include <errno.h>
 #include <string.h>
+
 	/* Internal */
 #include "_log.h"
+
 	/* External */
 #include "formating.h"
 
@@ -18,7 +20,24 @@
 
 /* ----| Internals  |----- */
 
-static int	_setup_log_file(
+/*
+	TODO: use
+	time_t now = time(NULL);
+	struct tm *t = localtime(&now);
+	strftime(buffer, sizeof(buffer),
+             "[%Y-%m-%d %H:%M:%S]", t);
+ */
+
+// [year-mouth-day hour:minute:second] <ERROR> <function> (file:line)  code=<code> - <Logs summary>
+#ifdef DEBUG
+# define	FORMAT_TTY	GREY "[%s]" RESET " - %s - %s - " GREY "(%s:%d)" RESET " code=%d - %s\n"
+# define	FORMAT_FILE	     "[%s]"       " - %s - %s - "      "(%s:%d)"       " code=%d - %s\n"
+#else
+# define	FORMAT_TTY	GREY "[%s]" RESET " - %s code=%d - %s\n"
+# define	FORMAT_FILE	     "[%s] "       "- %s code=%d - %s\n"
+#endif	// DEBUG
+
+/* static int	_setup_log_file(
 	const t_log_file *const restrict _file,
 	int	*const restrict _fd
 )
@@ -195,80 +214,36 @@ int	_closer(
 		config->fd[_level] = -1;
 	}
 	return (error_none);
-}
+} */
+
 
 
 /* ----| Public     |----- */
 
-/** */
-int	_log_manager(
-	const int _access,
-	va_list args,
-	...
+t_log_internal	*_logs_config(
+	const t_log_init *const config
 )
 {
-	static t_log_internal	config = {0};
-	va_list					_list;
-	va_list					_arg;
-	int						_level;
-	int						_depth;
-	char					*_format;
-	int						result;
+	static t_log_internal	this;
 
-	va_start(_list, args);
-	switch (_access)
+	if (config)
 	{
-		case e_log_mng_write:
-		{
-			_level = va_arg(_list, int);
-			_depth = va_arg(_list, int);
-			_format = va_arg(_list, char *);
-			va_copy(_arg, args);
-
-			result = (_writer(&config, _level, _depth, _format, _arg));
-
-			va_end(_arg);
-			break ;
-		}
-		case e_log_mng_close:
-		{
-			_level = va_arg(_list, int);
-			result = (_closer(&config, _level, _access));
-			break ;
-		}
-		case e_log_mng_close_all:
-		{
-			_level = va_arg(_list, int);
-			result = (_closer(&config, _level, 1));
-			break ;
-		}
-		case e_log_mng_perror:
-		{
-			_level = va_arg(_list, int);
-			_depth = va_arg(_list, int);
-			_format = va_arg(_list, char *);
-			va_copy(_arg, args);
-
-			result = (_perror(&config, _level, _depth, _format, errno, _arg));
-
-			va_end(_arg);
-			break ;
-		}
-
-		case e_log_mng_error:
-		{
-			result = error_not_implemented;
-			break ;
-		}
-
-		case e_log_mng_init:
-		{
-			result = (_init(&config, va_arg(_list, t_log_init *)));
-			break ;
-		}
-		default:
-			result = (error_invalid_arg);
+		// TODO: configure the logs files
 	}
-	va_end(_list);
-	return (result);
+
+	return (&this);
+}
+
+int	_logs_print(
+	const t_log_report *report,
+	const int fd,
+	const int depth
+)
+{
+	char	*_format;
+
+	if (isatty(fd))
+		_format = FORMAT_TTY;
+	else
+	_format = FORMAT_FILE;
 }
