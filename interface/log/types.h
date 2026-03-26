@@ -1,5 +1,8 @@
 // Header
 
+#ifndef LIB_INTERFACE_LOG_TYPES_H
+# define LIB_INTERFACE_LOG_TYPES_H
+
 # pragma once
 
 /* ************************************************************************** */
@@ -7,10 +10,10 @@
 /* ************************************************************************** */
 
 /* -----| Systems   |----- */
-	//...
+# include <sys/time.h>
 
 /* -----| Globals   |----- */
-#include "../../standards/lib_standards.h"
+# include "../../standards/lib_standards.h"
 
 /* -----| Internals |----- */
 	//...
@@ -21,9 +24,21 @@
 /* ************************************************************************** */
 /*                                 Typedefs                                   */
 /* ************************************************************************** */
+/* -----| Typename  |----- */
+	//...
+
+/* -----| Enums     |----- */
+
+typedef enum e_log_level	t_log_level;	//
+
+/* -----| Unions    |----- */
+	//...
+
+/* -----| Structs   |----- */
 
 typedef struct s_log_file	t_log_file;
 typedef struct s_log_init	t_log_init;
+typedef struct s_log_report	t_log_report;
 
 /* ************************************************************************** */
 /*                                 Enums                                      */
@@ -37,6 +52,7 @@ enum e_log_level
 	log_debug,
 	log_other
 };
+# define	LOG_LEVEL(level)	(t_log_level)logs_##level
 
 enum e_log_close_action
 {
@@ -50,6 +66,7 @@ enum e_log_error
 	log_error_invalid_logfile,
 	log_error_write_impossible,
 };
+
 
 /* ************************************************************************** */
 /*                                 Unions                                     */
@@ -76,3 +93,18 @@ struct s_log_init
 	t_log_file	other;			//information about the other log stream
 	int			display_limit;	// limits where all lower level are send to the STDERR
 };
+
+struct s_log_report
+{
+	const char			*func;
+	const char			*file;
+	int					line;
+	char				*summary;
+	char				*body;
+	t_log_report		*sub;
+	enum e_log_level	level;
+	time_t				time;
+	int					errno;
+};
+
+#endif	// LIB_INTERFACE_LOG_TYPES_H

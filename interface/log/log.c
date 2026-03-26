@@ -3,6 +3,8 @@
 /* ----| Headers    |----- */
 	/* Standard */
 #include <stdarg.h>
+#include <errno.h>
+
 	/* Internal */
 		//...
 	/* External */
@@ -27,7 +29,7 @@
  * @version 0.1
  */
 int	log_init(
-	t_log_init *_data
+	const t_log_init *const _data
 )
 {
 	va_list	_dummy;
@@ -35,83 +37,63 @@ int	log_init(
 	return (_log_manager(e_log_mng_init, _dummy, _data));
 }
 
-/**
- * @brief write to appropriate log file the log message
- * 
- * @param level		warning, debug, error, ...
- * @param depth		nb of tab in the log (if depth == -1 automaticly add one more tab than the previous log)
- * @param format	the format for printf
- * 
- * @return error_none in case of success or the error code
- * 
- * @version 0.1
- */
-int	logs(
-	int _level,
-	int _depth,
-	const char *_format,
-	...
+/** */
+int	logs_raw(
+	const t_log_level level,
+	const char *const func,
+	const char *const file,
+	const int line,
+	const char *const summary,
+	const char *const body, ...
 )
 {
-	int		result;
-	va_list	_args;
+	t_log_report	_report = {
+		.level = level,
+		.func = func,
+		.file = file,
+		.line = line,
+		.time = 0,// TODO
+		.summary = summary,
+		.body = body,
+		.errno = -1
+	};
 
-	va_start(_args, _format);
-
-	result = _log_manager(e_log_mng_write, _args, _level, _depth, _format);
-
-	va_end(_args);
-	return (result);
 }
 
-int	logs_perror(	// TODO: should add the sterror behind the message
-	int level,
-	int depth,
-	const char *format,
-	...
+/** */
+int	logs_perror_raw(
+	const t_log_level level,
+	const char *const func,
+	const char *const file,
+	const int line,
+	const char *const summary,
+	const char *const body, ...
 )
 {
-	va_list	_list;
-	int		result = error_none;
-
-	va_start(_list, format);
-	result = _log_manager(e_log_mng_perror, _list, level, depth, format);
-	va_end(_list);
-	return (result);
+	t_log_report	_report = {
+		.level = level,
+		.func = func,
+		.file = file,
+		.line = line,
+		.time = 0,// TODO
+		.summary = summary,
+		.body = body,
+		.errno = errno
+	};
 }
 
-int	logs_error(	// TODO: should add the errnum of lib str behind the message
-	int level,
-	int depth,
-	const char *format,
-	...
+/** */
+int	logs_report(
+	const t_log_report *const report
 )
 {
-	(void)level;
-	(void)depth;
-	(void)format;
-	return (error_not_implemented);
+
 }
 
-/**
- * @brief close one or all logs file
- * 
- * @param access	0, close only the level log file. 1, close all log file
- * @param level		the log level to close
- * 
- * @return error_none in case of success or the error code
- * 
- * @version 0.1
- */
-int	log_close(
-	const int access,
-	const int level
+/** */
+int	logs_perror_report(
+	const t_log_report *const report
 )
 {
-	va_list	_dummy;
 
-	if (access)
-		return (_log_manager(e_log_mng_close, _dummy, (void *)&level, NULL));
-	else
-		return (_log_manager(e_log_mng_close_all, _dummy, NULL, NULL));
 }

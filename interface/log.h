@@ -1,5 +1,8 @@
 // Header
 
+#ifndef LIB_INTERFACE_LOG_H
+# define LIB_INTERFACE_LOG_H
+
 # pragma once
 
 /* ************************************************************************** */
@@ -23,42 +26,59 @@
 /*                                 Macros                                     */
 /* ************************************************************************** */
 
-#define	LOG_NB_LEVEL	5	/* number of availaible logs level */
+# define	LOG_NB_LEVEL	5	/* number of availaible logs level */
 
-#define LOG_ERROR(_level, _depth, _message, ...) {logs_error(_level, _depth, "%s:%s "##_message, __func__, __LINE__, __VA_ARGS__)}
-#define LOG_PERROR(_level, _depth, _message, ...) {logs_perror(_level, _depth, "%s:%s "##_message, __func__, __LINE__, __VA_ARGS__)}
+# define LOG_ERROR(_level, _depth, _message, ...) {logs_error(_level, _depth, "%s:%s "##_message, __func__, __LINE__, __VA_ARGS__)}
+# define LOG_PERROR(_level, _depth, _message, ...) {logs_perror(_level, _depth, "%s:%s "##_message, __func__, __LINE__, __VA_ARGS__)}
 
 /* ************************************************************************** */
 /*                                 Prototypes                                 */
 /* ************************************************************************** */
 
-/** */
+# define	logs(var, ...) (_Generic((var),				\
+	t_log_level:	logs_raw(var, __func__, __FILE__, __LINE__, ## __VA__ARGS__)	\
+	int:			logs_raw(var, __func__, __FILE__, __LINE__, ## __VA__ARGS__)	\
+	t_log_report:	logs_report(var)				\
+))
+
+# define	logs_perror(var, ...) (_Generic((var), \
+	t_log_level:	logs_perror_raw(var, ## __VA__ARGS__)	\
+	int:			logs_perror_raw(var, ## __VA__ARGS__)	\
+	t_log_report:	logs_perror_report(var)				\
+))
+
 int	log_init(
-		t_log_init *data
-		);
+	const t_log_init *const _data
+);
 
-int	logs(
-		int level,
-		int depth,
-		const char *format,
-		...
-		);
+/** */
+int	logs_raw(
+	const t_log_level level,
+	const char *const func,
+	const char *const file,
+	const int line,
+	const char *const summary,
+	const char *const body, ...
+);
 
-int	logs_perror(
-		int level,
-		int depth,
-		const char *format,
-		...
-		);
+/** */
+int	logs_perror_raw(
+	const t_log_level level,
+	const char *const func,
+	const char *const file,
+	const int line,
+	const char *const summary,
+	const char *const body, ...
+);
 
-int	logs_error(	// TODO: should add my errno string message behind the message
-		int level,
-		int depth,
-		const char *format,
-		...
-		);
+/** */
+int	logs_report(
+	const t_log_report *const report
+);
 
-int	log_close(
-		const int access,
-		const int level
-		);
+/** */
+int	logs_perror_report(
+	const t_log_report *const report
+);
+
+#endif	// LIB_INTERFACE_LOG_H
