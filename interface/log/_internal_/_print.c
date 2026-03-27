@@ -93,31 +93,28 @@ static size_t	_append_log(
 	bool tty
 )
 {
-	if (!report || len >= cap)
+	if (len >= cap)
 		return (len);
 
 	const char	*_color = _log_level_color(report->level);
-	const char	*_func = report->func ? report->func : "(unknown)";
-	const char	*_file = report->file ? report->file : "(unknown)";
-	const char	*_summary = report->summary ? report->summary : "";
-	const char	*_body = report->body ? report->body : "";
-
-	const char	*_format_sum = tty ? FORMAT_SUM_TTY : FORMAT_SUM_FILE;
-	const char	*_format_body = tty ? FORMAT_BODY_TTY : FORMAT_BODY_FILE;
-
-	time_t		now = time(NULL);
+	const char	*_func = report->func		? report->func		: "(unknown)";
+	const char	*_file = report->file		? report->file		: "(unknown)";
+	const char	*_summary = report->summary	? report->summary	: "";
+	const char	*_body = report->body		? report->body		: "";
+	const char	*_format_sum = tty			? FORMAT_SUM_TTY	: FORMAT_SUM_FILE;
+	const char	*_format_body = tty			? FORMAT_BODY_TTY	: FORMAT_BODY_FILE;
+	time_t		now = report->time			? report->time		: time(NULL);
 	struct tm	tm;
-	localtime_r(&now, &tm);
+	char		timebuf[64];
+	size_t		offset = 0;
 
-	char	timebuf[64];
+	localtime_r(&now, &tm);
 	strftime(timebuf, sizeof(timebuf), "[%Y-%m-%d %H:%M:%S]", &tm);
 
-	// indentation prefix
 	if (depth)
 		len += snprintf(buff + len, cap - len,
 				"%*s\\_", (depth * 4) - 2, "");
 
-	// summary
 #ifdef DEBUG
 	if (tty)
 		len += snprintf(buff + len, cap - len,
@@ -152,31 +149,28 @@ static size_t	_append_log(
 				_summary);
 #endif
 
-	// body
-	size_t offset = 0;
 	while (_body[offset] && len < cap)
 	{
-		size_t ll = _line_len(_body + offset);
-		int indent = depth * 4;
+		size_t	_ll = _line_len(_body + offset);
+		int		_indent = depth * 4;
 
 		if (tty)
 			len += snprintf(buff + len, cap - len,
 					_format_body,
-					indent, "",
+					_indent, "",
 					_color,
-					(int)ll, _body + offset);
+					(int)_ll, _body + offset);
 		else
 			len += snprintf(buff + len, cap - len,
 					_format_body,
-					indent, "",
-					(int)ll, _body + offset);
+					_indent, "",
+					(int)_ll, _body + offset);
 
-		offset += ll;
+		offset += _ll;
 		if (_body[offset] == '\n')
 			offset++;
 	}
 
-	// recurse INTO BUFFER (not output)
 	if (report->sub)
 		len = _append_log(report->sub, buff, cap, len, depth + 1, tty);
 
@@ -191,35 +185,31 @@ int	_logs_print(
 	const int depth
 )
 {
-	if (!report)
-		return (0);
-
-	char		buff[4096];
-	size_t		len = 0;
-
 	const bool	_tty = isatty(fd);
 	const char	*_color = _log_level_color(report->level);
-	const char	*_func = report->func ? report->func : "(unknown)";
-	const char	*_file = report->file ? report->file : "(unknown)";
-	const char	*_summary = report->summary ? report->summary : "";
-	const char	*_body = report->body ? report->body : "";
-
-	time_t		now = time(NULL);
+	const char	*_format_sum = _tty			? FORMAT_SUM_TTY	: FORMAT_SUM_FILE;
+	const char	*_format_body = _tty		? FORMAT_BODY_TTY	: FORMAT_BODY_FILE;
+	const char	*_func = report->func		? report->func		: "(unknown)";
+	const char	*_file = report->file		? report->file		: "(unknown)";
+	const char	*_summary = report->summary	? report->summary	: "";
+	const char	*_body = report->body		? report->body		: "";
+	time_t		now = report->time			? report->time		: time(NULL);
 	struct tm	tm;
+	char		timebuf[64];
+	char		buff[4096];
+	size_t		len = 0;
+	size_t		offset = 0;
+	ssize_t		_n;
+	size_t		_offset = 0;
+
 	localtime_r(&now, &tm);
 
-	char		timebuf[64];
 	strftime(timebuf, sizeof(timebuf), "[%Y-%m-%d %H:%M:%S]", &tm);
 
-	const char	*_format_sum = _tty ? FORMAT_SUM_TTY : FORMAT_SUM_FILE;
-	const char	*_format_body = _tty ? FORMAT_BODY_TTY : FORMAT_BODY_FILE;
-
-	// prefix indentation
 	if (depth)
 		len += snprintf(buff + len, sizeof(buff) - len,
 				"%*s\\_", (depth * 4) - 2, "");
 
-	// summary
 #ifdef DEBUG
 	if (_tty)
 		len += snprintf(buff + len, sizeof(buff) - len,
@@ -246,8 +236,6 @@ int	_logs_print(
 				report->code, _summary);
 #endif
 
-	// body
-	size_t offset = 0;
 	while (_body[offset] && len < sizeof(buff))
 	{
 		size_t ll = _line_len(_body + offset);
@@ -270,12 +258,8 @@ int	_logs_print(
 			offset++;
 	}
 
-	ssize_t	_n;
-	size_t	_offset = 0;
 	while (len - _offset > 0 && (_n = write(fd, buff + _offset, len - _offset)) > 0)
-	{
 		_offset += _n;
-	}
 
 	if (report->sub)
 		_logs_print(report->sub, fd, depth + 1);

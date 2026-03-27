@@ -55,7 +55,6 @@ int	logs_raw(
 		.func = func,
 		.file = file,
 		.line = line,
-		.time = 0,// TODO
 		.summary = (char *)summary,
 		.body = (char *)body,
 		.code = code
@@ -79,7 +78,6 @@ int	logs_perror_raw(
 		.func = func,
 		.file = file,
 		.line = line,
-		.time = 0,// TODO
 		.summary = (char *)summary,
 		.body = (char *)body,
 		.code = errno
