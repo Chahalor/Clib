@@ -26,7 +26,7 @@
 /*                                 Macros                                     */
 /* ************************************************************************** */
 
-#define LOG_BUFFER_SIZE 8192
+# define LOG_BUFFER_SIZE 8192
 
 # define	LOG_NB_LEVEL	5	/* number of availaible logs level */
 
@@ -37,11 +37,13 @@
 /*                                 Prototypes                                 */
 /* ************************************************************************** */
 
-# define	logs(var, ...) (_Generic((var),				\
-	t_log_report *:			_logs_report_adapter,		\
-	const t_log_report *:	_logs_report_adapter,		\
-	default:				logs_raw					\
-)(var, __func__, __FILE__, __LINE__, ## __VA_ARGS__))
+# define	logs(var, ...) (								\
+	__builtin_choose_expr(									\
+		IS_TYPE(var, t_log_report *),						\
+		_logs_report_adapter,								\
+		logs_raw											\
+	)(var, __func__, __FILE__, __LINE__, ## __VA_ARGS__)	\
+)
 
 # define	logs_perror(var, ...) (_Generic((var),			\
 	t_log_report *:			_logs_perror_report_adapter,	\
@@ -59,6 +61,7 @@ int	logs_raw(
 	const char *const func,
 	const char *const file,
 	const int line,
+	const int code,
 	const char *const summary,
 	const char *const body, ...
 );

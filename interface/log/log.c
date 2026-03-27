@@ -45,6 +45,7 @@ int	logs_raw(
 	const char *const func,
 	const char *const file,
 	const int line,
+	const int code,
 	const char *const summary,
 	const char *const body, ...
 )
@@ -57,7 +58,7 @@ int	logs_raw(
 		.time = 0,// TODO
 		.summary = (char *)summary,
 		.body = (char *)body,
-		.code = -1
+		.code = code
 	};
 
 	return (_logs(&_report, true));

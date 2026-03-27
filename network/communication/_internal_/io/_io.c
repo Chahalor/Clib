@@ -78,11 +78,9 @@ int	_net_connect(
 {
 	register int	_i = 0;
 
-	logs_raw(
+	logs(
 		log_debug,
-		__func__,
-		__FILE__,
-		__LINE__,
+		0,
 		"net_connect",
 		"trying connection to %s:%d",
 		_ip,
@@ -92,11 +90,9 @@ int	_net_connect(
 	{
 		if (!_net_try_connect(_p, _ip, _port))
 		{
-			logs_raw(
+			logs(
 				log_debug,
-				__func__,
-				__FILE__,
-				__LINE__,
+				error_none,
 				"net_connect",
 				"connected to %s:%d",
 				_ip,

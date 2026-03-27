@@ -74,11 +74,12 @@ int main(void)
 		.summary = "some test summary"
 	};
 
-	// int fd = open(".dev/bob", O_CREAT | O_TRUNC | O_WRONLY, 0777);
 	sentinel_setup_logs();
 
 	t_log_report	*r = &report;
 	logs(r);
+	logs(log_warning, 0, "test with raw", "body\nsecond line");
+	// logs(&report4);
 
 	return 0;
 }
