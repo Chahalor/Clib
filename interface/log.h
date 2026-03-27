@@ -26,6 +26,8 @@
 /*                                 Macros                                     */
 /* ************************************************************************** */
 
+#define LOG_BUFFER_SIZE 8192
+
 # define	LOG_NB_LEVEL	5	/* number of availaible logs level */
 
 # define LOG_ERROR(_level, _depth, _message, ...) {logs_error(_level, _depth, "%s:%s "##_message, __func__, __LINE__, __VA_ARGS__)}
@@ -38,7 +40,7 @@
 # define	logs(var, ...) (_Generic((var),				\
 	t_log_level:	logs_raw(var, __func__, __FILE__, __LINE__, ## __VA_ARGS__),	\
 	int:			logs_raw(var, __func__, __FILE__, __LINE__, ## __VA_ARGS__),	\
-	t_log_report*:	logs_report(var)				\
+	t_log_report *:	logs_report(var)				\
 ))
 
 # define	logs_perror(var, ...) (_Generic((var), 			\

@@ -4,6 +4,30 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+int	sentinel_setup_logs(void)
+{
+	t_log_init	_init = {
+		.debug = {
+			.filename = ".dev/debug.log",
+		},
+		.warning = {
+			.filename = ".dev/warning.log",
+		},
+		.info = {
+			.filename = ".dev/info.log",
+		},
+		.error = {
+			.filename = ".dev/error.log",
+		},
+		.other = {
+			.filename = ".dev/other.log",
+		},
+		.display_limit = log_other
+	};
+
+	return (log_init(&_init));
+}
+
 int main(void)
 {
 	t_log_report	report4 = {
@@ -44,16 +68,19 @@ int main(void)
 		.code = 0,
 		.file = __FILE__,
 		.func = __func__,
-		.level = log_error,
+		.level = log_info,
 		.line = __LINE__,
 		.sub = &report2,
 		.summary = "some test summary"
 	};
 
-	int fd = open(".dev/bob", O_CREAT | O_TRUNC | O_WRONLY, 0777);
+	// int fd = open(".dev/bob", O_CREAT | O_TRUNC | O_WRONLY, 0777);
+	sentinel_setup_logs();
 
-	_logs_print(&report, fd, 0);
-	_logs_print(&report, 1, 0);
+	_logs(&report, 0);
+
+	t_log_report	*r = &report;
+	logs(r);
 
 	return 0;
 }

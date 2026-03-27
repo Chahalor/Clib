@@ -77,13 +77,21 @@ enum e_log_error
 /*                                 Structs                                    */
 /* ************************************************************************** */
 
+/**
+ * 
+*/
 struct s_log_file
 {
 	char	*filename;	// file for the log
 	int		mode;		// open mode 
 	int		perms;		// perms in case of creation
+	int		fd_file;
+	int		fd_tty;
 };
 
+/**
+ * 
+*/
 struct s_log_init
 {
 	t_log_file	error;			//information about the error log stream
@@ -94,14 +102,17 @@ struct s_log_init
 	int			display_limit;	// limits where all lower level are send to the STDERR
 };
 
+/**
+ * 
+*/
 struct s_log_report
 {
-	const char			*func;
-	const char			*file;
-	int					line;
 	char				*summary;
 	char				*body;
 	t_log_report		*sub;
+	const char			*func;
+	const char			*file;
+	int					line;
 	time_t				time;
 	enum e_log_level	level;
 	int					code;

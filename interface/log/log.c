@@ -7,6 +7,7 @@
 
 	/* Internal */
 		//...
+
 	/* External */
 		//...
 
@@ -29,14 +30,13 @@
  * @version 0.1
  */
 int	log_init(
-	const t_log_init *const _data
+	const t_log_init *const data
 )
 {
-	// va_list	_dummy;
+	if (unlikely(!data))
+		return (error_invalid_arg);
 
-	// return (_log_manager(e_log_mng_init, _dummy, _data));
-	(void)_data;
-	return (0);
+	return (_log_config(data) != NULL);
 }
 
 /** */
@@ -60,7 +60,7 @@ int	logs_raw(
 		.code = -1
 	};
 
-	return (0);
+	return (_logs(&_report, true));
 }
 
 /** */
@@ -84,7 +84,7 @@ int	logs_perror_raw(
 		.code = errno
 	};
 
-	return (0);
+	return (_logs(&_report, true));	// TODO: add the perror at the end
 }
 
 /** */
@@ -92,9 +92,7 @@ int	logs_report(
 	const t_log_report *const report
 )
 {
-	(void)report;
-
-	return (0);
+	return (_logs(report, true));
 }
 
 /** */
@@ -102,7 +100,5 @@ int	logs_perror_report(
 	const t_log_report *const report
 )
 {
-	(void)report;
-
-	return (0);
+	return (_logs(report, true));
 }
