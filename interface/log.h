@@ -45,11 +45,13 @@
 	)(var, __func__, __FILE__, __LINE__, ## __VA_ARGS__)	\
 )
 
-# define	logs_perror(var, ...) (_Generic((var),			\
-	t_log_report *:			_logs_perror_report_adapter,	\
-	const t_log_report *:	_logs_perror_report_adapter,	\
-	default:				logs_perror_raw			\
-)(var, __func__, __FILE__, __LINE__, ## __VA_ARGS__))
+# define	logs_perror(var, ...) (							\
+	__builtin_choose_expr(									\
+		IS_TYPE(var, t_log_report *),						\
+		_logs_report_adapter,								\
+		logs_report											\
+	)(var, __func__, __FILE__, __LINE__, ## __VA_ARGS__)	\
+)
 
 int	log_init(
 	const t_log_init *const _data
