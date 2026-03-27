@@ -13,7 +13,7 @@
 	//...
 
 /* -----| Internals |----- */
-#include "../log.h"
+#include "../../log.h"
 
 /* -----| Modules   |----- */
 	//...

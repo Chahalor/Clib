@@ -78,19 +78,47 @@ int	_net_connect(
 {
 	register int	_i = 0;
 
-	logs(log_debug, 0, "trying connection to %s:%d", _ip, _port);
+	logs_raw(
+		log_debug,
+		__func__,
+		__FILE__,
+		__LINE__,
+		"net_connect",
+		"trying connection to %s:%d",
+		_ip,
+		_port
+	);
 	while (_i < NET_MAX_RETRY)
 	{
 		if (!_net_try_connect(_p, _ip, _port))
 		{
-			logs(log_debug, 1, "connected to %s:%d", _ip, _port);
+			logs_raw(
+				log_debug,
+				__func__,
+				__FILE__,
+				__LINE__,
+				"net_connect",
+				"connected to %s:%d",
+				_ip,
+				_port
+			);
 			return (lib_network_error_none);
 		}
 		// logs(log_debug, 1, "connection failed to %s:%d. retry in %dms", _ip, _>port, delay);
 		// usleep(_p->delay * 1000 * (_i + 1) / 4);
 		_i++;
 	}
-	logs_perror(log_warning, 0, "NET_MAX_RETRY(%d) reach giving up on connecting %d:%d", NET_MAX_RETRY, _ip, _port);
+	logs_perror_raw(
+		log_warning,
+		__func__,
+		__FILE__,
+		__LINE__,
+		"net_connect",
+		"NET_MAX_RETRY(%d) reached; giving up on connecting to %s:%d",
+		NET_MAX_RETRY,
+		_ip,
+		_port
+	);
 	return (-lib_network_error_timeout);
 }
 
@@ -106,7 +134,14 @@ ssize_t	_net_send(
 		_sent = send(_p->fd, _p->out_buff + result, _p->out_len - result, 0);
 		if (unlikely(_sent < 0))
 		{
-			logs_perror(log_warning, 0, "send failed");
+			logs_perror_raw(
+				log_warning,
+				__func__,
+				__FILE__,
+				__LINE__,
+				"net_send",
+				"send failed"
+			);
 			_net_close(_p);
 			_p->fd = -1;
 			return (-(lib_network_error_send_failed));
@@ -128,7 +163,14 @@ ssize_t	_net_recv(
 		_recvd = recv(_p->fd, _p->in_buff + result, _p->in_len - result, 0);
 		if (_recvd <= 0)
 		{
-			logs_perror(log_warning, 0, "send failed");
+			logs_perror_raw(
+				log_warning,
+				__func__,
+				__FILE__,
+				__LINE__,
+				"net_recv",
+				"recv failed"
+			);
 			_net_close(_p);
 			_p->fd = -1;
 			return (-(lib_network_error_recv_failed));

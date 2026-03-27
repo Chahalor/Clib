@@ -55,6 +55,7 @@ target_compile_options(clib
 		-Wall
 		-Wextra
 		-Werror
+		-g3
 		$<$<CONFIG:Debug>:-O0>
 		$<$<CONFIG:Debug>:-g3>
 		$<$<CONFIG:Release>:-O2>
