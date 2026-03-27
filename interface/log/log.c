@@ -32,9 +32,11 @@ int	log_init(
 	const t_log_init *const _data
 )
 {
-	va_list	_dummy;
+	// va_list	_dummy;
 
-	return (_log_manager(e_log_mng_init, _dummy, _data));
+	// return (_log_manager(e_log_mng_init, _dummy, _data));
+	(void)_data;
+	return (0);
 }
 
 /** */
@@ -53,11 +55,12 @@ int	logs_raw(
 		.file = file,
 		.line = line,
 		.time = 0,// TODO
-		.summary = summary,
-		.body = body,
-		.errno = -1
+		.summary = (char *)summary,
+		.body = (char *)body,
+		.code = -1
 	};
 
+	return (0);
 }
 
 /** */
@@ -76,10 +79,12 @@ int	logs_perror_raw(
 		.file = file,
 		.line = line,
 		.time = 0,// TODO
-		.summary = summary,
-		.body = body,
-		.errno = errno
+		.summary = (char *)summary,
+		.body = (char *)body,
+		.code = errno
 	};
+
+	return (0);
 }
 
 /** */
@@ -87,7 +92,9 @@ int	logs_report(
 	const t_log_report *const report
 )
 {
+	(void)report;
 
+	return (0);
 }
 
 /** */
@@ -95,5 +102,7 @@ int	logs_perror_report(
 	const t_log_report *const report
 )
 {
+	(void)report;
 
+	return (0);
 }

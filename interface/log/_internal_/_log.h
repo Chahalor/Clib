@@ -29,8 +29,8 @@
 /*                                 Prototypes                                 */
 /* ************************************************************************** */
 
-int	_log_manager(
-		const int _access,
-		va_list args,
-		...
-		);
+int	_logs_print(
+	const t_log_report *report,
+	const int fd,
+	const int depth
+);

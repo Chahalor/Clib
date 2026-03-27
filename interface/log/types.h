@@ -102,9 +102,9 @@ struct s_log_report
 	char				*summary;
 	char				*body;
 	t_log_report		*sub;
-	enum e_log_level	level;
 	time_t				time;
-	int					errno;
+	enum e_log_level	level;
+	int					code;
 };
 
 #endif	// LIB_INTERFACE_LOG_TYPES_H

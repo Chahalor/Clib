@@ -30,12 +30,71 @@
 
 // [year-mouth-day hour:minute:second] <ERROR> <function> (file:line)  code=<code> - <Logs summary>
 #ifdef DEBUG
-# define	FORMAT_TTY	GREY "[%s]" RESET " - %s - %s - " GREY "(%s:%d)" RESET " code=%d - %s\n"
-# define	FORMAT_FILE	     "[%s]"       " - %s - %s - "      "(%s:%d)"       " code=%d - %s\n"
+# define	FORMAT_SUM_TTY	GREY "%*s[%s]" RESET " - %s%s - %s - " GREY "(%s:%d)" RESET " code=%d - %s\n"
+# define	FORMAT_SUM_FILE	     "%*s[%s] - "         "%s - %s - "      "(%s:%d)"       " code=%d - %s\n"
 #else
-# define	FORMAT_TTY	GREY "[%s]" RESET " - %s code=%d - %s\n"
-# define	FORMAT_FILE	     "[%s] "       "- %s code=%d - %s\n"
+# define	FORMAT_SUM_TTY	GREY "%*s[%s]" RESET " - %s%s code=%d - %s\n"
+# define	FORMAT_SUM_FILE	     "%*s[%s] - "         "%s code=%d - %s\n"
 #endif	// DEBUG
+//								"(depth * \t)|<line x>"
+# define	FORMAT_BODY_TTY		"%*s%s|%*s\n"
+# define	FORMAT_BODY_FILE	"%*s|%*s\n"
+
+static inline const char	*_log_level_str(
+	const t_log_level level
+)
+{
+	const char	*levels[5] = {
+		[log_error] = "ERROR",
+		[log_warning] = "WARN",
+		[log_info] = "INFO",
+		[log_debug] = "DEBUG",
+		[log_other] = "OTHER"
+	};
+
+	return (level <= log_other ?
+			levels[level] :
+			levels[log_other]
+		);
+}
+
+static inline const char	*_log_level_color(
+	const t_log_level level
+)
+{
+	const char	*colors[5] = {
+		[log_error] = RED,
+		[log_warning] = YELLOW,
+		[log_info] = BLUE,
+		[log_debug] = GREEN,
+		[log_other] = ""
+	};
+
+	return (level <= log_other ?
+			colors[level] :
+			colors[log_other]
+		);
+}
+
+#include <stdlib.h>
+#include <string.h>
+
+size_t	_line_len(
+	const char *src
+)
+{
+	size_t	result = 0;
+
+	for (size_t	_i = 0;
+		src[_i] != '\0' && src[_i] != '\n';
+		_i++
+	)
+	{
+		result++;
+	}	
+
+	return (result);
+}
 
 /* static int	_setup_log_file(
 	const t_log_file *const restrict _file,
@@ -220,19 +279,19 @@ int	_closer(
 
 /* ----| Public     |----- */
 
-t_log_internal	*_logs_config(
-	const t_log_init *const config
-)
-{
-	static t_log_internal	this;
+// t_log_internal	*_logs_config(
+// 	const t_log_init *const config
+// )
+// {
+// 	static t_log_internal	this;
 
-	if (config)
-	{
-		// TODO: configure the logs files
-	}
+// 	if (config)
+// 	{
+// 		// TODO: configure the logs files
+// 	}
 
-	return (&this);
-}
+// 	return (&this);
+// }
 
 int	_logs_print(
 	const t_log_report *report,
@@ -240,10 +299,56 @@ int	_logs_print(
 	const int depth
 )
 {
-	char	*_format;
+	const bool	_tty = isatty(fd);
+	const char	*_color = _log_level_color(report->level);
+	time_t		_now = time(NULL);
+	struct tm	*_t = localtime(&_now);
+	char		*_format_sum;
+	char		*_format_body;
+	char		_buff[BUFFER_SIZE];
+	size_t		_ll = 0;
+	size_t		_offset = 0;
 
-	if (isatty(fd))
-		_format = FORMAT_TTY;
+	if (_tty)
+	{
+		_format_sum = FORMAT_SUM_TTY;
+		_format_body = FORMAT_BODY_TTY;
+	}
 	else
-	_format = FORMAT_FILE;
+	{
+		_format_sum = FORMAT_SUM_FILE;
+		_format_body = FORMAT_BODY_FILE;
+	}
+
+	strftime(_buff, sizeof(_buff), "[%Y-%m-%d %H:%M:%S]", _t);
+
+	#ifdef DEBUG	// TODO: check if tty
+		dprintf(fd, _format_sum, depth, "\t", _buff, _color, _log_level_str(report->level), report->func, report->file, report->line, report->code, report->summary);
+	#else
+		dprintf(fd, _format_sum, depth, "\t", _buff, _color, _log_level_str(report->level), report->code, report->summary);
+	#endif	// DEBUG
+
+
+	while (report->body[_offset])
+	{
+		_ll = _line_len(report->body + _offset);
+
+		if (_tty)
+			dprintf(fd, _format_body, depth, "\t",
+					_log_level_color(report->level),
+					(int)_ll, report->body + _offset);
+		else
+			dprintf(fd, _format_body, depth, "\t",
+					(int)_ll, report->body + _offset);
+
+		_offset += _ll;
+
+		if (report->body[_offset] == '\n')
+			_offset++;
+	}
+
+	if (report->sub)
+		_logs_print(report->sub, fd, depth + 1);
+
+	return (0);
 }

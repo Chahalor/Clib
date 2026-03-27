@@ -36,15 +36,15 @@
 /* ************************************************************************** */
 
 # define	logs(var, ...) (_Generic((var),				\
-	t_log_level:	logs_raw(var, __func__, __FILE__, __LINE__, ## __VA__ARGS__)	\
-	int:			logs_raw(var, __func__, __FILE__, __LINE__, ## __VA__ARGS__)	\
-	t_log_report:	logs_report(var)				\
+	t_log_level:	logs_raw(var, __func__, __FILE__, __LINE__, ## __VA_ARGS__),	\
+	int:			logs_raw(var, __func__, __FILE__, __LINE__, ## __VA_ARGS__),	\
+	t_log_report*:	logs_report(var)				\
 ))
 
-# define	logs_perror(var, ...) (_Generic((var), \
-	t_log_level:	logs_perror_raw(var, ## __VA__ARGS__)	\
-	int:			logs_perror_raw(var, ## __VA__ARGS__)	\
-	t_log_report:	logs_perror_report(var)				\
+# define	logs_perror(var, ...) (_Generic((var), 			\
+	t_log_level:	logs_perror_raw(var, ## __VA_ARGS__),	\
+	int:			logs_perror_raw(var, ## __VA_ARGS__),	\
+	t_log_report *:	logs_perror_report(var)					\
 ))
 
 int	log_init(
