@@ -68,7 +68,7 @@ int main(void)
 		.code = 0,
 		.file = __FILE__,
 		.func = __func__,
-		.level = log_info,
+		.level = log_error,
 		.line = __LINE__,
 		.sub = &report2,
 		.summary = "some test summary"
@@ -76,8 +76,6 @@ int main(void)
 
 	// int fd = open(".dev/bob", O_CREAT | O_TRUNC | O_WRONLY, 0777);
 	sentinel_setup_logs();
-
-	_logs(&report, 0);
 
 	t_log_report	*r = &report;
 	logs(r);

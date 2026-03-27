@@ -38,16 +38,16 @@
 /* ************************************************************************** */
 
 # define	logs(var, ...) (_Generic((var),				\
-	t_log_level:	logs_raw(var, __func__, __FILE__, __LINE__, ## __VA_ARGS__),	\
-	int:			logs_raw(var, __func__, __FILE__, __LINE__, ## __VA_ARGS__),	\
-	t_log_report *:	logs_report(var)				\
-))
+	t_log_report *:			_logs_report_adapter,		\
+	const t_log_report *:	_logs_report_adapter,		\
+	default:				logs_raw					\
+)(var, __func__, __FILE__, __LINE__, ## __VA_ARGS__))
 
-# define	logs_perror(var, ...) (_Generic((var), 			\
-	t_log_level:	logs_perror_raw(var, ## __VA_ARGS__),	\
-	int:			logs_perror_raw(var, ## __VA_ARGS__),	\
-	t_log_report *:	logs_perror_report(var)					\
-))
+# define	logs_perror(var, ...) (_Generic((var),			\
+	t_log_report *:			_logs_perror_report_adapter,	\
+	const t_log_report *:	_logs_perror_report_adapter,	\
+	default:				logs_perror_raw			\
+)(var, __func__, __FILE__, __LINE__, ## __VA_ARGS__))
 
 int	log_init(
 	const t_log_init *const _data
@@ -82,5 +82,21 @@ int	logs_report(
 int	logs_perror_report(
 	const t_log_report *const report
 );
+
+static inline int	_logs_report_adapter(
+	const t_log_report *const report,
+	...
+)
+{
+	return (logs_report(report));
+}
+
+static inline int	_logs_perror_report_adapter(
+	const t_log_report *const report,
+	...
+)
+{
+	return (logs_perror_report(report));
+}
 
 #endif	// LIB_INTERFACE_LOG_H
