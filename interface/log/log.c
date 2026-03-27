@@ -61,7 +61,7 @@ int	logs_raw(
 		.code = code
 	};
 
-	return (_logs(&_report, true));
+	return (_logs(&_report, true, false));
 }
 
 /** */
@@ -85,21 +85,21 @@ int	logs_perror_raw(
 		.code = errno
 	};
 
-	return (_logs(&_report, true));	// TODO: add the perror at the end
+	return (_logs(&_report, true, true));
 }
 
 /** */
 int	logs_report(
-	const t_log_report *const report
+	t_log_report *const report
 )
 {
-	return (_logs(report, true));
+	return (_logs(report, true, false));
 }
 
 /** */
 int	logs_perror_report(
-	const t_log_report *const report
+	t_log_report *const report
 )
 {
-	return (_logs(report, true));
+	return (_logs(report, true, true));
 }

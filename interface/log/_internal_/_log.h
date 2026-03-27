@@ -55,8 +55,9 @@ int	_logs_print_atomic(
 );
 
 int	_logs(
-	const t_log_report *const report,
-	const bool atomic_safe
+	t_log_report *const report,
+	const bool atomic_safe,
+	const bool perr
 );
 
 #endif	// LIB_INTERFACE_LOG_INTERNAL_H

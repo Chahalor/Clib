@@ -3,6 +3,7 @@
 
 #include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
 
 int	sentinel_setup_logs(void)
 {
@@ -79,6 +80,8 @@ int main(void)
 	t_log_report	*r = &report;
 	logs(r);
 	logs(log_warning, 0, "test with raw", "body\nsecond line");
+	logs_perror(&report2);
+	logs_perror(log_debug, "perror in raw", "more body\nmore new lines\n");
 	// logs(&report4);
 
 	return 0;

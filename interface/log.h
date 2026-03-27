@@ -48,8 +48,8 @@
 # define	logs_perror(var, ...) (							\
 	__builtin_choose_expr(									\
 		IS_TYPE(var, t_log_report *),						\
-		_logs_report_adapter,								\
-		logs_report											\
+		_logs_perror_report_adapter,								\
+		logs_perror_raw											\
 	)(var, __func__, __FILE__, __LINE__, ## __VA_ARGS__)	\
 )
 
@@ -80,16 +80,16 @@ int	logs_perror_raw(
 
 /** */
 int	logs_report(
-	const t_log_report *const report
+	t_log_report *const report
 );
 
 /** */
 int	logs_perror_report(
-	const t_log_report *const report
+	t_log_report *const report
 );
 
 static inline int	_logs_report_adapter(
-	const t_log_report *const report,
+	t_log_report *const report,
 	...
 )
 {
@@ -97,7 +97,7 @@ static inline int	_logs_report_adapter(
 }
 
 static inline int	_logs_perror_report_adapter(
-	const t_log_report *const report,
+	t_log_report *const report,
 	...
 )
 {
