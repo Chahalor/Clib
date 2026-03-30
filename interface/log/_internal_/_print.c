@@ -68,7 +68,7 @@ static inline const char	*_log_level_color(
 }
 
 size_t	_line_len(
-	const char *src
+	const char *const src
 )
 {
 	size_t	result = 0;
@@ -85,8 +85,8 @@ size_t	_line_len(
 }
 
 static size_t	_append_log(
-	const t_log_report *report,
-	char *buff,
+	const t_log_report *const report,
+	char *const buff,
 	size_t cap,
 	size_t len,
 	int depth,
@@ -180,7 +180,7 @@ static size_t	_append_log(
 /* ----| Public     |----- */
 
 int	_logs_print(
-	const t_log_report *report,
+	const t_log_report *const report,
 	const int fd,
 	const int depth
 )
@@ -203,7 +203,6 @@ int	_logs_print(
 	size_t		_offset = 0;
 
 	localtime_r(&now, &tm);
-
 	strftime(timebuf, sizeof(timebuf), "[%Y-%m-%d %H:%M:%S]", &tm);
 
 	if (depth)
@@ -268,7 +267,7 @@ int	_logs_print(
 }
 
 int	_logs_print_atomic(
-	const t_log_report *report,
+	const t_log_report *const report,
 	const int fd
 )
 {
