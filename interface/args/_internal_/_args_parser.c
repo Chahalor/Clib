@@ -1,4 +1,6 @@
-// Header
+/**
+ * 
+*/
 
 /* ----| Headers    |----- */
 	/* Standard */
@@ -16,6 +18,7 @@
 
 /* ----| Internals  |----- */
 
+/** */
 static _t_args_parser	*_get_sub_parser_of(
 	const _t_args_parser *const restrict _context,
 	const char *const restrict _s
@@ -36,6 +39,7 @@ static _t_args_parser	*_get_sub_parser_of(
 	return (result);
 }
 
+/** */
 static _t_args_option	*_get_opt_of(
 	const _t_args_parser *const restrict _context,
 	const char *const restrict _s
@@ -58,6 +62,7 @@ static _t_args_option	*_get_opt_of(
 	return (result);
 }
 
+/** */
 static inline const char	*_root_get_next(
 	_t_args_root *const restrict _root
 )
@@ -68,6 +73,7 @@ static inline const char	*_root_get_next(
 		);
 }
 
+/** */
 static inline const char	*_root_pop_next(
 	_t_args_root *const restrict _root
 )
@@ -78,6 +84,7 @@ static inline const char	*_root_pop_next(
 		);
 }
 
+/** */
 static inline void	_root_push_back(
 	_t_args_root *const restrict _root
 )
@@ -87,6 +94,7 @@ static inline void	_root_push_back(
 						0;
 }
 
+/** */
 static _t_args_output_param	*_out_get_param(
 	_t_args_output_param *const restrict _list,
 	const char *const restrict _name
@@ -104,6 +112,7 @@ static _t_args_output_param	*_out_get_param(
 	return (NULL);
 }
 
+/** */
 static _t_args_output_param	*_out_add_param(
 	_t_args_output_param **const restrict _list,
 	const char *const restrict _name
@@ -139,6 +148,7 @@ static _t_args_output_param	*_out_add_param(
 	return (_param);
 }
 
+/** */
 static int	_out_add_value(
 	_t_args_output_param *const restrict _param,
 	const char *const restrict _value
@@ -173,6 +183,7 @@ static int	_out_add_value(
 	return (error_none);
 }
 
+/** */
 static _t_args_output_option	*_out_get_option(
 	_t_args_output_option *const restrict _list,
 	const _t_args_option *const restrict _opt
@@ -197,6 +208,7 @@ static _t_args_output_option	*_out_get_option(
 	return (NULL);
 }
 
+/** */
 static _t_args_output_option	*_out_add_option(
 	_t_args_output_option **const restrict _list,
 	const _t_args_option *const restrict _opt
@@ -232,6 +244,7 @@ static _t_args_output_option	*_out_add_option(
 	return (_out);
 }
 
+/** */
 static _t_args_output_parser	*_out_add_sub_parser(
 	_t_args_output_parser *const restrict _parent,
 	const _t_args_parser *const restrict _sub
@@ -263,6 +276,7 @@ static _t_args_output_parser	*_out_add_sub_parser(
 	return (_out);
 }
 
+/** */
 static inline int	_args_parse_loop_parser(
 	const _t_args_parser **context,
 	const char *const current,
@@ -295,6 +309,37 @@ static inline int	_args_parse_loop_parser(
 
 	if (!opt_disabled && _args_is_opt(current))
 	{
+		if (current[0] && current[0] == '-' && current[1] != '-')
+		{
+			for (size_t	i = 0;
+				current[i];
+				i++
+			)
+			{
+				const char	c = current[i];
+				const char	s[2] = {c, '\0'};
+				_t_args_option	*_this = _get_opt_of(*context, s);
+
+				if (!_this)
+				{
+					result = args_error_unknown_option;
+					_args_config_set_errnum(result);
+					goto error;
+				}
+				else if (_this->params != NULL)
+				{
+					result = args_error_missing_param;
+					_args_config_set_errnum(result);
+					goto error;
+				}
+				else
+				{
+					*out_opt = _out_add_option(&(*out_context)->options, _this);
+					(*out_opt)->nb_call++;
+				}
+			}
+		}
+
 		*opt = _get_opt_of(*context, current);
 		if (unlikely(!*opt))
 		{
@@ -342,6 +387,7 @@ error:
 	return (result);
 }
 
+/** */
 static inline int	_args_parse_loop_option(
 	_t_args_root *const _root,
 	const char *const current,
@@ -413,7 +459,8 @@ error:
 	return (result);
 }
 
-int	_args_parse_loop(
+/** */
+static int	_args_parse_loop(
 	_t_args_root *const _root,
 	_t_args_output *const _out
 )
@@ -457,6 +504,7 @@ int	_args_parse_loop(
 				&context_type
 			);
 		}
+
 		/* ---------- Option-arguments context ---------- */
 		else /* context_type == args_context_opt */
 		{

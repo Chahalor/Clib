@@ -428,7 +428,7 @@ static inline int	_args_is_short_opt(
 	const unsigned char	_c1 = _s ? _s[1] : '\0';
 	const unsigned char	_c2 = _s ? _s[2] : '\0';
 
-	const int			is_short = (_c0 == '-') && isalpha(_c1) && (_c2 == '\0');
+	const int			is_short = (_c0 == '-') && isalpha(_c1);// && (_c2 == '\0');
 	const int			is_delim = (_c0 == '-') && (_c1 == '-') && (_c2 == '\0');
 
 	return (is_short && !is_delim);
@@ -450,7 +450,7 @@ static inline bool	_args_param_has_nargs(
 }
 
 /**
- * @brief	check if a string is any option ("-n" or "--name")
+ * @brief	check if a string is any option ("-n" or "-abc" or "--name")
  *
  * @param	_s	candidate string
  *

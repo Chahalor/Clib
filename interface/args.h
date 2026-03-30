@@ -18,6 +18,9 @@
  * @{
  */
 
+#ifndef INTERFACE_ARGS_H
+# define INTERFACE_ARGS_H
+
 # pragma once
 
 /* ************************************************************************** */
@@ -44,8 +47,8 @@
 /*                                 Macros                                     */
 /* ************************************************************************** */
 
-#define FOR_EACH_OPTIONS(var, out) _FOR_EACH_OPTIONS(var, out)
-#define FOR_EACH_PARAMS(var, out)  _FOR_EACH_PARAMS(var, out)
+// #define FOR_EACH_OPTIONS(var, out) _FOR_EACH_OPTIONS(var, out)
+// #define FOR_EACH_PARAMS(var, out)  _FOR_EACH_PARAMS(var, out)
 
 /* ************************************************************************** */
 /*                                 Prototypes                                 */
@@ -464,4 +467,5 @@ const char	*args_error_str(
 	int err
 );
 
+#endif	// INTERFACE_ARGS_H
 /** @} */
