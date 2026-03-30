@@ -1,4 +1,10 @@
-// Header
+/**
+ * @file _types.h
+ * @brief Internal types for `interface/log`.
+ *
+ * This header stores module-private runtime structures used by internal
+ * configuration and write paths.
+ */
 
 # pragma once
 
@@ -31,12 +37,12 @@ typedef struct s_log_write		t_log_write;
 
 enum e_log_manager_access
 {
-	e_log_mng_init,
-	e_log_mng_write,
-	e_log_mng_perror,	// glic error
-	e_log_mng_error,	// mein error
-	e_log_mng_close,
-	e_log_mng_close_all,
+	e_log_mng_init,		/**< Initialize log manager state. */
+	e_log_mng_write,	/**< Standard write path. */
+	e_log_mng_perror,	/**< Write path with `errno` text. */
+	e_log_mng_error,	/**< Reserved error-management action. */
+	e_log_mng_close,	/**< Close one stream. */
+	e_log_mng_close_all,/**< Close all streams. */
 };
 
 /* ************************************************************************** */
@@ -50,17 +56,20 @@ enum e_log_manager_access
 
 struct s_log_internal
 {
-	int				fd[LOG_NB_LEVEL];			/* every log io                                */
-	unsigned int	logs[LOG_NB_LEVEL];			/* number of log write in every log io        */
-	int				last_depth[LOG_NB_LEVEL];	/* lastd epth for every logfile              */
-	int				display_limit;				/* the max level to be displayed to the cmd */
-	int				is_init;					/* check if the logs get init at some point*/
+	int				fd[LOG_NB_LEVEL];		/**< Per-level destination file descriptors. */
+	unsigned int	logs[LOG_NB_LEVEL];		/**< Per-level write counters (reserved). */
+	int				last_depth[LOG_NB_LEVEL];/**< Per-level last depth (reserved). */
+	int				display_limit;			/**< Terminal display threshold. */
+	int				is_init;				/**< Non-zero once `_log_init()` ran. */
 };
 
+/**
+ * @brief Legacy write request container used by old paths.
+ */
 struct s_log_write
 {
-	int		level;
-	int		depth;
-	char	*format;
-	va_list	args;
+	int		level;	/**< Target log level. */
+	int		depth;	/**< Indentation depth. */
+	char	*format;/**< Format string. */
+	va_list	args;	/**< Arguments for formatted payload. */
 };

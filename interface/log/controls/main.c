@@ -1,3 +1,11 @@
+/**
+ * @file main.c
+ * @brief Manual control/example entry point for `interface/log`.
+ *
+ * This file demonstrates how to initialize log streams and submit both raw and
+ * report-based entries.
+ */
+
 #include "../../log.h"
 #include "../_internal_/_log.h"
 
@@ -5,6 +13,11 @@
 #include <fcntl.h>
 #include <errno.h>
 
+/**
+ * @brief Local helper used by this control binary to initialize log files.
+ *
+ * @return Forwarded result from `log_init(...)`.
+ */
 int	sentinel_setup_logs(void)
 {
 	t_log_init	_init = {
@@ -29,6 +42,11 @@ int	sentinel_setup_logs(void)
 	return (log_init(&_init));
 }
 
+/**
+ * @brief Example program that emits several log forms.
+ *
+ * @return Process status code (`0`).
+ */
 int main(void)
 {
 	t_log_report	report4 = {

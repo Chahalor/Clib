@@ -1,4 +1,7 @@
-// Header
+/**
+ * @file _log.c
+ * @brief Internal dispatcher implementation for `interface/log`.
+ */
 
 /* ----| Headers    |----- */
 	/* Standard */
@@ -24,6 +27,17 @@
 
 /* ----| Public     |----- */
 
+/**
+ * @brief Access/update internal logging singleton.
+ *
+ * @param init Optional initialization payload.
+ *
+ * @return Pointer to static singleton configuration.
+ *
+ * @code{.c}
+ * t_log_internal *cfg = _log_config(NULL);
+ * @endcode
+ */
 t_log_internal	*_log_config(
 	const t_log_init *const init
 )
@@ -38,6 +52,26 @@ t_log_internal	*_log_config(
 	return (&internal);
 }
 
+/**
+ * @brief Route one report to configured file and terminal outputs.
+ *
+ * Current behavior:
+ * - file fd from `_log_config(NULL)->fd[level]`
+ * - terminal fd enabled when `display_limit <= level`
+ * - `log_info` uses `STDOUT_FILENO` when terminal output is enabled
+ * - when `perr` is true, summary becomes `"summary: strerror(errno)"`
+ *
+ * @param report Mutable report payload.
+ * @param atomic_safe Non-zero to use `_logs_print_atomic()`.
+ * @param perr Non-zero to append `strerror(errno)` into summary.
+ *
+ * @return Last print function result (currently `0` on normal path).
+ *
+ * @code{.c}
+ * t_log_report rep = {.level = log_warning, .summary = "slow query"};
+ * int rc = _logs(&rep, true, false);
+ * @endcode
+ */
 int	_logs(
 	t_log_report *const report,
 	const bool atomic_safe,

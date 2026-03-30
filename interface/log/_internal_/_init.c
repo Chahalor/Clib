@@ -1,4 +1,7 @@
-// Header
+/**
+ * @file _init.c
+ * @brief Internal initialization helpers for `interface/log`.
+ */
 
 /* ----| Headers    |----- */
 	/* Standard */
@@ -16,6 +19,19 @@
 
 /* ----| Internals  |----- */
 
+/**
+ * @brief Open one log destination or fallback to stderr.
+ *
+ * @param file Public file setup entry.
+ * @param fd   Output descriptor slot.
+ *
+ * @return `error_none` (current implementation always succeeds logically).
+ *
+ * @code{.c}
+ * int fd = -1;
+ * _setup_log_file(&init.error, &fd);
+ * @endcode
+ */
 static int	_setup_log_file(
 	const t_log_file	*const file,
 	int					*const fd
@@ -31,6 +47,21 @@ static int	_setup_log_file(
 
 /* ----| Public     |----- */
 
+/**
+ * @brief Populate internal config from public initialization data.
+ *
+ * @param config Internal target singleton storage.
+ * @param data Public initialization structure.
+ *
+ * @return `error_invalid_arg` if inputs are invalid.
+ * @return `error_none` otherwise.
+ *
+ * @code{.c}
+ * t_log_internal cfg = {0};
+ * t_log_init init = {.display_limit = log_other};
+ * int rc = _log_init(&cfg, &init);
+ * @endcode
+ */
 int	_log_init(
 	t_log_internal		*const config,
 	const t_log_init	*const data

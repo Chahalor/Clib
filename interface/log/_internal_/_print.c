@@ -1,4 +1,7 @@
-// Header
+/**
+ * @file _print.c
+ * @brief Internal formatting and output routines for `interface/log`.
+ */
 
 /* ----| Headers    |----- */
 	/* Standard */
@@ -31,6 +34,17 @@
 # define FORMAT_BODY_TTY  " %*s%s|" RESET " %.*s\n"	//	"(depth * \t)|<line x>"
 # define FORMAT_BODY_FILE " %*s|"         " %.*s\n"	//	"(depth * \t)|<line x>"
 
+/**
+ * @brief Map a log level to its printable short string.
+ *
+ * @param level Input log level.
+ *
+ * @return Constant level label (`ERROR`, `WARN`, `INFO`, `DEBUG`, `OTHER`).
+ *
+ * @code{.c}
+ * const char *label = _log_level_str(log_warning); // "WARN"
+ * @endcode
+ */
 static inline const char	*_log_level_str(
 	const t_log_level level
 )
@@ -49,6 +63,17 @@ static inline const char	*_log_level_str(
 		);
 }
 
+/**
+ * @brief Map a log level to a terminal color escape sequence.
+ *
+ * @param level Input log level.
+ *
+ * @return ANSI color string for tty output, empty string for `log_other`.
+ *
+ * @code{.c}
+ * const char *color = _log_level_color(log_error); // RED
+ * @endcode
+ */
 static inline const char	*_log_level_color(
 	const t_log_level level
 )
@@ -67,6 +92,19 @@ static inline const char	*_log_level_color(
 		);
 }
 
+/**
+ * @brief Return the length of the next line fragment in `src`.
+ *
+ * Counts bytes until `'\0'` or `'\n'`.
+ *
+ * @param src Source string cursor.
+ *
+ * @return Number of bytes in the current line segment.
+ *
+ * @code{.c}
+ * size_t n = _line_len("hello\nworld"); // 5
+ * @endcode
+ */
 size_t	_line_len(
 	const char *const src
 )
@@ -84,6 +122,26 @@ size_t	_line_len(
 	return (result);
 }
 
+/**
+ * @brief Append one report tree into `buff`.
+ *
+ * This helper formats summary + body for `report`, then recurses into
+ * `report->sub` with incremented indentation depth.
+ *
+ * @param report Report tree node.
+ * @param buff Destination buffer.
+ * @param cap Buffer capacity.
+ * @param len Existing used length.
+ * @param depth Tree depth.
+ * @param tty Non-zero for terminal color formatting.
+ *
+ * @return New buffer length after append attempts.
+ *
+ * @code{.c}
+ * char buf[LOG_BUFFER_SIZE];
+ * size_t len = _append_log(&report, buf, sizeof(buf), 0, 0, true);
+ * @endcode
+ */
 static size_t	_append_log(
 	const t_log_report *const report,
 	char *const buff,
@@ -179,6 +237,19 @@ static size_t	_append_log(
 
 /* ----| Public     |----- */
 
+/**
+ * @brief Print one report tree directly to an fd with incremental writes.
+ *
+ * @param report Report root.
+ * @param fd Destination file descriptor.
+ * @param depth Initial depth offset.
+ *
+ * @return `0` in current implementation.
+ *
+ * @code{.c}
+ * _logs_print(&report, STDERR_FILENO, 0);
+ * @endcode
+ */
 int	_logs_print(
 	const t_log_report *const report,
 	const int fd,
@@ -266,6 +337,18 @@ int	_logs_print(
 	return (0);
 }
 
+/**
+ * @brief Print one report tree through a bounded single-buffer path.
+ *
+ * @param report Report root.
+ * @param fd Destination file descriptor.
+ *
+ * @return `0` in current implementation.
+ *
+ * @code{.c}
+ * _logs_print_atomic(&report, fd);
+ * @endcode
+ */
 int	_logs_print_atomic(
 	const t_log_report *const report,
 	const int fd

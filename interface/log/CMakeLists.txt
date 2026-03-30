@@ -1,3 +1,8 @@
+#[[
+@file CMakeLists.txt
+@brief Build rules for the `interface/log` module.
+]]
+
 file(GLOB_RECURSE LOG_SRC
 	*.c
 )
