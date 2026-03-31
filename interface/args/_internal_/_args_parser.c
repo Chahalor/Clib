@@ -309,11 +309,12 @@ static inline int	_args_parse_loop_parser(
 
 	if (!opt_disabled && _args_is_opt(current))
 	{
+		const int	_is_short = _args_is_short_opt(current);
 		const int	_alone =	current[0] != '\0' &&
 								current[1] != '\0' &&
 								current[2] == '\0';
 
-		if (!_alone)
+		if (_is_short && !_alone)
 		{
 			for (size_t	i = 1;
 				current[i];
