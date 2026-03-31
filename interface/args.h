@@ -181,6 +181,30 @@ t_args_option	*args_parser_add_option(
 #pragma region Parameters
 
 /**
+ * @brief	add a new param to the `var` element, This element can be a `t_args_parser*` or a `t_args_option*`
+ * 
+ * @param	var			the element to add the param
+ * @param	name		the name of the param
+ * @param	description	the descrpition of the param
+ * @param	spec		the spec of teh param
+ * @param	type		the type of data expected
+ * 
+ * @return	A pointer to the newly created param or NULL in case of error
+*/
+# define	args_add_param(var, name, description, spec, type) (\
+	__builtin_choose_expr(\
+		IS_TYPE(var, t_args_parser *),\
+		args_parser_add_param,\
+		__builtin_choose_expr(\
+			IS_TYPE(var, t_args_option *),\
+			args_option_add_param,\
+			(void *)0\
+		)\
+	)\
+	(var, name, description, spec, type)\
+)
+
+/**
  * @brief Ajouter un parametre positionnel a un parser.
  *
  * Fonctionnalites:

@@ -53,18 +53,15 @@ static t_args_parser	*_build_full_parser(void)
 
 	if (!args_parser_add_option(parser, "verbose", 'v', "verbose output"))
 		goto fail;
-	if (!args_parser_add_param(parser, "input", "input file",
-			args_param_specs_require, param_type_file))
+	if (!args_add_param(parser, "input", "input file", args_param_specs_require, param_type_file))
 		goto fail;
-	if (!args_parser_add_param(parser, "extras", "extra args",
-			args_param_specs_nargs, param_type_str))
+	if (!args_add_param(parser, "extras", "extra args", args_param_specs_nargs, param_type_str))
 		goto fail;
 
 	sub = args_parser_add_sub(parser, "pull", "pull command");
 	if (!sub)
 		goto fail;
-	if (!args_parser_add_param(sub, "repo", "repository",
-			args_param_specs_require, param_type_str))
+	if (!args_add_param(sub, "repo", "repository", args_param_specs_require, param_type_str))
 		goto fail;
 	opt = args_parser_add_option(sub, "todo", 't', "todo file");
 	if (!opt || !args_option_add_param(opt, "file", "todo path",
@@ -92,8 +89,7 @@ static t_args_parser	*_build_error_parser(void)
 		goto fail;
 	if (!args_parser_add_option(parser, "verbose", 'v', "verbose output"))
 		goto fail;
-	if (!args_parser_add_param(parser, "input", "input file",
-			args_param_specs_require, param_type_file))
+	if (!args_add_param(parser, "input", "input file", args_param_specs_require, param_type_file))
 		goto fail;
 	return (parser);
 fail:
@@ -117,9 +113,9 @@ static t_args_parser	*_build_cluster_parser(void)
 	if (!opt || !args_option_add_param(opt, "path", "config path",
 			args_param_specs_require, param_type_file))
 		goto fail;
-	if (!args_parser_add_param(parser, "first", "first positional",
-			args_param_specs_require, param_type_str))
+	if (!args_add_param(parser, "first", "first positional", args_param_specs_require, param_type_str))
 		goto fail;
+
 	return (parser);
 fail:
 	args_parser_free(parser);
@@ -166,8 +162,7 @@ static void	_test_public_api_basic(void)
 		return ;
 
 	opt = args_parser_add_option(parser, "sample", 's', "sample option");
-	param = args_parser_add_param(parser, "input", "input param",
-			args_param_specs_require, param_type_str);
+	param = args_add_param(parser, "input", "input param", args_param_specs_require, param_type_str);
 	CHECK(opt != NULL, "add option should succeed");
 	CHECK(param != NULL, "add parser param should succeed");
 	if (opt)
