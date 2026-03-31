@@ -332,6 +332,24 @@ char	args_option_has_param(
 	const char *const _name
 );
 
+/**
+ * @brief	get a param value form var
+ * 
+ * var can be a `t_args_output*` or a `t_args_output_parser*`
+ * 
+ * @param	var		the struct where to extract the param
+ * @param	name	the name of the param
+ * @param	n		a pointer to count the number of value in the param
+ * 
+ * @return	All value(s) strored inside of the param
+ * @retval	NULL in case of syscall fail or if `n == 0`
+ * @retval	`char *` if `n == 1`
+ * @retval	`char**` if `n > 1`
+ * 
+ * @note	in any case the return value should be free using `mem_free`
+ * 
+ * @version	2.0.0
+*/
 # define	args_get_param(var, name, n) (__builtin_choose_expr( \
 		IS_TYPE(var, t_args_output *), \
 		args_parser_get_param, \
@@ -342,7 +360,20 @@ char	args_option_has_param(
 		) \
 	)(var, name, n))
 
-# define	args_get_option(var, ...) (__builtin_choose_expr( \
+/**
+ * @brief	get a option struct for a output
+ * 
+ * var can be a `t_args_output*` or a `t_args_output_parser*`
+ * 
+ * @param	var		the struct where to extract the param
+ * @param	name	the name of the param
+ * @param	n		a pointer to count the number of value in the param
+ * 
+ * @return	The option or NULL if not found
+ * 
+ * @version	2.0.0
+*/
+# define	args_get_option(var, name) (__builtin_choose_expr( \
 		IS_TYPE(var, t_args_output *), \
 		args_parser_get_option, \
 		__builtin_choose_expr( \
@@ -350,7 +381,7 @@ char	args_option_has_param(
 			args_output_parser_get_option, \
 			(void)0 \
 		) \
-	)(var, ##__VA_ARGS__))
+	)(var, name))
 
 /**
  * @brief Extraire les valeurs d'un parametre positionnel.
