@@ -352,7 +352,7 @@ t_args_output_option	*_args_get_option(
  * 
  * @return	The requested option or `NULL` if not found
  */
-char	_args_output_parser_get_option(
+t_args_output_option	*_args_output_parser_get_option(
 	t_args_output_parser *const _output,
 	const char *const _name
 );

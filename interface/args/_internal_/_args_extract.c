@@ -90,9 +90,9 @@ void	*_args_get_param(
 {
 	void	*result = NULL;
 
-	*_count = 0;
 	if (unlikely(!_output || !_output->root || !_name || !_count))
 		return (NULL);
+	*_count = 0;
 
 	for (_t_args_output_param	*_this = _output->root->params;
 		_this;
@@ -166,9 +166,9 @@ void	*_args_output_parser_get_param(
 	void			*result = NULL;
 	unsigned int	_i = 0;
 
-	*_count = 0;
 	if (unlikely(!_output || !_name || !_count || !_output->params))
 		return (NULL);
+	*_count = 0;
 
 	for (_t_args_output_param	*_this = _output->params;
 		_this;
@@ -218,8 +218,8 @@ void	*_args_output_parser_get_param(
 			}
 			_array[_i] = NULL;
 
-			result = result;
-			*_count = _nb_values;
+				result = _array;
+				*_count = _nb_values;
 
 			return (result);
 		}
@@ -265,7 +265,7 @@ t_args_output_option	*_args_get_option(
 	return (NULL);
 }
 
-char	_args_output_parser_get_option(
+t_args_output_option	*_args_output_parser_get_option(
 	t_args_output_parser *const _output,
 	const char *const _name
 )
