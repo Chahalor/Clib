@@ -229,22 +229,13 @@ error:
 	return (NULL);
 }
 
-char	_args_get_option(
+t_args_output_option	*_args_get_option(
 	t_args_output *const _output,
-	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+	const char *const _name
 )
 {
-	char			*_lname = NULL;
-	char			_key = 0;
-	bool			_found = false;
-
-	if (unlikely(!_output || !_output->root || !_name || !_values || !_count))
-		return (0);
-
-	*_values = NULL;
-	*_count = 0;
+	char	*_lname = NULL;
+	char	_key = 0;
 
 	if (_name[0] == '-')
 	{
@@ -268,38 +259,19 @@ char	_args_get_option(
 		else if (_key && _this->short_name != _key)
 			continue ;
 
-		_found = true;
-		if (_this->params)
-		{
-			*_values = _merge_params(_this->params, _count);
-		}
-		else
-		{
-			*_values = (char **)0x1;
-			*_count = 0;
-		}
-		break ;
+		return (_this);
 	}
 
-	return (_found ? 1 : 0);
+	return (NULL);
 }
 
 char	_args_output_parser_get_option(
 	t_args_output_parser *const _output,
-	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+	const char *const _name
 )
 {
-	char			*_lname = NULL;
-	char			_key = 0;
-	bool			_found = false;
-
-	if (unlikely(!_output || !_name || !_values || !_count))
-		return (0);
-
-	*_values = NULL;
-	*_count = 0;
+	char	*_lname = NULL;
+	char	_key = 0;
 
 	if (_name[0] == '-')
 	{
@@ -323,20 +295,10 @@ char	_args_output_parser_get_option(
 		else if (_key && _this->short_name != _key)
 			continue ;
 
-		_found = true;
-		if (_this->params)
-		{
-			*_values = _merge_params(_this->params, _count);
-		}
-		else
-		{
-			*_values = (char **)0x1;
-			*_count = 0;
-		}
-		break ;
+		return (_this);
 	}
 
-	return (_found ? 1 : 0);
+	return (NULL);
 }
 
 const char	*_args_active_subcommand(

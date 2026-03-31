@@ -336,16 +336,12 @@ void	*_args_output_parser_get_param(
  *
  * @param	_output	parsed output tree
  * @param	_name	option name (short/long or raw)
- * @param	_values	receives merged values pointer
- * @param	_count	receives number of values
  *
- * @return	currently returns 0 (reserved)
+ * @return	The requested option or `NULL` if not found
  */
-char	_args_get_option(
+t_args_output_option	*_args_get_option(
 	t_args_output *const _output,
-	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+	const char *const _name
 );
 
 /**
@@ -353,16 +349,12 @@ char	_args_get_option(
  *
  * @param	_output	sub-parser output node
  * @param	_name	option name (short/long or raw)
- * @param	_values	receives merged values pointer
- * @param	_count	receives number of values
- *
- * @return	non-zero if found, zero otherwise
+ * 
+ * @return	The requested option or `NULL` if not found
  */
 char	_args_output_parser_get_option(
 	t_args_output_parser *const _output,
-	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+	const char *const _name
 );
 
 /** */

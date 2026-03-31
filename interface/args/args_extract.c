@@ -89,30 +89,26 @@ void	*args_output_parser_get_param(
 		return (_args_output_parser_get_param(_output, _name, _count));
 }
 
-char	args_parser_get_option(
+t_args_output_option	*args_parser_get_option(
 	t_args_output *const _output,
-	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+	const char *const _name
 )
 {
-	if (unlikely(!_output || !_name || !_values || !_count))
+	if (unlikely(!_output || !_name))
 		return (error_invalid_arg);
 	else
-		return (_args_get_option(_output, _name, _values, _count));
+		return (_args_get_option(_output, _name));
 }
 
-char	args_output_parser_get_option(
+t_args_output_option	*	args_output_parser_get_option(
 	t_args_output_parser *const _output,
-	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+	const char *const _name
 )
 {
-	if (unlikely(!_output || !_name || !_values || !_count))
+	if (unlikely(!_output || !_name))
 		return (error_invalid_arg);
 	else
-		return (_args_output_parser_get_option(_output, _name, _values, _count));
+		return (_args_output_parser_get_option(_output, _name));
 }
 
 const char	*args_active_subcommand(
