@@ -26,7 +26,7 @@ char	args_has_param(
 	if (unlikely(!_parser || !_name))
 		return (error_invalid_arg);
 	else
-		return (_args_parser_has_param(_parser, _name));
+		return (_args_output_has_param(_parser, _name));
 }
 
 char	args_has_option(
@@ -37,7 +37,7 @@ char	args_has_option(
 	if (unlikely(!_parser || !_name))
 		return (error_invalid_arg);
 	else
-		return (_args_parser_has_option(_parser, _name));
+		return (_args_output_has_option(_parser, _name));
 }
 
 char	args_has_sub(
