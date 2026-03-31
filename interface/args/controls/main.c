@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "../../args.h"
+#include "../_internal_/_args.h"
 #include "../../../memory.h"
 #include "../../../standards/formating.h"
 
@@ -127,8 +128,9 @@ fail:
 
 static void	_test_ensure_tester(void)
 {
-	// CHECK(false, "should be a failed");
-	;
+	CHECK(false, "should be a failed");
+	g_checks--;
+	g_failures--;
 }
 
 static void	_test_public_api_basic(void)
@@ -175,17 +177,17 @@ static void	_test_public_api_basic(void)
 			"add option param should succeed");
 	}
 
-	CHECK(args_parser_set_desc(parser, "updated parser") == error_none,
-		"parser desc should be editable");
+	CHECK(args_set_description(parser, "updated parser") == error_none, "parser desc should be editable");
+	CHECK(strcmp("updated parser", parser->desc) == 0, "checking the new parser description");
 	if (param)
 	{
-		CHECK(args_param_set_desc(param, "updated param") == error_none,
-			"param desc should be editable");
+		CHECK(args_set_description(param, "updated param") == error_none, "param desc should be editable");
+		CHECK(strcmp("updated param", param->desc) == 0, "checking the new param description");
 	}
 	if (opt)
 	{
-		CHECK(args_option_set_desc(opt, "updated option") == error_none,
-			"option desc should be editable");
+		CHECK(args_set_description(opt, "updated option") == error_none, "option desc should be editable");
+		CHECK(strcmp("updated option", opt->desc) == 0, "checking the new option description");
 	}
 
 	args_parser_free(parser);

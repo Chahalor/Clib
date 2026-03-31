@@ -231,6 +231,29 @@ t_args_param	*args_option_add_param(
 #pragma region Setter
 
 /**
+ * @brief	set the `var` node description to `description`
+ * 
+ * @param	var			the node where the description will be set
+ * ca be a `t_args_parser*`, a `t_args_param*` or a `t_args_option*`
+ * @param	description	The description to be set
+ * 
+ * @return	error_none or error_invalid_arg;
+*/
+# define	args_set_description(var, description) (__builtin_choose_expr( \
+	IS_TYPE(var, t_args_parser *), \
+	args_parser_set_desc, \
+	__builtin_choose_expr( \
+		IS_TYPE(var, t_args_param *), \
+		args_param_set_desc, \
+		__builtin_choose_expr( \
+			IS_TYPE(var, t_args_option *), \
+			args_option_set_desc, \
+			(void *)0 \
+		) \
+	) \
+)(var, description))
+
+/**
  * @brief Definir la description d'un parser.
  *
  * Fonctionnalites:
