@@ -62,20 +62,21 @@ char	args_option_has_param(
 		return (_args_option_has_param(_option, _name));
 }
 
-char	*args_get_param(
-	t_args_output *const _output,
-	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+void	*args_parser_get_param(
+	t_args_output *const output,
+	const char *const name,
+	size_t *const n
 )
 {
-	if (unlikely(!_output || !_name || !_values || !_count))
+	char	**result = NULL;
+
+	if (unlikely(!output || !name || !n))
 		return (NULL);
 	else
-		return (_args_get_param(_output, _name, _values, _count));
+		return (_args_get_param(output, name, n));
 }
 
-char	*args_output_parser_get_param(
+void	*args_output_parser_get_param(
 	t_args_output_parser *const _output,
 	const char *const _name,
 	char *const * *const _values,
@@ -85,10 +86,10 @@ char	*args_output_parser_get_param(
 	if (unlikely(!_output || !_name || !_values || !_count))
 		return (NULL);
 	else
-		return (_args_output_parser_get_param(_output, _name, _values, _count));
+		return (_args_output_parser_get_param(_output, _name, _count));
 }
 
-char	args_get_option(
+char	args_parser_get_option(
 	t_args_output *const _output,
 	const char *const _name,
 	char *const * *const _values,

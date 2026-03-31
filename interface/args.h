@@ -41,7 +41,7 @@
 // #endif
 
 /* -----| Modules   |----- */
-	//...
+# include "../processor/processor.h"
 
 /* ************************************************************************** */
 /*                                 Macros                                     */
@@ -332,6 +332,26 @@ char	args_option_has_param(
 	const char *const _name
 );
 
+# define	args_get_param(var, name, n) (__builtin_choose_expr( \
+		IS_TYPE(var, t_args_output *), \
+		args_parser_get_param, \
+		__builtin_choose_expr( \
+			IS_TYPE(var, t_args_output_parser *), \
+			args_output_parser_get_param, \
+			(void)0 \
+		) \
+	)(var, name, n))
+
+# define	args_get_option(var, ...) (__builtin_choose_expr( \
+		IS_TYPE(var, t_args_output *), \
+		args_parser_get_option, \
+		__builtin_choose_expr( \
+			IS_TYPE(var, t_args_output_parser *), \
+			args_output_parser_get_option, \
+			(void)0 \
+		) \
+	)(var, ##__VA_ARGS__))
+
 /**
  * @brief Extraire les valeurs d'un parametre positionnel.
  *
@@ -339,39 +359,59 @@ char	args_option_has_param(
  * - Alloue un tableau de pointeurs vers les valeurs.
  * - Les chaines pointeent appartiennent a la sortie; ne pas les liberer.
  *
- * @param _output Sortie de parsing.
- * @param _name   Nom du parametre.
- * @param _values Recoit un tableau alloue (mem_alloc).
- * @param _count  Recoit le nombre de valeurs.
- *
- * @return Nom du parametre si trouve, NULL sinon.
+ * @param	output	Sortie de parsing.
+ * @param	name	Nom du parametre.
+ * @param	n		a pointer to a variable that wwill return the number of param returned
+ * 
+ * @return the param value
+ * @retval if `*n == 0`, the return value is `NULL`
+ * @retval if `*n` == 1, the return value is a `char *`
+ * @retval if `*n` > 1,  the return value is a NULL terminated `char **`
  *
  * @note Le tableau retourne doit etre libere avec mem_free().
- */
-char	*args_get_param(
+ * 
+ * @old
+char	*args_parser_get_param(
 	t_args_output *const _output,
 	const char *const _name,
 	char *const * *const _values,
 	unsigned int *const _count
 );
+ * 
+ */
+void	*args_parser_get_param(
+	t_args_output *const output,
+	const char *const name,
+	size_t *const n
+);
 
 /**
  * @brief Extraire les valeurs d'un parametre depuis une sous-commande.
  *
- * @param _output Sortie d'une sous-commande (t_args_output_parser).
- * @param _name   Nom du parametre.
- * @param _values Recoit un tableau alloue (mem_alloc).
- * @param _count  Recoit le nombre de valeurs.
- *
- * @return Nom du parametre si trouve, NULL sinon.
+ * @param	output	Sortie de parsing.
+ * @param	name	Nom du parametre.
+ * @param	n		a pointer to a variable that wwill return the number of param returned
+ * 
+ * @return the param value
+ * @retval if `*n == 0`, the return value is `NULL`
+ * @retval if `*n` == 1, the return value is a `char *`
+ * @retval if `*n` > 1,  the return value is a NULL terminated `char **`
  *
  * @note Le tableau retourne doit etre libere avec mem_free().
- */
+ * 
+ * @old
 char	*args_output_parser_get_param(
 	t_args_output_parser *const _output,
 	const char *const _name,
 	char *const * *const _values,
 	unsigned int *const _count
+);
+ * 
+ */
+void	*args_output_parser_get_param(
+	t_args_output_parser *const parser,
+	const char *const name,
+	size_t *const n
 );
 
 /**
@@ -385,37 +425,43 @@ char	*args_output_parser_get_param(
  *
  * @param _output Sortie de parsing.
  * @param _name   Nom de l'option.
- * @param _values Recoit un tableau alloue (mem_alloc) ou un sentinel.
- * @param _count  Recoit le nombre de valeurs.
  *
- * @return 1 si trouve, 0 si absent, ou error_invalid_arg si arguments invalides.
- *
- * @note Le tableau retourne doit etre libere avec mem_free() si non sentinel.
+ * @return the option search or `NULL` if the option is not found in the parsing
+ * 
+ * @old
+ char	args_parser_get_option(
+ 	t_args_output *const _output,
+ 	const char *const _name,
+ 	char *const * *const _values,
+ 	unsigned int *const _count
+ );
+ * 
  */
-char	args_get_option(
-	t_args_output *const _output,
-	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+t_args_output_option	*args_parser_get_option(
+	t_args_output *const output,
+	const char *const name
 );
 
 /**
  * @brief Extraire les valeurs d'une option depuis une sous-commande.
  *
- * @param _output Sortie d'une sous-commande (t_args_output_parser).
+ * @param _output Sortie de parsing.
  * @param _name   Nom de l'option.
- * @param _values Recoit un tableau alloue (mem_alloc) ou un sentinel.
- * @param _count  Recoit le nombre de valeurs.
  *
- * @return 1 si trouve, 0 si absent, ou error_invalid_arg si arguments invalides.
- *
- * @note Le tableau retourne doit etre libere avec mem_free() si non sentinel.
- */
+ * @return the option search or `NULL` if the option is not found in the parsing
+ * 
+ * @old
 char	args_output_parser_get_option(
-	t_args_output_parser *const _output,
-	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+	 t_args_output_parser *const _output,
+	 const char *const _name,
+	 char *const * *const _values,
+	 unsigned int *const _count
+ );
+ * 
+ */
+t_args_output_option	*args_output_parser_get_option(
+	t_args_output_parser *const parser,
+	const char *const name
 );
 
 /**

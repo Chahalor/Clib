@@ -149,10 +149,10 @@ static void	_test_public_api_basic(void)
 
 	values = NULL;
 	count = 0;
-	CHECK(args_get_option(NULL, "x", (void *)&values, &count)				== error_invalid_arg,	"get_option null output guard");
-	CHECK(args_get_param(NULL, "x", (void *)&values, &count)				== NULL,				"get_param null output guard");
-	CHECK(args_output_parser_get_option(NULL, "x", (void *)&values, &count)	== error_invalid_arg,	"sub get_option null output guard");
-	CHECK(args_output_parser_get_param(NULL, "x", (void *)&values, &count)	== NULL,				"sub get_param null output guard");
+	CHECK(args_get_option((t_args_output *)NULL, "x", (void *)&values, &count)	== error_invalid_arg,	"get_option null output guard");
+	CHECK(args_get_param((t_args_output *)NULL, "x", (void *)&values, &count)	== NULL,				"get_param null output guard");
+	CHECK(args_get_option((t_args_output_parser *)NULL, "x", (void *)&values, &count)	== error_invalid_arg,	"sub get_option null output guard");
+	CHECK(args_get_param((t_args_output_parser *)NULL, "x", (void *)&values, &count)	== NULL,				"sub get_param null output guard");
 
 	parser = args_parser_new();
 	CHECK(parser															!= NULL,				"args_parser_new should allocate parser");
@@ -161,7 +161,7 @@ static void	_test_public_api_basic(void)
 
 	opt = args_parser_add_option(parser, "sample", 's', "sample option");
 	param = args_parser_add_param(parser, "input", "input param", args_param_specs_require, param_type_str);
-	CHECK(opt	= NULL,		"add option should succeed");
+	CHECK(opt	!= NULL,	"add option should succeed");
 	CHECK(param	!= NULL,	"add parser param should succeed");
 
 	if (opt)
@@ -299,7 +299,7 @@ static void	_test_subcommand_output(void)
 
 	values = NULL;
 	count = 0;
-	name = args_output_parser_get_param(sub, "repo", (void *)&values, &count);
+	name = args_get_param(sub, "repo", (void *)&values, &count);
 	CHECK(name && !strcmp(name, "repo"),				"repo sub param should be present");
 	CHECK(count == 1,									"repo should contain one value");
 	CHECK(values && !strcmp(values[0], "origin/main"),	"repo value should match");
@@ -307,21 +307,21 @@ static void	_test_subcommand_output(void)
 
 	values = NULL;
 	count = 0;
-	CHECK(args_output_parser_get_option(sub, "todo", (void *)&values, &count) == 1,	"sub todo option should be present");
+	CHECK(args_get_option(sub, "todo", (void *)&values, &count) == 1,	"sub todo option should be present");
 	CHECK(count == 1,																"sub todo option should contain one value");
 	CHECK(values && !strcmp(values[0], "todo.md"),									"sub todo value should match");
 	_free_values(values);
 
 	values = NULL;
 	count = 0;
-	CHECK(args_output_parser_get_option(sub, "force", (void *)&values, &count) == 1,	"sub force option should be present");
+	CHECK(args_get_option(sub, "force", (void *)&values, &count) == 1,	"sub force option should be present");
 	CHECK(values	== VALUE_SENTINEL,													"sub flag option should return sentinel pointer");
 	CHECK(count		== 0,																"sub flag option should return zero value count");
 	_free_values(values);
 
 	values = VALUE_SENTINEL;
 	count = 123;
-	CHECK(args_output_parser_get_option(sub, "config", (void *)&values, &count) == 0,	"sub should not expose root config option");
+	CHECK(args_get_option(sub, "config", (void *)&values, &count) == 0,	"sub should not expose root config option");
 	CHECK(values == NULL && count == 0,													"missing sub option should reset output pointers");
 
 	args_output_free(out);
@@ -438,6 +438,30 @@ static void	_test_basic_parsing_controls(void)
 
 	args_output_free(out);
 	args_parser_free(parser);
+}
+
+static void	_test_manual(void)
+{
+	const int	argc = 4;
+	char		*argv[argc + 2] = {
+		"./bin", "-ab", "-c", "file.txt", NULL
+	};
+
+	t_args_parser	*parser = args_parser_new();
+	CHECK(parser != NULL, "parser is not NUL");
+	if (!parser)
+		return ;
+
+	t_args_option	*opt_a = args_parser_add_option(parser, "a", 'a', "a");
+	t_args_option	*opt_b = args_parser_add_option(parser, "b", 'b', "b");
+	t_args_option	*opt_c = args_parser_add_option(parser, "c", 'c', "c");
+
+	args_option_add_param(opt_c, "file", "some file", args_param_specs_require, param_type_file);
+
+	t_args_output	*out = args_parse(parser, argc, argv);
+
+	t_args_output_option	*c = args_get_option(out, "c");
+	printf("c.file=%s\n", args_get_param(c, "file"));
 }
 
 int	main(void)

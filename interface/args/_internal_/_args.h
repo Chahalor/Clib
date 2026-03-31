@@ -298,33 +298,35 @@ t_args_param	*_args_option_add_param(
  *
  * @param	_output	parsed output tree
  * @param	_name	parameter name
- * @param	_values	receives array of value pointers (allocated)
  * @param	_count	receives number of values
  *
- * @return	parameter name if found, NULL otherwise
+ * @return	the param values
+ * @retval	`NULL` if no value are found
+ * @retval	if `*_cout` == 1, return a `char *`
+ * @retval	if `*_cout` > 1, return a `char **`
  */
-char	*_args_get_param(
+void	*_args_get_param(
 	t_args_output *const _output,
 	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+	size_t *const _count
 );
 
 /**
- * @brief	get values for a named output parameter from a sub-parser output
+ * @brief	get values for a named output parameter
  *
- * @param	_output	sub-parser output node
+ * @param	_output	parsed output tree
  * @param	_name	parameter name
- * @param	_values	receives array of value pointers (allocated)
  * @param	_count	receives number of values
  *
- * @return	parameter name if found, NULL otherwise
+ * @return	the param values
+ * @retval	`NULL` if no value are found
+ * @retval	if `*_cout` == 1, return a `char *`
+ * @retval	if `*_cout` > 1, return a `char **`
  */
-char	*_args_output_parser_get_param(
+void	*_args_output_parser_get_param(
 	t_args_output_parser *const _output,
 	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+	size_t *const _count
 );
 
 /** */
