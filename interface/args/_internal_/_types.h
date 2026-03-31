@@ -1,3 +1,8 @@
+/**
+ * @file _types.h
+ * @brief Internal implementation for the interface/args module.
+ */
+
 // Header
 
 # pragma once
@@ -129,7 +134,7 @@ struct _s_args_config
 struct _s_args_param
 {	
 	t_param_type		type;		// type of the expected data
-	t_args_param_specs	specs;	// type of the args content (requiered, nargs, ...)
+	t_args_param_specs	specs;	// parameter flags (required, nargs, ...)
 
 	char				*name;		// name of the parameter
 	char				*desc;		// description of the parameter

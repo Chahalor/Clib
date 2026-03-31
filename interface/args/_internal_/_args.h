@@ -1,3 +1,8 @@
+/**
+ * @file _args.h
+ * @brief Internal implementation for the interface/args module.
+ */
+
 // Header
 
 # pragma once
@@ -535,9 +540,9 @@ int	_args_check_output(
 );
 
 /**
- * @brief	return if the option nammed `name` is in the parser `parser`
+ * @brief	return whether the option named `name` exists in `parser`
  * 
- * @param	parser	the pasrer to be checked
+ * @param	parser	parser to check
  * @param	name	the name of the option
  * 
  * @return	true of false
@@ -548,9 +553,9 @@ bool	_args_parser_has_option(
 );
 
 /**
- * @brief	return if the param nammed `name` is in the parser `parser`
+ * @brief	return whether the parameter named `name` exists in `parser`
  * 
- * @param	parser	the pasrer to be checked
+ * @param	parser	parser to check
  * @param	name	the name of the param
  * 
  * @return	true of false

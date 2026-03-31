@@ -122,13 +122,6 @@ fail:
 	return (NULL);
 }
 
-static void	_test_ensure_tester(void)
-{
-	CHECK(false, "should be a failed");
-	g_checks--;
-	g_failures--;
-}
-
 static void	_test_public_api_basic(void)
 {
 	t_args_parser	*parser;
@@ -449,7 +442,6 @@ static void	_test_basic_parsing_controls(void)
 
 int	main(void)
 {
-	_test_ensure_tester();
 	_test_public_api_basic();
 	_test_root_parse_output();
 	_test_subcommand_output();

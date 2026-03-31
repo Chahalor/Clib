@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+## @file controls.sh
+## @brief Build and run controls for the `interface/args` module.
+
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
