@@ -1,13 +1,20 @@
+/**
+ * @file _args_checks.c
+ * @brief Internal implementation for the interface/args module.
+ */
+
 // Header
 
 /**
- * name logic:	_module_action_target_sub-action_scope
- * example: 	_args_check_sub_exist_parser
- * 	- module: args
- * 	- action: check somethings
- * 	- target: sub-module, only check sub-modules
- * 	- sub-action: check the existance of
- * 	- scope: parser, from the struct parser
+ * Naming convention:
+ * `_module_action_target_subaction_scope`
+ *
+ * Example: `_args_check_sub_exist_parser`
+ * - module: `args`
+ * - action: check
+ * - target: sub-module
+ * - subaction: existence
+ * - scope: parser
  */
 
 /* ----| Headers    |----- */

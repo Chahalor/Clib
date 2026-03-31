@@ -1,4 +1,7 @@
-// Header
+/**
+ * @file args_extract.c
+ * @brief Public API implementation for the interface/args module.
+ */
 
 /* ----| Headers    |----- */
 	/* Standard */
@@ -62,56 +65,50 @@ char	args_option_has_param(
 		return (_args_option_has_param(_option, _name));
 }
 
-char	*args_get_param(
-	t_args_output *const _output,
-	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+void	*args_parser_get_param(
+	t_args_output *const output,
+	const char *const name,
+	size_t *const n
 )
 {
-	if (unlikely(!_output || !_name || !_values || !_count))
+	if (unlikely(!output || !name || !n))
 		return (NULL);
 	else
-		return (_args_get_param(_output, _name, _values, _count));
+		return (_args_get_param(output, name, n));
 }
 
-char	*args_output_parser_get_param(
-	t_args_output_parser *const _output,
-	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+void	*args_output_parser_get_param(
+	t_args_output_parser *const parser,
+	const char *const name,
+	size_t *const n
 )
 {
-	if (unlikely(!_output || !_name || !_values || !_count))
+	if (unlikely(!parser || !name || !n))
 		return (NULL);
 	else
-		return (_args_output_parser_get_param(_output, _name, _values, _count));
+		return (_args_output_parser_get_param(parser, name, n));
 }
 
-char	args_get_option(
+t_args_output_option	*args_parser_get_option(
 	t_args_output *const _output,
-	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+	const char *const _name
 )
 {
-	if (unlikely(!_output || !_name || !_values || !_count))
-		return (error_invalid_arg);
+	if (unlikely(!_output || !_name))
+		return (NULL);
 	else
-		return (_args_get_option(_output, _name, _values, _count));
+		return (_args_get_option(_output, _name));
 }
 
-char	args_output_parser_get_option(
+t_args_output_option	*	args_output_parser_get_option(
 	t_args_output_parser *const _output,
-	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+	const char *const _name
 )
 {
-	if (unlikely(!_output || !_name || !_values || !_count))
-		return (error_invalid_arg);
+	if (unlikely(!_output || !_name))
+		return (NULL);
 	else
-		return (_args_output_parser_get_option(_output, _name, _values, _count));
+		return (_args_output_parser_get_option(_output, _name));
 }
 
 const char	*args_active_subcommand(

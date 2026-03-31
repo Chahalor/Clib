@@ -1,4 +1,7 @@
-// Header
+/**
+ * @file args_error.c
+ * @brief Public API implementation for the interface/args module.
+ */
 
 /* ----| Headers    |----- */
 	/* Standard */

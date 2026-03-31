@@ -26,7 +26,7 @@
 /**
  * @brief	say if `x` is compatible with `T` using `__builtin_types_compatible_p`
 */
-#  define	IS_TYPE(x, T)	__builtin_types_compatible_p(typeof(x), T)
+#  define	IS_TYPE(x, T)	__builtin_types_compatible_p(__typeof__(x), T)
 
 /**
  * @brief	return true if the type `x` is a valid interger

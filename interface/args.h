@@ -1,20 +1,21 @@
-// Header
 /**
  * @file args.h
- * @brief API publique du module interface/args (parser CLI).
+ * @brief Public API for the `interface/args` command-line parser module.
  *
- * Ce module permet de declarer un parser (params, options, sous-commandes),
- * puis de parser un argv et d'extraire le resultat.
+ * This module lets you define a parser (options, positional parameters,
+ * subcommands) and parse `argv` into an output tree.
  *
- * Fonctionnalites principales:
- * - Options courtes (-v) et longues (--verbose).
- * - Sous-commandes (sub-parsers).
- * - Parametres positionnels et parametres d'options.
- * - Parametres "nargs" (multi-valeurs).
- * - Delimiteur "--" pour desactiver la detection des options.
+ * Supported features:
+ * - Short options (`-v`) and long options (`--verbose`)
+ * - Subcommands
+ * - Positional parameters
+ * - Option-bound parameters
+ * - Multi-value parameters (`args_param_specs_nargs`)
+ * - `--` delimiter to stop option detection
+ * - builtin `-h/--help` option
  *
- * @defgroup args Args parser
- * @brief Interface publique de parsing d'arguments.
+ * @defgroup args Args Parser
+ * @brief Public interfaces for command-line parsing.
  * @{
  */
 
@@ -36,19 +37,9 @@
 
 /* -----| Internals |----- */
 # include "args/types.h"
-// #ifdef DEBUG
-// # include "args/_internal_/_args.h"
-// #endif
 
 /* -----| Modules   |----- */
-	//...
-
-/* ************************************************************************** */
-/*                                 Macros                                     */
-/* ************************************************************************** */
-
-// #define FOR_EACH_OPTIONS(var, out) _FOR_EACH_OPTIONS(var, out)
-// #define FOR_EACH_PARAMS(var, out)  _FOR_EACH_PARAMS(var, out)
+# include "../processor/processor.h"
 
 /* ************************************************************************** */
 /*                                 Prototypes                                 */
@@ -57,41 +48,28 @@
 #pragma region Memory
 
 /**
- * @brief Creer un parser racine.
+ * @brief Create a new root parser.
  *
- * Fonctionnalites:
- * - Cree un parser vide (sans params, options, sous-commandes).
- * - Ajoute automatiquement l'option "help" / 'h' au parser racine.
+ * The root parser is initialized empty and includes the built-in
+ * `help` option (`--help` / `-h`).
  *
- * @return Pointeur vers le parser ou NULL en cas d'echec d'allocation.
+ * @return New parser instance, or `NULL` on allocation failure.
  */
 t_args_parser	*args_parser_new(void);
 
 /**
- * @brief Liberer un parser et toutes ses dependances.
+ * @brief Free a parser definition tree.
  *
- * Fonctionnalites:
- * - Libere les params, options et sous-commandes lies.
- * - Apres appel, tous les pointeurs vers le parser deviennent invalides.
- *
- * @param _parser Parser a liberer (NULL autorise).
- *
- * @return void
+ * @param _parser Parser to free (`NULL` is allowed).
  */
 void			args_parser_free(
 	t_args_parser *const _parser
 );
 
 /**
- * @brief Liberer un resultat de parsing.
+ * @brief Free a parse output tree.
  *
- * Fonctionnalites:
- * - Libere l'arbre de sortie (options/params/subs) produit par args_parse().
- * - Les valeurs pointees dans la sortie deviennent invalides.
- *
- * @param _out Sortie a liberer (NULL autorise).
- *
- * @return void
+ * @param _out Output to free (`NULL` is allowed).
  */
 void			args_output_free(
 	t_args_output *const _out
@@ -100,25 +78,16 @@ void			args_output_free(
 #pragma region Parsing
 
 /**
- * @brief Parser un argv selon un parser.
+ * @brief Parse command-line arguments using a parser definition.
  *
- * Fonctionnalites:
- * - Ignore argv[0] (le nom du programme).
- * - Supporte options courtes (-x) et longues (--name).
- * - Supporte les sous-commandes (switch de contexte).
- * - Supporte les params positionnels et "nargs".
- * - Le token "--" desactive la detection des options pour la suite.
+ * `argv[0]` is treated as program name and ignored by the parser logic.
  *
- * Limites:
- * - Pas de groupes d'options courtes (-abc) ni de formes --opt=val.
- * - Les options longues commencent par un alphanumerique (--name).
+ * @param _parser Root parser definition.
+ * @param _argc   Argument count.
+ * @param _argv   Argument vector.
  *
- * @param _parser Parser racine.
- * @param _argc   Nombre d'arguments.
- * @param _argv   Tableau argv (argv[0] = nom du binaire).
- *
- * @return Pointeur vers une sortie (meme en cas d'erreur) ou NULL si
- *         echec d'allocation. Utiliser args_error() pour connaitre l'etat.
+ * @return Parse output (including parse errors when available), or `NULL`
+ *         on allocation/argument failure.
  */
 t_args_output	*args_parse(
 	const t_args_parser *const _parser,
@@ -127,8 +96,13 @@ t_args_output	*args_parse(
 );
 
 /**
- * TODO: doc of this function
-*/
+ * @brief Render help for a parser.
+ *
+ * @param _parser Parser to describe.
+ * @param _exit   Exit behavior flag used by the module.
+ *
+ * @note Current implementation exits the process after printing help.
+ */
 void	args_show_help(
 	const t_args_parser *const _parser,
 	const int _exit
@@ -137,17 +111,13 @@ void	args_show_help(
 #pragma region Sub-parsers
 
 /**
- * @brief Ajouter une sous-commande (sub-parser) a un parser.
+ * @brief Add a subcommand parser to a parser.
  *
- * Fonctionnalites:
- * - Cree un nouveau parser enfant associe a un nom de sous-commande.
- * - Le contexte de parsing bascule des qu'un token egal a ce nom est rencontre.
+ * @param _parent Parent parser.
+ * @param _name   Subcommand name.
+ * @param _desc   Optional description.
  *
- * @param _parent Parser parent.
- * @param _name   Nom de la sous-commande (sans '-').
- * @param _desc   Description (optionnelle).
- *
- * @return Pointeur vers le sous-parser cree ou NULL en cas d'echec.
+ * @return New sub-parser, or `NULL` on error.
  */
 t_args_parser	*args_parser_add_sub(
 	t_args_parser *const _parent,
@@ -158,18 +128,14 @@ t_args_parser	*args_parser_add_sub(
 #pragma region Options
 
 /**
- * @brief Ajouter une option a un parser.
+ * @brief Add an option to a parser.
  *
- * Fonctionnalites:
- * - Supporte option longue et/ou courte.
- * - Le nom long peut etre donne avec ou sans "-" / "--" (il sera normalise).
+ * @param _parser     Target parser.
+ * @param _long_name  Long option name (with or without leading dashes).
+ * @param _short_name Short option name (`0` if unused).
+ * @param _desc       Optional description.
  *
- * @param _parser     Parser cible.
- * @param _long_name  Nom long (ex: "verbose" ou "--verbose", optionnel).
- * @param _short_name Nom court (ex: 'v', optionnel).
- * @param _desc       Description (optionnelle).
- *
- * @return Pointeur vers l'option creee, ou NULL si noms invalides ou echec.
+ * @return New option, or `NULL` on error.
  */
 t_args_option	*args_parser_add_option(
 	t_args_parser *const _parser,
@@ -181,20 +147,39 @@ t_args_option	*args_parser_add_option(
 #pragma region Parameters
 
 /**
- * @brief Ajouter un parametre positionnel a un parser.
+ * @brief Add a parameter to a parser or an option.
  *
- * Fonctionnalites:
- * - Definit l'ordre des params positionnels.
- * - Si args_param_specs_nargs est active, le parametre peut recevoir
- *   plusieurs valeurs (jusqu'a la prochaine option, ou "--", ou fin).
+ * @param var         Target node (`t_args_parser *` or `t_args_option *`).
+ * @param name        Parameter name.
+ * @param description Optional description.
+ * @param spec        Combination of `t_args_param_specs`.
+ * @param type        Logical parameter type (`t_param_type`).
  *
- * @param _parser Parser cible.
- * @param _name   Nom du parametre (ne doit pas commencer par '-').
- * @param _desc   Description (optionnelle).
- * @param _spec   Specs (args_param_specs_*).
- * @param _type   Type logique (t_param_type).
+ * @return New parameter, or `NULL` on error.
+ */
+# define	args_add_param(var, name, description, spec, type) (\
+	__builtin_choose_expr(\
+		IS_TYPE(var, t_args_parser *),\
+		args_parser_add_param,\
+		__builtin_choose_expr(\
+			IS_TYPE(var, t_args_option *),\
+			args_option_add_param,\
+			(void *)0\
+		)\
+	)\
+	(var, name, description, spec, type)\
+)
+
+/**
+ * @brief Add a positional parameter to a parser.
  *
- * @return Pointeur vers le parametre cree ou NULL en cas d'echec.
+ * @param _parser Target parser.
+ * @param _name   Parameter name.
+ * @param _desc   Optional description.
+ * @param _spec   Combination of `t_args_param_specs`.
+ * @param _type   Logical parameter type (`t_param_type`).
+ *
+ * @return New parameter, or `NULL` on error.
  */
 t_args_param	*args_parser_add_param(
 	t_args_parser *const _parser,
@@ -205,20 +190,15 @@ t_args_param	*args_parser_add_param(
 );
 
 /**
- * @brief Ajouter un parametre a une option.
+ * @brief Add an option-bound parameter to an option.
  *
- * Fonctionnalites:
- * - Lie des valeurs a une option (ex: "--count 3").
- * - Si args_param_specs_nargs est active, les valeurs s'arretent
- *   avant la prochaine option (sauf si options desactivees par "--").
+ * @param _parent Target option.
+ * @param _name   Parameter name.
+ * @param _desc   Optional description.
+ * @param _spec   Combination of `t_args_param_specs`.
+ * @param _type   Logical parameter type (`t_param_type`).
  *
- * @param _parent Option cible.
- * @param _name   Nom logique du parametre.
- * @param _desc   Description (optionnelle).
- * @param _spec   Specs (args_param_specs_*).
- * @param _type   Type logique (t_param_type).
- *
- * @return Pointeur vers le parametre cree ou NULL en cas d'echec.
+ * @return New parameter, or `NULL` on error.
  */
 t_args_param	*args_option_add_param(
 	t_args_option *const _parent,
@@ -231,15 +211,35 @@ t_args_param	*args_option_add_param(
 #pragma region Setter
 
 /**
- * @brief Definir la description d'un parser.
+ * @brief Set description text on parser/parameter/option nodes.
  *
- * Fonctionnalites:
- * - Remplace la description courante.
+ * @param var         Target node (`t_args_parser *`, `t_args_param *`,
+ *                    or `t_args_option *`).
+ * @param description New description string (`NULL` to clear).
  *
- * @param parser Parser cible.
- * @param desc   Description (NULL pour supprimer).
+ * @return `error_none` on success, otherwise an error code.
+ */
+# define	args_set_description(var, description) (__builtin_choose_expr( \
+	IS_TYPE(var, t_args_parser *), \
+	args_parser_set_desc, \
+	__builtin_choose_expr( \
+		IS_TYPE(var, t_args_param *), \
+		args_param_set_desc, \
+		__builtin_choose_expr( \
+			IS_TYPE(var, t_args_option *), \
+			args_option_set_desc, \
+			(void *)0 \
+		) \
+	) \
+)(var, description))
+
+/**
+ * @brief Set a parser description.
  *
- * @return error_none ou code d'erreur.
+ * @param parser Target parser.
+ * @param desc   New description (`NULL` to clear).
+ *
+ * @return `error_none` on success, otherwise an error code.
  */
 int args_parser_set_desc(
 	t_args_parser *const parser,
@@ -247,12 +247,12 @@ int args_parser_set_desc(
 );
 
 /**
- * @brief Definir la description d'un parametre.
+ * @brief Set a parameter description.
  *
- * @param _param Parametre cible.
- * @param _desc  Description (NULL pour supprimer).
+ * @param _param Target parameter.
+ * @param _desc  New description (`NULL` to clear).
  *
- * @return error_none ou code d'erreur.
+ * @return `error_none` on success, otherwise an error code.
  */
 int	args_param_set_desc(
 	t_args_param *const _param,
@@ -260,12 +260,12 @@ int	args_param_set_desc(
 );
 
 /**
- * @brief Definir la description d'une option.
+ * @brief Set an option description.
  *
- * @param _option Option cible.
- * @param _desc   Description (NULL pour supprimer).
+ * @param _option Target option.
+ * @param _desc   New description (`NULL` to clear).
  *
- * @return error_none ou code d'erreur.
+ * @return `error_none` on success, otherwise an error code.
  */
 int	args_option_set_desc(
 	t_args_option *const _option,
@@ -275,15 +275,12 @@ int	args_option_set_desc(
 #pragma region Extraction
 
 /**
- * @brief Tester la presence d'un parametre positionnel dans la sortie.
+ * @brief Check whether a root positional parameter exists in output.
  *
- * Fonctionnalites:
- * - Recherche un parametre par nom dans la sortie racine.
+ * @param _parser Parse output.
+ * @param _name   Parameter name.
  *
- * @param _parser Sortie de parsing (t_args_output).
- * @param _name   Nom du parametre.
- *
- * @return 1 si trouve, 0 si absent, ou error_invalid_arg si arguments invalides.
+ * @return `1` if present, `0` if absent, or `error_invalid_arg`.
  */
 char	args_has_param(
 	t_args_output *const _parser,
@@ -291,15 +288,14 @@ char	args_has_param(
 );
 
 /**
- * @brief Tester la presence d'une option dans la sortie.
+ * @brief Check whether an option exists in output.
  *
- * Fonctionnalites:
- * - Accepte "-x", "--name", "x" ou "name".
+ * Accepted names: `-x`, `--name`, `x`, `name`.
  *
- * @param _parser Sortie de parsing (t_args_output).
- * @param _name   Nom de l'option.
+ * @param _parser Parse output.
+ * @param _name   Option name.
  *
- * @return 1 si trouve, 0 si absent, ou error_invalid_arg si arguments invalides.
+ * @return `1` if present, `0` if absent, or `error_invalid_arg`.
  */
 char	args_has_option(
 	t_args_output *const _parser,
@@ -307,12 +303,12 @@ char	args_has_option(
 );
 
 /**
- * @brief Tester la presence d'une sous-commande dans la sortie.
+ * @brief Check whether a subcommand exists in output.
  *
- * @param _parser Sortie de parsing (t_args_output).
- * @param _name   Nom de la sous-commande.
+ * @param _parser Parse output.
+ * @param _name   Subcommand name.
  *
- * @return 1 si trouve, 0 si absent, ou error_invalid_arg si arguments invalides.
+ * @return `1` if present, `0` if absent, or `error_invalid_arg`.
  */
 char	args_has_sub(
 	t_args_output *const _parser,
@@ -320,12 +316,12 @@ char	args_has_sub(
 );
 
 /**
- * @brief Tester si une option de sortie contient un parametre nomme.
+ * @brief Check whether an output option contains a named parameter.
  *
- * @param _option Option de sortie.
- * @param _name   Nom du parametre a tester.
+ * @param _option Output option.
+ * @param _name   Parameter name.
  *
- * @return 1 si trouve, 0 si absent, ou error_invalid_arg si arguments invalides.
+ * @return `1` if present, `0` if absent, or `error_invalid_arg`.
  */
 char	args_option_has_param(
 	t_args_output_option *const _option,
@@ -333,111 +329,121 @@ char	args_option_has_param(
 );
 
 /**
- * @brief Extraire les valeurs d'un parametre positionnel.
+ * @brief Get parameter value(s) from a root output or sub-output node.
  *
- * Fonctionnalites:
- * - Alloue un tableau de pointeurs vers les valeurs.
- * - Les chaines pointeent appartiennent a la sortie; ne pas les liberer.
+ * @param var  Source node (`t_args_output *` or `t_args_output_parser *`).
+ * @param name Parameter name.
+ * @param n    Receives number of values.
  *
- * @param _output Sortie de parsing.
- * @param _name   Nom du parametre.
- * @param _values Recoit un tableau alloue (mem_alloc).
- * @param _count  Recoit le nombre de valeurs.
- *
- * @return Nom du parametre si trouve, NULL sinon.
- *
- * @note Le tableau retourne doit etre libere avec mem_free().
+ * @return `NULL` if not found or empty; `char *` when `*n == 1`; `char **`
+ *         (NULL-terminated) when `*n > 1`. Returned memory must be freed
+ *         with `mem_free`.
  */
-char	*args_get_param(
-	t_args_output *const _output,
-	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+# define	args_get_param(var, name, n) (__builtin_choose_expr( \
+		IS_TYPE(var, t_args_output *), \
+		args_parser_get_param, \
+		__builtin_choose_expr( \
+			IS_TYPE(var, t_args_output_parser *), \
+			args_output_parser_get_param, \
+			(void)0 \
+		) \
+	)(var, name, n))
+
+/**
+ * @brief Get an option node from a root output or sub-output node.
+ *
+ * @param var  Source node (`t_args_output *` or `t_args_output_parser *`).
+ * @param name Option name.
+ *
+ * @return Matching output option, or `NULL` if not found.
+ */
+# define	args_get_option(var, name) (__builtin_choose_expr( \
+		IS_TYPE(var, t_args_output *), \
+		args_parser_get_option, \
+		__builtin_choose_expr( \
+			IS_TYPE(var, t_args_output_parser *), \
+			args_output_parser_get_option, \
+			(void)0 \
+		) \
+	)(var, name))
+
+/**
+ * @brief Get value(s) for a named root positional parameter.
+ *
+ * @param output Parse output root.
+ * @param name   Parameter name.
+ * @param n      Receives number of values.
+ *
+ * @return `NULL` if not found or empty; `char *` when `*n == 1`; `char **`
+ *         (NULL-terminated) when `*n > 1`. Returned memory must be freed
+ *         with `mem_free`.
+ */
+void	*args_parser_get_param(
+	t_args_output *const output,
+	const char *const name,
+	size_t *const n
 );
 
 /**
- * @brief Extraire les valeurs d'un parametre depuis une sous-commande.
+ * @brief Get value(s) for a named subcommand positional parameter.
  *
- * @param _output Sortie d'une sous-commande (t_args_output_parser).
- * @param _name   Nom du parametre.
- * @param _values Recoit un tableau alloue (mem_alloc).
- * @param _count  Recoit le nombre de valeurs.
+ * @param parser Subcommand output node.
+ * @param name   Parameter name.
+ * @param n      Receives number of values.
  *
- * @return Nom du parametre si trouve, NULL sinon.
- *
- * @note Le tableau retourne doit etre libere avec mem_free().
+ * @return `NULL` if not found or empty; `char *` when `*n == 1`; `char **`
+ *         (NULL-terminated) when `*n > 1`. Returned memory must be freed
+ *         with `mem_free`.
  */
-char	*args_output_parser_get_param(
-	t_args_output_parser *const _output,
-	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+void	*args_output_parser_get_param(
+	t_args_output_parser *const parser,
+	const char *const name,
+	size_t *const n
 );
 
 /**
- * @brief Extraire les valeurs d'une option.
+ * @brief Get a named option from root output.
  *
- * Fonctionnalites:
- * - Accepte "-x", "--name", "x" ou "name".
- * - Regroupe toutes les valeurs de ses params dans un seul tableau.
- * - Si l'option n'a pas de params, *_values est mis a (char **)0x1
- *   et *_count a 0.
+ * @param output Parse output root.
+ * @param name   Option name.
  *
- * @param _output Sortie de parsing.
- * @param _name   Nom de l'option.
- * @param _values Recoit un tableau alloue (mem_alloc) ou un sentinel.
- * @param _count  Recoit le nombre de valeurs.
- *
- * @return 1 si trouve, 0 si absent, ou error_invalid_arg si arguments invalides.
- *
- * @note Le tableau retourne doit etre libere avec mem_free() si non sentinel.
+ * @return Matching output option, or `NULL` if not found.
  */
-char	args_get_option(
-	t_args_output *const _output,
-	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+t_args_output_option	*args_parser_get_option(
+	t_args_output *const output,
+	const char *const name
 );
 
 /**
- * @brief Extraire les valeurs d'une option depuis une sous-commande.
+ * @brief Get a named option from a subcommand output.
  *
- * @param _output Sortie d'une sous-commande (t_args_output_parser).
- * @param _name   Nom de l'option.
- * @param _values Recoit un tableau alloue (mem_alloc) ou un sentinel.
- * @param _count  Recoit le nombre de valeurs.
+ * @param parser Subcommand output node.
+ * @param name   Option name.
  *
- * @return 1 si trouve, 0 si absent, ou error_invalid_arg si arguments invalides.
- *
- * @note Le tableau retourne doit etre libere avec mem_free() si non sentinel.
+ * @return Matching output option, or `NULL` if not found.
  */
-char	args_output_parser_get_option(
-	t_args_output_parser *const _output,
-	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+t_args_output_option	*args_output_parser_get_option(
+	t_args_output_parser *const parser,
+	const char *const name
 );
 
 /**
- * @brief Recuperer le nom de la sous-commande active.
+ * @brief Return the active subcommand name (first matched subcommand).
  *
- * Fonctionnalites:
- * - Retourne le nom de la premiere sous-commande rencontree.
+ * @param out Parse output.
  *
- * @param out Sortie de parsing.
- *
- * @return Nom de la sous-commande active ou NULL.
+ * @return Active subcommand name, or `NULL`.
  */
 const char	*args_active_subcommand(
 	const t_args_output *out
 );
 
 /**
- * @brief Recuperer la sortie de la premiere sous-commande.
+ * @brief Return the first subcommand output node.
  *
- * @param out Sortie de parsing.
+ * @param out Parse output.
  *
- * @return Pointeur vers t_args_output_parser ou NULL si aucune sous-commande.
+ * @return Subcommand output node, or `NULL`.
  */
 t_args_output_parser	*args_get_sub_output(
 	const t_args_output *out
@@ -446,22 +452,22 @@ t_args_output_parser	*args_get_sub_output(
 #pragma region Configuration
 
 /**
- * @brief Recuperer le code d'erreur de parsing.
+ * @brief Get parser error code from output.
  *
- * @param out Sortie de parsing.
+ * @param out Parse output.
  *
- * @return Code d'erreur (enum e_args_error).
+ * @return Error code (`enum e_args_error`).
  */
 int	args_error(
 	const t_args_output *out
 );
 
 /**
- * @brief Convertir un code d'erreur en chaine lisible.
+ * @brief Convert parser error code to string.
  *
- * @param err Code d'erreur (enum e_args_error).
+ * @param err Error code.
  *
- * @return Chaine constante descriptive.
+ * @return Static error description string.
  */
 const char	*args_error_str(
 	int err

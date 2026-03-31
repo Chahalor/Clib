@@ -1,3 +1,8 @@
+/**
+ * @file _args_builtin.c
+ * @brief Internal implementation for the interface/args module.
+ */
+
 // Header
 
 /* ----| Headers    |----- */

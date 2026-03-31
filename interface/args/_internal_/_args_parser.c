@@ -1,4 +1,9 @@
 /**
+ * @file _args_parser.c
+ * @brief Internal implementation for the interface/args module.
+ */
+
+/**
  * 
 */
 

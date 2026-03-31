@@ -1,3 +1,8 @@
+/**
+ * @file _args_edit.c
+ * @brief Internal implementation for the interface/args module.
+ */
+
 // Header
 
 /* ----| Headers    |----- */

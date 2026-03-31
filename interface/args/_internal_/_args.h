@@ -1,3 +1,8 @@
+/**
+ * @file _args.h
+ * @brief Internal implementation for the interface/args module.
+ */
+
 // Header
 
 # pragma once
@@ -298,33 +303,35 @@ t_args_param	*_args_option_add_param(
  *
  * @param	_output	parsed output tree
  * @param	_name	parameter name
- * @param	_values	receives array of value pointers (allocated)
  * @param	_count	receives number of values
  *
- * @return	parameter name if found, NULL otherwise
+ * @return	the param values
+ * @retval	`NULL` if no value are found
+ * @retval	if `*_cout` == 1, return a `char *`
+ * @retval	if `*_cout` > 1, return a `char **`
  */
-char	*_args_get_param(
+void	*_args_get_param(
 	t_args_output *const _output,
 	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+	size_t *const _count
 );
 
 /**
- * @brief	get values for a named output parameter from a sub-parser output
+ * @brief	get values for a named output parameter
  *
- * @param	_output	sub-parser output node
+ * @param	_output	parsed output tree
  * @param	_name	parameter name
- * @param	_values	receives array of value pointers (allocated)
  * @param	_count	receives number of values
  *
- * @return	parameter name if found, NULL otherwise
+ * @return	the param values
+ * @retval	`NULL` if no value are found
+ * @retval	if `*_cout` == 1, return a `char *`
+ * @retval	if `*_cout` > 1, return a `char **`
  */
-char	*_args_output_parser_get_param(
+void	*_args_output_parser_get_param(
 	t_args_output_parser *const _output,
 	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+	size_t *const _count
 );
 
 /** */
@@ -334,16 +341,12 @@ char	*_args_output_parser_get_param(
  *
  * @param	_output	parsed output tree
  * @param	_name	option name (short/long or raw)
- * @param	_values	receives merged values pointer
- * @param	_count	receives number of values
  *
- * @return	currently returns 0 (reserved)
+ * @return	The requested option or `NULL` if not found
  */
-char	_args_get_option(
+t_args_output_option	*_args_get_option(
 	t_args_output *const _output,
-	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+	const char *const _name
 );
 
 /**
@@ -351,16 +354,12 @@ char	_args_get_option(
  *
  * @param	_output	sub-parser output node
  * @param	_name	option name (short/long or raw)
- * @param	_values	receives merged values pointer
- * @param	_count	receives number of values
- *
- * @return	non-zero if found, zero otherwise
+ * 
+ * @return	The requested option or `NULL` if not found
  */
-char	_args_output_parser_get_option(
+t_args_output_option	*_args_output_parser_get_option(
 	t_args_output_parser *const _output,
-	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+	const char *const _name
 );
 
 /** */
@@ -541,9 +540,9 @@ int	_args_check_output(
 );
 
 /**
- * @brief	return if the option nammed `name` is in the parser `parser`
+ * @brief	return whether the option named `name` exists in `parser`
  * 
- * @param	parser	the pasrer to be checked
+ * @param	parser	parser to check
  * @param	name	the name of the option
  * 
  * @return	true of false
@@ -554,9 +553,9 @@ bool	_args_parser_has_option(
 );
 
 /**
- * @brief	return if the param nammed `name` is in the parser `parser`
+ * @brief	return whether the parameter named `name` exists in `parser`
  * 
- * @param	parser	the pasrer to be checked
+ * @param	parser	parser to check
  * @param	name	the name of the param
  * 
  * @return	true of false

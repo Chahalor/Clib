@@ -1,3 +1,8 @@
+#[[
+@file CMakeLists.txt
+@brief CMake rules for the `interface/args` module.
+]]
+
 file(GLOB_RECURSE ARGS_SRC
 	*.c
 )

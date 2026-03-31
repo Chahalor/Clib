@@ -1,3 +1,8 @@
+/**
+ * @file _args_extract.c
+ * @brief Internal implementation for the interface/args module.
+ */
+
 // Header
 
 /* ----| Headers    |----- */
@@ -82,21 +87,16 @@ static inline char	**_merge_params(
 
 /* ----| Public     |----- */
 
-char	*_args_get_param(
+void	*_args_get_param(
 	t_args_output *const _output,
 	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+	size_t *const _count
 )
 {
-	unsigned int	_nb_values = 0;
-	char			**result = NULL;
-	unsigned int	_i = 0;
+	void	*result = NULL;
 
-	if (unlikely(!_output || !_output->root || !_name || !_values || !_count))
+	if (unlikely(!_output || !_output->root || !_name || !_count))
 		return (NULL);
-
-	*_values = NULL;
 	*_count = 0;
 
 	for (_t_args_output_param	*_this = _output->root->params;
@@ -104,48 +104,75 @@ char	*_args_get_param(
 		_this = _this->next
 	)
 	{
+		unsigned int	_nb_values = 0;
+
 		if (strcmp(_this->name, _name))
 			continue ;
 
 		_nb_values = _count_values(_this->values);
-		result = mem_alloc(sizeof(char *) * (_nb_values + 1));
-		if (unlikely(!result))
+
+		if (!_nb_values)
 		{
-			_args_config_set_errnum(error_alloc_fail);
-			goto error;
+			*_count = 0;
+			return (NULL);
 		}
-		for (_t_args_output_value	*_val = _this->values;
-			_val;
-			_val = _val->next
-		)
+		else if (_nb_values == 1)
 		{
-			result[_i++] = _val->value;
+			char	*_val = _this->values->value;
+
+			result = mem_alloc(sizeof(char) * (strlen(_val) + 1));
+			if (unlikely(!result))
+			{
+				_args_config_set_errnum(error_alloc_fail);
+				goto error;
+			}
+			strcpy(result, _val);
+			*_count = 1;
+
+			return (result);
 		}
-		result[_i] = NULL;
-		*_values = result;
-		*_count = _nb_values;
-		return (_this->name);
+		else
+		{
+			char			**_array = mem_alloc(sizeof(char *) * (_nb_values + 1));
+			unsigned int	_i = 0;
+
+			if (unlikely(!_array))
+			{
+				_args_config_set_errnum(error_alloc_fail);
+				goto error;
+			}
+			for (_t_args_output_value	*_val = _this->values;
+				_val;
+				_val = _val->next
+			)
+			{
+				_array[_i++] = _val->value;
+			}
+			_array[_i] = NULL;
+
+			*_count = _nb_values;
+			result = _array;
+
+			return (result);
+		}
 	}
 
 error:
 	return (NULL);
 }
 
-char	*_args_output_parser_get_param(
+void	*_args_output_parser_get_param(
 	t_args_output_parser *const _output,
 	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+	size_t *const _count
 )
 {
 	unsigned int	_nb_values = 0;
-	char			**result = NULL;
+	void			*result = NULL;
 	unsigned int	_i = 0;
 
-	if (unlikely(!_output || !_name || !_values || !_count || !_output->params))
+	if (unlikely(!_output || !_name || !_count || !_output->params))
 		return (NULL);
-
-	*_values = NULL;
 	*_count = 0;
 
 	for (_t_args_output_param	*_this = _output->params;
@@ -157,45 +184,63 @@ char	*_args_output_parser_get_param(
 			continue ;
 
 		_nb_values = _count_values(_this->values);
-		result = mem_alloc(sizeof(char *) * (_nb_values + 1));
-		if (unlikely(!result))
+
+		if (!_nb_values)
 		{
-			_args_config_set_errnum(error_alloc_fail);
-			goto error;
+			*_count = 0;
+			return (NULL);
 		}
-		for (_t_args_output_value	*_val = _this->values;
-			_val;
-			_val = _val->next
-		)
+		else if (_nb_values == 1)
 		{
-			result[_i++] = _val->value;
+			const char	*const	_val = _this->values->value;
+
+			result = mem_alloc(sizeof(char) * (strlen(_val) + 1));
+			if (unlikely(!result))
+			{
+				_args_config_set_errnum(error_alloc_fail);
+				goto error;
+			}
+			strcpy(result, _val);
+			*_count = 1;
+
+			return (result);
 		}
-		result[_i] = NULL;
-		*_values = result;
-		*_count = _nb_values;
-		return (_this->name);
+		else
+		{
+			char	**_array = mem_alloc(sizeof(char *) * (_nb_values + 1));
+			if (unlikely(!_array))
+			{
+				_args_config_set_errnum(error_alloc_fail);
+				goto error;
+			}
+
+			for (_t_args_output_value	*_val = _this->values;
+				_val;
+				_val = _val->next
+			)
+			{
+				_array[_i++] = _val->value;
+			}
+			_array[_i] = NULL;
+
+				result = _array;
+				*_count = _nb_values;
+
+			return (result);
+		}
 	}
 
 error:
 	return (NULL);
 }
 
-char	_args_get_option(
+t_args_output_option	*_args_get_option(
 	t_args_output *const _output,
-	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+	const char *const _name
 )
 {
-	char			*_lname = NULL;
-	char			_key = 0;
-	bool			_found = false;
-
-	if (unlikely(!_output || !_output->root || !_name || !_values || !_count))
-		return (0);
-
-	*_values = NULL;
-	*_count = 0;
+	char	*_lname = NULL;
+	char	_key = 0;
 
 	if (_name[0] == '-')
 	{
@@ -219,38 +264,19 @@ char	_args_get_option(
 		else if (_key && _this->short_name != _key)
 			continue ;
 
-		_found = true;
-		if (_this->params)
-		{
-			*_values = _merge_params(_this->params, _count);
-		}
-		else
-		{
-			*_values = (char **)0x1;
-			*_count = 0;
-		}
-		break ;
+		return (_this);
 	}
 
-	return (_found ? 1 : 0);
+	return (NULL);
 }
 
-char	_args_output_parser_get_option(
+t_args_output_option	*_args_output_parser_get_option(
 	t_args_output_parser *const _output,
-	const char *const _name,
-	char *const * *const _values,
-	unsigned int *const _count
+	const char *const _name
 )
 {
-	char			*_lname = NULL;
-	char			_key = 0;
-	bool			_found = false;
-
-	if (unlikely(!_output || !_name || !_values || !_count))
-		return (0);
-
-	*_values = NULL;
-	*_count = 0;
+	char	*_lname = NULL;
+	char	_key = 0;
 
 	if (_name[0] == '-')
 	{
@@ -274,20 +300,10 @@ char	_args_output_parser_get_option(
 		else if (_key && _this->short_name != _key)
 			continue ;
 
-		_found = true;
-		if (_this->params)
-		{
-			*_values = _merge_params(_this->params, _count);
-		}
-		else
-		{
-			*_values = (char **)0x1;
-			*_count = 0;
-		}
-		break ;
+		return (_this);
 	}
 
-	return (_found ? 1 : 0);
+	return (NULL);
 }
 
 const char	*_args_active_subcommand(
