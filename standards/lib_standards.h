@@ -10,7 +10,8 @@
 /* ************************************************************************** */
 
 /* -----| Systems   |----- */
-#include <stdbool.h>
+# include <stdbool.h>
+# include <stdio.h>
 
 /* -----| Globals   |----- */
 # include "lib_config.h"

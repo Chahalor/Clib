@@ -9,7 +9,6 @@
 /* -----| Systems   |----- */
 #include <ctype.h>
 #include <stdarg.h>
-#include <stdio.h>	// rm
 
 /* -----| Globals   |----- */
 # include "lib_config.h"
@@ -388,6 +387,15 @@ _t_args_output_parser	*_args_get_sub_output(
 	const t_args_output *_out
 );
 
+t_args_option	*_args_parser_get_option(
+	const t_args_parser *const parser,
+	const char *const name
+);
+
+t_args_param	*_args_parser_get_param(
+	const t_args_parser *const parser,
+	const char *const name
+);
 
 /* -----| Checks     |----- */
 #pragma region Checks
@@ -472,7 +480,7 @@ static inline int	_args_is_opt(
  *
  * @return	true if found, false otherwise
  */
-bool	_args_parser_has_param(
+bool	_args_output_has_param(
 	const t_args_output *const _output,
 	const char *const _name
 );
@@ -486,7 +494,7 @@ bool	_args_parser_has_param(
  *
  * @return	true if found, false otherwise
  */
-bool	_args_parser_has_option(
+bool	_args_output_has_option(
 	const t_args_output *const _output,
 	const char *const _name
 );
@@ -531,6 +539,33 @@ int	_args_check_output(
 	const _t_args_root *const _root,
 	const _t_args_output *const _output
 );
+
+/**
+ * @brief	return if the option nammed `name` is in the parser `parser`
+ * 
+ * @param	parser	the pasrer to be checked
+ * @param	name	the name of the option
+ * 
+ * @return	true of false
+*/
+bool	_args_parser_has_option(
+	const t_args_parser *const parser,
+	const char *const name
+);
+
+/**
+ * @brief	return if the param nammed `name` is in the parser `parser`
+ * 
+ * @param	parser	the pasrer to be checked
+ * @param	name	the name of the param
+ * 
+ * @return	true of false
+*/
+bool	_args_parser_has_param(
+	const t_args_parser *const parser,
+	const char *const name
+);
+
 
 #pragma region Builtins
 

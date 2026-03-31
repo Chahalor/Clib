@@ -317,3 +317,45 @@ _t_args_output_parser	*_args_get_sub_output(
 
 	return (result);
 }
+
+t_args_option	*_args_parser_get_option(
+	const t_args_parser *const parser,
+	const char *const name
+)
+{
+	const char	*const	_lname = name[0] == '-' && name[1] == '-'	? name + 2	: name;
+	const char			_sname = name[0] == '-' && name[1]			? name[1]	: name[0];
+
+	for (t_args_option	*_opt = parser->options;
+		_opt != NULL;
+		_opt = _opt->next
+	)
+	{
+		
+		if (_opt->long_name && !strcmp(_opt->long_name, _lname))
+			return (_opt);
+
+		if (_opt->short_name == _sname)
+			return (_opt);
+	}
+
+	return (NULL);
+}
+
+t_args_param	*_args_parser_get_param(
+	const t_args_parser *const parser,
+	const char *const name
+)
+{
+	for (t_args_param	*_param = parser->params;
+		_param != NULL;
+		_param = _param->next
+	)
+	{
+		
+		if (_param->name && !strcmp(_param->name, name))
+			return (_param);
+	}
+
+	return (NULL);
+}

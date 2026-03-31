@@ -145,25 +145,29 @@ static inline int	_check_output_params(
 	const _t_args_output_param *_out
 )
 {
-	int	result = error_none;
-
 	const _t_args_output_param	*_param = _out;
+	int							result = error_none;
+
 	for (const _t_args_param	*_this = _params;
 		_this && !result;
 		_this = _this->next
 	)
 	{
-		if (unlikely(!_param || !_param->name))
+		if (!_param)
 		{
 			if (_args_param_is_requiered(_this))
-				result = args_error_missing_param;
+				return (args_error_missing_param);
 		}
-		else if (_param->error)
-			result = _param->error;
-
-		if (_param)
+		else
+		{
+			if (_param->error)
+				return (_param->error);
 			_param = _param->next;
+		}
 	}
+
+	if (_param)
+		return (args_error_extra_param);
 
 	return (result);
 }
@@ -203,14 +207,17 @@ static inline int	_check_output_options(
 	{
 		if (_this->error)
 			result = _this->error;
-		else if (_this->params)
-		{
-			const _t_args_option	*_opt = _find_option(_options, _this);
 
-			if (!_opt)
-				result = false;
-			else
-				result = _check_output_params(_opt->params, _this->params);
+		const _t_args_option	*_opt = _find_option(_options, _this);
+
+		if (!_opt)
+			result = false;
+		else
+		{
+			if (_opt->params && !_this->params)
+				return (args_error_missing_param);
+
+			result = _check_output_params(_opt->params, _this->params);
 		}
 	}
 
@@ -258,7 +265,7 @@ static inline int	_check_output_parser(
 
 /* ----| Public     |----- */
 
-bool	_args_parser_has_param(
+bool	_args_output_has_param(
 	const t_args_output *const _output,
 	const char *const _name
 )
@@ -280,7 +287,7 @@ bool	_args_parser_has_param(
 	return (result);
 }
 
-bool	_args_parser_has_option(
+bool	_args_output_has_option(
 	const t_args_output *const _output,
 	const char *const _name
 )
@@ -413,12 +420,52 @@ int	_args_check_output(
 	else if (_output->error)
 		result = _output->error;
 	else if (_output->root->sub)
-	{
- 		result = _check_output_parser(_root->parser->sub_parsers, _output->root->sub);
-	}
+		result = _check_output_parser(_root->parser->sub_parsers, _output->root->sub);
 	else
 		result = _check_output_parser(_root->parser, _output->root);
 
 error:
 	return (result);
+}
+
+bool	_args_parser_has_option(
+	const t_args_parser *const parser,
+	const char *const name
+)
+{
+	const char	*const	_lname = name[0] == '-' && name[1] == '-'	? name + 2	: name;
+	const char			_sname = name[0] == '-' && name[1]			? name[1]	: name[0];
+
+	for (t_args_option	*_opt = parser->options;
+		_opt != NULL;
+		_opt = _opt->next
+	)
+	{
+		
+		if (_opt->long_name && !strcmp(_opt->long_name, _lname))
+			return (true);
+
+		if (_opt->short_name == _sname)
+			return (true);
+	}
+
+	return (false);
+}
+
+bool	_args_parser_has_param(
+	const t_args_parser *const parser,
+	const char *const name
+)
+{
+	for (t_args_param	*_param = parser->params;
+		_param != NULL;
+		_param = _param->next
+	)
+	{
+		
+		if (_param->name && !strcmp(_param->name, name))
+			return (true);
+	}
+
+	return (false);
 }

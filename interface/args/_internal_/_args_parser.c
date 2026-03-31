@@ -309,16 +309,20 @@ static inline int	_args_parse_loop_parser(
 
 	if (!opt_disabled && _args_is_opt(current))
 	{
-		if (current[0] && current[0] == '-' && current[1] != '-')
+		const int	_alone =	current[0] != '\0' &&
+								current[1] != '\0' &&
+								current[2] == '\0';
+
+		if (!_alone)
 		{
-			for (size_t	i = 0;
+			for (size_t	i = 1;
 				current[i];
 				i++
 			)
 			{
 				const char	c = current[i];
 				const char	s[2] = {c, '\0'};
-				_t_args_option	*_this = _get_opt_of(*context, s);
+				_t_args_option	*_this = _args_parser_get_option(*context, s);
 
 				if (!_this)
 				{
@@ -338,6 +342,8 @@ static inline int	_args_parse_loop_parser(
 					(*out_opt)->nb_call++;
 				}
 			}
+
+			goto error;
 		}
 
 		*opt = _get_opt_of(*context, current);
@@ -359,6 +365,7 @@ static inline int	_args_parse_loop_parser(
 		*opt_param = (*opt)->params;
 		if (*opt_param)
 			*context_type = args_context_opt;
+
 		goto error;
 	}
 
@@ -420,8 +427,7 @@ static inline int	_args_parse_loop_option(
 		goto error;
 	}
 
-	if (
-		!*opt_disabled &&
+	if (!*opt_disabled &&
 		((*opt_param)->specs & args_param_specs_nargs) &&
 		_args_is_opt(current)
 	)
