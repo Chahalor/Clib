@@ -488,12 +488,12 @@ static void	_test_manual(
 
 int	main(int argc, const char *argv[])
 {
+	_test_public_api_basic();
+	_test_root_parse_output();
+	_test_subcommand_output();
+	_test_error_paths();
+	_test_basic_parsing_controls();
 	_test_manual(argc, argv);
-	// _test_public_api_basic();
-	// _test_root_parse_output();
-	// _test_subcommand_output();
-	// _test_error_paths();
-	// _test_basic_parsing_controls();
 
 	if (g_failures)
 	{

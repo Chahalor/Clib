@@ -392,9 +392,9 @@ static inline int	_args_parse_loop_parser(
 		{
 			char	*pos = strchr(current, '=');
 
-			fprintf(stderr, "pos: '%s'\n", pos);	//rm
 			if (pos && pos[1] != '\0' && !((*opt_param)->specs & args_param_specs_nargs))
 			{
+				_t_args_output_param	*_param;
 				// if (unlikely(!*pos_cursor))
 				// {
 				// 	result = args_error_extra_param;
@@ -402,16 +402,26 @@ static inline int	_args_parse_loop_parser(
 				// 	goto error;
 				// }
 
-				out_param = _out_add_param(&(*out_context)->params, (*opt_param)->name);
-				if (unlikely(!out_param))
+				_param = _out_add_param(&(*out_opt)->params, (*opt_param)->name);
+				if (unlikely(!_param))
 				{
 					result = error_alloc_fail;
 					goto error;
 				}
 
-				result = _out_add_value(out_param, pos + 1);
+				result = _out_add_value(_param, pos + 1);
 				if (unlikely(result))
 					goto error;
+
+				*opt_param = (*opt_param)->next;
+				if (*opt_param)
+					*context_type = args_context_opt;
+				else
+				{
+					*context_type = args_context_parser;
+					*opt = NULL;
+					*out_opt = NULL;
+				}
 			}
 			else
 				*context_type = args_context_opt;
