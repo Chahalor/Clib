@@ -89,6 +89,18 @@ void	*args_output_parser_get_param(
 		return (_args_output_parser_get_param(parser, name, n));
 }
 
+void	*args_output_option_get_param(
+	t_args_output_option *const option,
+	const char *const name,
+	size_t *const n
+)
+{
+	if (unlikely(!option || !name || !n))
+		return (NULL);
+	else
+		return (_args_output_option_get_param(option, name, n));
+}
+
 t_args_output_option	*args_parser_get_option(
 	t_args_output *const _output,
 	const char *const _name

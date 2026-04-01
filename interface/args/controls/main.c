@@ -440,13 +440,60 @@ static void	_test_basic_parsing_controls(void)
 	args_parser_free(parser);
 }
 
-int	main(void)
+static void	_test_manual(
+	const int argc,
+	const char *argv[]
+)
 {
-	_test_public_api_basic();
-	_test_root_parse_output();
-	_test_subcommand_output();
-	_test_error_paths();
-	_test_basic_parsing_controls();
+	t_args_parser	*parser = args_parser_new();
+
+	CHECK(parser != NULL, "parser allocation");
+	if (unlikely(!parser))
+		return ;
+
+	t_args_option	*file = args_parser_add_option(parser, "file", 'f', "a file");
+	CHECK(file != NULL, "option alloc");
+	if (unlikely(!file))
+	{
+		args_parser_free(parser);
+		return ;
+	}
+	args_add_param(file, "file", "a file", args_param_specs_require, param_type_file);
+
+	t_args_output	*out = args_parse(parser, argc, argv);
+
+	if (args_error(out))
+	{
+		fprintf(stderr, "parsing error: %s\n", args_error_str(args_error(out)));
+		args_parser_free(parser);
+		args_output_free(out);
+		return ;
+	}
+
+	if (args_has_option(out, "file"))
+	{
+		t_args_output_option	*out_file = args_get_option(out, "file");
+		size_t					n = 0;
+		char					*data = args_get_param(out_file, "file", &n);
+
+		if (!n)
+			fprintf(stderr, "--file is empty\n");
+		else
+			fprintf(stderr, "--file=%s\n", data);
+	}
+
+	args_parser_free(parser);
+	args_output_free(out);
+}
+
+int	main(int argc, const char *argv[])
+{
+	_test_manual(argc, argv);
+	// _test_public_api_basic();
+	// _test_root_parse_output();
+	// _test_subcommand_output();
+	// _test_error_paths();
+	// _test_basic_parsing_controls();
 
 	if (g_failures)
 	{
