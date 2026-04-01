@@ -44,6 +44,23 @@ static _t_args_parser	*_get_sub_parser_of(
 	return (result);
 }
 
+static inline int	_cmp(
+	const char *s1,
+	const char *s2
+)
+{
+	while (*s1 && *s2 && *s1 == *s2 && *s2 != '=')
+	{
+		s1++;
+		s2++;
+	}
+
+	if (*s2 == '=' && !*s1)
+		return (0);
+
+	return (*s1 - *s2);
+}
+
 /** */
 static _t_args_option	*_get_opt_of(
 	const _t_args_parser *const restrict _context,
@@ -58,7 +75,7 @@ static _t_args_option	*_get_opt_of(
 		_this = _this->next
 	)
 	{
-		if (_s && _this->long_name && _is_long && !strcmp(_this->long_name, _s + 2))
+		if (_s && _this->long_name && _is_long && !_cmp(_this->long_name, _s + 2))
 			result = _this;
 		else if (_s[1] == _this->short_name)
 			result = _this;
@@ -281,6 +298,8 @@ static _t_args_output_parser	*_out_add_sub_parser(
 	return (_out);
 }
 
+#pragma region work	//rm
+
 /** */
 static inline int	_args_parse_loop_parser(
 	const _t_args_parser **context,
@@ -370,7 +389,43 @@ static inline int	_args_parse_loop_parser(
 
 		*opt_param = (*opt)->params;
 		if (*opt_param)
-			*context_type = args_context_opt;
+		{
+			char	*pos = strchr(current, '=');
+
+			if (pos && pos[1] != '\0' && !((*opt_param)->specs & args_param_specs_nargs))
+			{
+				_t_args_output_param	*_param;
+				// if (unlikely(!*pos_cursor))
+				// {
+				// 	result = args_error_extra_param;
+				// 	_args_config_set_errnum(result);
+				// 	goto error;
+				// }
+
+				_param = _out_add_param(&(*out_opt)->params, (*opt_param)->name);
+				if (unlikely(!_param))
+				{
+					result = error_alloc_fail;
+					goto error;
+				}
+
+				result = _out_add_value(_param, pos + 1);
+				if (unlikely(result))
+					goto error;
+
+				*opt_param = (*opt_param)->next;
+				if (*opt_param)
+					*context_type = args_context_opt;
+				else
+				{
+					*context_type = args_context_parser;
+					*opt = NULL;
+					*out_opt = NULL;
+				}
+			}
+			else
+				*context_type = args_context_opt;
+		}
 
 		goto error;
 	}
@@ -537,6 +592,7 @@ static int	_args_parse_loop(
 }
 
 /* ----| Public     |----- */
+#pragma region Public
 
 _t_args_output	*_args_parse(
 	const t_args_parser *const _parser,

@@ -122,6 +122,24 @@ fail:
 	return (NULL);
 }
 
+static t_args_parser	*_build_inline_option_parser(void)
+{
+	t_args_parser	*parser;
+	t_args_option	*opt;
+
+	parser = args_parser_new();
+	if (!parser)
+		return (NULL);
+	opt = args_parser_add_option(parser, "file", 'f', "file path");
+	if (!opt || !args_option_add_param(opt, "file", "path to file",
+			args_param_specs_require, param_type_file))
+		goto fail;
+	return (parser);
+fail:
+	args_parser_free(parser);
+	return (NULL);
+}
+
 static void	_test_public_api_basic(void)
 {
 	t_args_parser	*parser;
@@ -440,13 +458,143 @@ static void	_test_basic_parsing_controls(void)
 	args_parser_free(parser);
 }
 
-int	main(void)
+static void	_test_inline_option_value_controls(void)
+{
+	t_args_parser			*parser;
+	t_args_output			*out;
+	t_args_output_option	*opt;
+	size_t					count;
+	char					*file;
+	const char				*argv_inline_ok[] = {"args-controls", "--file=bob"};
+	const char				*argv_inline_short_invalid[] = {"args-controls", "-f=bob"};
+	const char				*argv_missing_inline_value[] = {"args-controls", "--file="};
+	const char				*argv_missing_value[] = {"args-controls", "--file"};
+
+	parser = _build_inline_option_parser();
+	CHECK(parser != NULL, "inline option parser setup should succeed");
+	if (!parser)
+		return ;
+
+	out = args_parse(parser,
+			(int)(sizeof(argv_inline_ok) / sizeof(argv_inline_ok[0])),
+			argv_inline_ok);
+	CHECK(out != NULL, "inline long option parse should return output");
+	if (out)
+	{
+		CHECK(args_error(out) == args_error_none,
+			"inline long option value should be parsed without error");
+		CHECK(args_has_option(out, "file") == 1, "inline long option should be present");
+		opt = args_get_option(out, "file");
+		CHECK(opt != NULL, "inline long option extraction should succeed");
+		if (opt)
+		{
+			CHECK(args_option_has_param(opt, "file") == 1,
+				"inline long option should expose its required parameter");
+			count = 0;
+			file = (char *)args_get_param(opt, "file", &count);
+			CHECK(file != NULL && count == 1,
+				"inline long option should contain exactly one value");
+			if (file)
+				CHECK(!strcmp(file, "bob"), "inline long option value should match");
+			_free_param_result(file);
+		}
+		CHECK(args_has_param(out, "file") == 0,
+			"inline option value must not be stored as a positional parameter");
+		args_output_free(out);
+	}
+
+	out = args_parse(parser,
+			(int)(sizeof(argv_inline_short_invalid) / sizeof(argv_inline_short_invalid[0])),
+			argv_inline_short_invalid);
+	CHECK(out != NULL, "inline short option syntax parse should return output");
+	if (out)
+	{
+		CHECK(args_error(out) == args_error_missing_param,
+			"inline short option syntax should be rejected as missing parameter");
+		args_output_free(out);
+	}
+
+	out = args_parse(parser,
+			(int)(sizeof(argv_missing_inline_value) / sizeof(argv_missing_inline_value[0])),
+			argv_missing_inline_value);
+	CHECK(out != NULL, "empty inline value parse should return output");
+	if (out)
+	{
+		CHECK(args_error(out) == args_error_missing_param,
+			"empty inline value should report missing required parameter");
+		args_output_free(out);
+	}
+
+	out = args_parse(parser,
+			(int)(sizeof(argv_missing_value) / sizeof(argv_missing_value[0])),
+			argv_missing_value);
+	CHECK(out != NULL, "missing option value parse should return output");
+	if (out)
+	{
+		CHECK(args_error(out) == args_error_missing_param,
+			"missing option value should report missing required parameter");
+		args_output_free(out);
+	}
+
+	args_parser_free(parser);
+}
+
+static void	_test_manual(
+	const int argc,
+	const char *argv[]
+)
+{
+	t_args_parser	*parser = args_parser_new();
+
+	CHECK(parser != NULL, "parser allocation");
+	if (unlikely(!parser))
+		return ;
+
+	t_args_option	*file = args_parser_add_option(parser, "file", 'f', "a file");
+	CHECK(file != NULL, "option alloc");
+	if (unlikely(!file))
+	{
+		args_parser_free(parser);
+		return ;
+	}
+	args_add_param(file, "file", "a file", args_param_specs_require, param_type_file);
+
+	t_args_output	*out = args_parse(parser, argc, argv);
+
+	if (args_error(out))
+	{
+		fprintf(stderr, "parsing error: %s\n", args_error_str(args_error(out)));
+		args_parser_free(parser);
+		args_output_free(out);
+		return ;
+	}
+
+	if (args_has_option(out, "file"))
+	{
+		t_args_output_option	*out_file = args_get_option(out, "file");
+		size_t					n = 0;
+		char					*data = args_get_param(out_file, "file", &n);
+
+		if (!n)
+			fprintf(stderr, "--file is empty\n");
+		else
+			fprintf(stderr, "--file=%s\n", data);
+	}
+
+	args_parser_free(parser);
+	args_output_free(out);
+}
+
+int	main(int argc, const char *argv[])
 {
 	_test_public_api_basic();
 	_test_root_parse_output();
 	_test_subcommand_output();
 	_test_error_paths();
 	_test_basic_parsing_controls();
+	_test_inline_option_value_controls();
+	if (argc > 1)
+		_test_manual(argc, argv);
 
 	if (g_failures)
 	{

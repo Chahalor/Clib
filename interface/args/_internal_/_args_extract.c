@@ -19,6 +19,7 @@
 	//...
 
 /* ----| Internals  |----- */
+#pragma region Internal
 
 static inline unsigned int	_count_values(
 	_t_args_output_value *_values
@@ -81,106 +82,28 @@ static inline char	**_merge_params(
 	}
 	result[_i] = NULL;
 	*_count = _total;
-	return (result);
 
+	return (result);
 }
 
-/* ----| Public     |----- */
-
-void	*_args_get_param(
-	t_args_output *const _output,
-	const char *const _name,
+void	*_get_param(
+	const _t_args_output_param *const params,
+	const char *const name,
 	size_t *const _count
 )
 {
 	void	*result = NULL;
 
-	if (unlikely(!_output || !_output->root || !_name || !_count))
-		return (NULL);
 	*_count = 0;
 
-	for (_t_args_output_param	*_this = _output->root->params;
+	for (const _t_args_output_param	*_this = params;
 		_this;
 		_this = _this->next
 	)
 	{
 		unsigned int	_nb_values = 0;
 
-		if (strcmp(_this->name, _name))
-			continue ;
-
-		_nb_values = _count_values(_this->values);
-
-		if (!_nb_values)
-		{
-			*_count = 0;
-			return (NULL);
-		}
-		else if (_nb_values == 1)
-		{
-			char	*_val = _this->values->value;
-
-			result = mem_alloc(sizeof(char) * (strlen(_val) + 1));
-			if (unlikely(!result))
-			{
-				_args_config_set_errnum(error_alloc_fail);
-				goto error;
-			}
-			strcpy(result, _val);
-			*_count = 1;
-
-			return (result);
-		}
-		else
-		{
-			char			**_array = mem_alloc(sizeof(char *) * (_nb_values + 1));
-			unsigned int	_i = 0;
-
-			if (unlikely(!_array))
-			{
-				_args_config_set_errnum(error_alloc_fail);
-				goto error;
-			}
-			for (_t_args_output_value	*_val = _this->values;
-				_val;
-				_val = _val->next
-			)
-			{
-				_array[_i++] = _val->value;
-			}
-			_array[_i] = NULL;
-
-			*_count = _nb_values;
-			result = _array;
-
-			return (result);
-		}
-	}
-
-error:
-	return (NULL);
-}
-
-void	*_args_output_parser_get_param(
-	t_args_output_parser *const _output,
-	const char *const _name,
-	size_t *const _count
-)
-{
-	unsigned int	_nb_values = 0;
-	void			*result = NULL;
-	unsigned int	_i = 0;
-
-	if (unlikely(!_output || !_name || !_count || !_output->params))
-		return (NULL);
-	*_count = 0;
-
-	for (_t_args_output_param	*_this = _output->params;
-		_this;
-		_this = _this->next
-	)
-	{
-		if (strcmp(_this->name, _name))
+		if (strcmp(_this->name, name))
 			continue ;
 
 		_nb_values = _count_values(_this->values);
@@ -207,7 +130,9 @@ void	*_args_output_parser_get_param(
 		}
 		else
 		{
-			char	**_array = mem_alloc(sizeof(char *) * (_nb_values + 1));
+			unsigned int	_i = 0;
+			char			**_array = mem_alloc(sizeof(char *) * (_nb_values + 1));
+
 			if (unlikely(!_array))
 			{
 				_args_config_set_errnum(error_alloc_fail);
@@ -234,27 +159,27 @@ error:
 	return (NULL);
 }
 
-t_args_output_option	*_args_get_option(
-	t_args_output *const _output,
-	const char *const _name
+t_args_output_option	*_get_options(
+	const t_args_output_option *const options,
+	const char *const name
 )
 {
 	char	*_lname = NULL;
 	char	_key = 0;
 
-	if (_name[0] == '-')
+	if (name[0] == '-')
 	{
-		if (_name[1] == '-')
-			_lname = (char *)(_name + 2);
+		if (name[1] == '-')
+			_lname = (char *)(name + 2);
 		else
-			_key = _name[1];
+			_key = name[1];
 	}
-	else if (strlen(_name) > 1)
-		_lname = (char *)_name;
+	else if (strlen(name) > 1)
+		_lname = (char *)name;
 	else
-		_key = _name[0];
+		_key = name[0];
 
-	for (_t_args_output_option	*_this = _output->root->options;
+	for (_t_args_output_option	*_this = (_t_args_output_option *)options;
 		_this;
 		_this = _this->next
 	)
@@ -270,40 +195,50 @@ t_args_output_option	*_args_get_option(
 	return (NULL);
 }
 
+/* ----| Public     |----- */
+#pragma region Public
+
+void	*_args_get_param(
+	t_args_output *const _output,
+	const char *const _name,
+	size_t *const _count
+)
+{
+	return (_get_param(_output->root->params, _name, _count));
+}
+
+void	*_args_output_parser_get_param(
+	t_args_output_parser *const _output,
+	const char *const _name,
+	size_t *const _count
+)
+{
+	return (_get_param(_output->params, _name, _count));
+}
+
+void	*_args_output_option_get_param(
+	t_args_output_option *const option,
+	const char *const name,
+	size_t *const count
+)
+{
+	return (_get_param(option->params, name, count));
+}
+
+t_args_output_option	*_args_get_option(
+	t_args_output *const _output,
+	const char *const _name
+)
+{
+	return (_get_options(_output->root->options, _name));
+}
+
 t_args_output_option	*_args_output_parser_get_option(
 	t_args_output_parser *const _output,
 	const char *const _name
 )
 {
-	char	*_lname = NULL;
-	char	_key = 0;
-
-	if (_name[0] == '-')
-	{
-		if (_name[1] == '-')
-			_lname = (char *)(_name + 2);
-		else
-			_key = _name[1];
-	}
-	else if (strlen(_name) > 1)
-		_lname = (char *)_name;
-	else
-		_key = _name[0];
-
-	for (_t_args_output_option	*_this = _output->options;
-		_this;
-		_this = _this->next
-	)
-	{
-		if (_lname && _this->long_name && strcmp(_this->long_name, _lname))
-			continue ;
-		else if (_key && _this->short_name != _key)
-			continue ;
-
-		return (_this);
-	}
-
-	return (NULL);
+	return (_get_options(_output->options, _name));
 }
 
 const char	*_args_active_subcommand(

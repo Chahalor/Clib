@@ -339,13 +339,18 @@ char	args_option_has_param(
  *         (NULL-terminated) when `*n > 1`. Returned memory must be freed
  *         with `mem_free`.
  */
-# define	args_get_param(var, name, n) (__builtin_choose_expr( \
+# define	args_get_param(var, name, n) ( \
+	__builtin_choose_expr( \
 		IS_TYPE(var, t_args_output *), \
 		args_parser_get_param, \
 		__builtin_choose_expr( \
 			IS_TYPE(var, t_args_output_parser *), \
 			args_output_parser_get_param, \
-			(void)0 \
+			__builtin_choose_expr( \
+				IS_TYPE(var, t_args_output_option *), \
+				args_output_option_get_param, \
+				(void *)0 \
+			) \
 		) \
 	)(var, name, n))
 
@@ -397,6 +402,23 @@ void	*args_parser_get_param(
  */
 void	*args_output_parser_get_param(
 	t_args_output_parser *const parser,
+	const char *const name,
+	size_t *const n
+);
+
+/**
+ * @brief Get value(s) for a named option.
+ *
+ * @param parser option output node.
+ * @param name   Parameter name.
+ * @param n      Receives number of values.
+ *
+ * @return `NULL` if not found or empty; `char *` when `*n == 1`; `char **`
+ *         (NULL-terminated) when `*n > 1`. Returned memory must be freed
+ *         with `mem_free`.
+ */
+void	*args_output_option_get_param(
+	t_args_output_option *const option,
 	const char *const name,
 	size_t *const n
 );

@@ -335,6 +335,13 @@ void	*_args_output_parser_get_param(
 );
 
 /** */
+void	*_args_output_option_get_param(
+	t_args_output_option *const option,
+	const char *const name,
+	size_t *const count
+);
+
+/** */
 /**
  * @brief	get option values merged across all params for a named option
  * if the option has no param, `_count` is set to 0 and `_values[0]` is set to `0x1`
