@@ -57,6 +57,7 @@ dkms.conf
 .dev/
 .build/
 build/
+build-debug/
 *.dir
 .env
 .codex

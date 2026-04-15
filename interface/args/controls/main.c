@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 #include "../../args.h"
 #include "../_internal_/_args.h"
@@ -585,6 +587,238 @@ static void	_test_manual(
 	args_output_free(out);
 }
 
+static int	_run_non_short_pipeline_case(
+	const int argc,
+	const char *argv[],
+	const bool expect_config,
+	const bool expect_dry_run,
+	const bool expect_bob,
+	const char *const expect_config_value
+)
+{
+	t_args_parser			*parser = NULL;
+	t_args_option			*config = NULL;
+	t_args_output			*out = NULL;
+	t_args_output_option	*opt = NULL;
+	char					*value = NULL;
+	size_t					n = 0;
+	int						result = 42;
+
+	parser = args_parser_new();
+	if (!parser)
+		return (10);
+	config = args_parser_add_option(parser, "config", 0, "config file");
+	if (!config)
+	{
+		result = 11;
+		goto cleanup_parser;
+	}
+	if (!args_option_add_param(config, "file", "config path", args_param_specs_require, param_type_file))
+	{
+		result = 12;
+		goto cleanup_parser;
+	}
+	if (!args_parser_add_option(parser, "bob", 'b', "bob option"))
+	{
+		result = 13;
+		goto cleanup_parser;
+	}
+	if (!args_parser_add_option(parser, "dry-run", 0, "dry run mode"))
+	{
+		result = 14;
+		goto cleanup_parser;
+	}
+	out = args_parse(parser, argc, argv);
+	if (!out)
+	{
+		result = 15;
+		goto cleanup_parser;
+	}
+	if (args_error(out) != args_error_none)
+	{
+		result = 16;
+		goto cleanup;
+	}
+	if ((args_has_option(out, "config") == true) != expect_config)
+	{
+		result = 17;
+		goto cleanup;
+	}
+	if ((args_has_option(out, "--config") == true) != expect_config)
+	{
+		result = 18;
+		goto cleanup;
+	}
+	if ((args_has_option(out, "dry-run") == true) != expect_dry_run)
+	{
+		result = 19;
+		goto cleanup;
+	}
+	if ((args_has_option(out, "--dry-run") == true) != expect_dry_run)
+	{
+		result = 20;
+		goto cleanup;
+	}
+	if ((args_has_option(out, "bob") == true) != expect_bob)
+	{
+		result = 21;
+		goto cleanup;
+	}
+	if ((args_has_option(out, "b") == true) != expect_bob)
+	{
+		result = 22;
+		goto cleanup;
+	}
+	opt = args_get_option(out, "config");
+	if ((opt != NULL) != expect_config)
+	{
+		result = 23;
+		goto cleanup;
+	}
+	if (expect_config && expect_config_value)
+	{
+		if (args_option_has_param(opt, "file") != true)
+		{
+			result = 24;
+			goto cleanup;
+		}
+		value = args_get_param(opt, "file", &n);
+		if (!value || n != 1 || strcmp(value, expect_config_value))
+		{
+			result = 25;
+			goto cleanup;
+		}
+		mem_free(value);
+		value = NULL;
+	}
+	opt = args_get_option(out, "dry-run");
+	if ((opt != NULL) != expect_dry_run)
+	{
+		result = 26;
+		goto cleanup;
+	}
+	opt = args_get_option(out, "bob");
+	if ((opt != NULL) != expect_bob)
+	{
+		result = 27;
+		goto cleanup;
+	}
+	opt = args_get_option(out, "-b");
+	if ((opt != NULL) != expect_bob)
+	{
+		result = 28;
+		goto cleanup;
+	}
+
+cleanup:
+	if (value)
+		mem_free(value);
+	args_output_free(out);
+cleanup_parser:
+	args_parser_free(parser);
+	return (result);
+}
+
+static void	_test_non_short_pipeline_case(
+	const char *const label,
+	const int argc,
+	const char *argv[],
+	const bool expect_config,
+	const bool expect_dry_run,
+	const bool expect_bob,
+	const char *const expect_config_value
+)
+{
+	pid_t	pid;
+	int		status = 0;
+
+	fflush(NULL);
+	pid = fork();
+	CHECK(pid >= 0, "non-short pipeline fork should succeed");
+	if (pid < 0)
+		return ;
+	if (pid == 0)
+	{
+		if (!freopen("/dev/null", "w", stdout))
+			_Exit(90);
+		if (!freopen("/dev/null", "w", stderr))
+			_Exit(91);
+		_Exit(_run_non_short_pipeline_case(argc, argv, expect_config, expect_dry_run, expect_bob, expect_config_value));
+	}
+
+	CHECK(waitpid(pid, &status, 0) == pid, "non-short pipeline wait should succeed");
+	if (WIFEXITED(status))
+		CHECK(WEXITSTATUS(status) == 42, label);
+	else
+		CHECK(false, label);
+}
+
+static void	_test_non_short_options(void)
+{
+	const char				*argv_dry_only[3] = {"args-controls", "--dry-run", NULL};
+	const char				*argv_mixed[6] = {"args-controls", "--dry-run", "--config", "settings.json", "-b", NULL};
+	_t_args_output_option	opt_bob = {
+		.short_name = 'b',
+		.nb_call = 1,
+		.error = error_none,
+		.long_name = "bob",
+		.params = NULL,
+		.next = NULL
+	};
+	_t_args_output_option	opt_dry_run = {
+		.short_name = 0,
+		.nb_call = 1,
+		.error = error_none,
+		.long_name = "dry-run",
+		.params = NULL,
+		.next = &opt_bob
+	};
+	_t_args_output_parser	root = {
+		.name = "args-controls",
+		.options = &opt_dry_run,
+		.params = NULL,
+		.sub = NULL,
+		.next = NULL
+	};
+	_t_args_output			out = {
+		.error = error_none,
+		.root = &root
+	};
+
+	CHECK(args_has_option(&out, "dry-run") == true,
+		"has option --dry-run should be true");
+	CHECK(args_has_option(&out, "--dry-run") == true,
+		"has option --dry-run with explicit prefix should be true");
+	CHECK(args_has_option(&out, "config") == false,
+		"has option --config should stay false when only --dry-run is present");
+	CHECK(args_has_option(&out, "--config") == false,
+		"has option --config with explicit prefix should stay false");
+	CHECK(args_has_option(&out, "bob") == true,
+		"has option --bob should be true");
+	CHECK(args_has_option(&out, "b") == true,
+		"has option -b should be true");
+	CHECK(args_has_option(&out, "c") == false,
+		"has option -c should be false");
+	_test_non_short_pipeline_case(
+		"pipeline: --dry-run should not imply --config",
+		2,
+		argv_dry_only,
+		false,
+		true,
+		false,
+		NULL
+	);
+	_test_non_short_pipeline_case(
+		"pipeline: setup/parse/extract should keep mixed options isolated",
+		5,
+		argv_mixed,
+		true,
+		true,
+		true,
+		"settings.json"
+	);
+}
+
 int	main(int argc, const char *argv[])
 {
 	_test_public_api_basic();
@@ -593,6 +827,8 @@ int	main(int argc, const char *argv[])
 	_test_error_paths();
 	_test_basic_parsing_controls();
 	_test_inline_option_value_controls();
+	_test_non_short_options();
+
 	if (argc > 1)
 		_test_manual(argc, argv);
 
