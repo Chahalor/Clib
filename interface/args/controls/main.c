@@ -585,6 +585,52 @@ static void	_test_manual(
 	args_output_free(out);
 }
 
+static void	_test_non_short_options(void)
+{
+	_t_args_output_option	opt_bob = {
+		.short_name = 'b',
+		.nb_call = 1,
+		.error = error_none,
+		.long_name = "bob",
+		.params = NULL,
+		.next = NULL
+	};
+	_t_args_output_option	opt_dry_run = {
+		.short_name = 0,
+		.nb_call = 1,
+		.error = error_none,
+		.long_name = "dry-run",
+		.params = NULL,
+		.next = &opt_bob
+	};
+	_t_args_output_parser	root = {
+		.name = "args-controls",
+		.options = &opt_dry_run,
+		.params = NULL,
+		.sub = NULL,
+		.next = NULL
+	};
+	_t_args_output			out = {
+		.error = error_none,
+		.root = &root
+	};
+
+	CHECK(args_has_option(&out, "dry-run") == true,
+		"has option --dry-run should be true");
+	CHECK(args_has_option(&out, "--dry-run") == true,
+		"has option --dry-run with explicit prefix should be true");
+	CHECK(args_has_option(&out, "config") == false,
+		"has option --config should stay false when only --dry-run is present");
+	CHECK(args_has_option(&out, "--config") == false,
+		"has option --config with explicit prefix should stay false");
+	CHECK(args_has_option(&out, "bob") == true,
+		"has option --bob should be true");
+	CHECK(args_has_option(&out, "b") == true,
+		"has option -b should be true");
+	CHECK(args_has_option(&out, "c") == false,
+		"has option -c should be false");
+}
+
 int	main(int argc, const char *argv[])
 {
 	_test_public_api_basic();
@@ -593,6 +639,8 @@ int	main(int argc, const char *argv[])
 	_test_error_paths();
 	_test_basic_parsing_controls();
 	_test_inline_option_value_controls();
+	_test_non_short_options();
+
 	if (argc > 1)
 		_test_manual(argc, argv);
 
