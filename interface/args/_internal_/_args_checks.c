@@ -364,7 +364,7 @@ bool _args_output_parser_has_option(
 	{
 		if (_lname && _this->long_name && !strcmp(_this->long_name, _lname))
 			result = true;
-		else if (_key == _this->short_name)
+		else if (_key && _key == _this->short_name)
 			result = true;
 	}
 
