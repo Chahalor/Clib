@@ -748,7 +748,7 @@ static void	_test_non_short_pipeline_case(
 
 	CHECK(waitpid(pid, &status, 0) == pid, "non-short pipeline wait should succeed");
 	if (WIFEXITED(status))
-		CHECK(WEXITSTATUS(status) == 42, label);
+		CHECK(WEXITSTATUS(status) == 42, label);	// if the exit code == that mean the exit is from the help
 	else
 		CHECK(false, label);
 }
