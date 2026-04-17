@@ -1,0 +1,10 @@
+[clib-module]
+FILE	${NAME}.c
+FILE	../${NAME}.h
+FILE	setting.h
+FILE	types.h
+FILE	CMakeLists.txt
+FILE	_internal_/_${NAME}.c
+FILE	_internal_/_${NAME}.h
+FILE	_internal_/_types.h
+DIR		controls
