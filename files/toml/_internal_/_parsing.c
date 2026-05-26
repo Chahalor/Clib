@@ -6,6 +6,7 @@
 	/* Standard */
 #include <ctype.h>
 #include <string.h>
+#include <stdarg.h>
 
 	/* Internal */
 #include "_toml.h"
@@ -383,4 +384,82 @@ int	_toml_parse_string(
 	setting->free(current_table);
 	setting->free(copy);
 	return (errnum);
+}
+
+TOML	*_toml_load_file(
+	const char *const restrict path
+)
+{
+	FILE	*file;
+	long	size;
+	char	*buffer;
+	TOML	*result;
+
+	file = fopen(path, "rb");
+	if (unlikely(!file))
+		return (NULL);
+
+	if (fseek(file, 0, SEEK_END) != 0)
+	{
+		fclose(file);
+		return (NULL);
+	}
+
+	size = ftell(file);
+	if (size < 0 || fseek(file, 0, SEEK_SET) != 0)
+	{
+		fclose(file);
+		return (NULL);
+	}
+
+	buffer = setting->alloc((size_t)size + 1);
+	if (unlikely(!buffer))
+	{
+		fclose(file);
+		return (NULL);
+	}
+
+	if (size && fread(buffer, 1, (size_t)size, file) != (size_t)size)
+	{
+		setting->free(buffer);
+		fclose(file);
+		return (NULL);
+	}
+
+	fclose(file);
+	buffer[size] = '\0';
+	result = toml_load_str("%s", buffer);
+	setting->free(buffer);
+	return (result);
+}
+
+TOML	*_toml_load_str(
+	const char *const restrict format,
+	va_list *const args
+)
+{
+	t_toml_str	str = {0};
+	TOML		*result;
+
+	if (unlikely(_toml_fill_format(format, &str, args) != error_none))
+	{
+		setting->free(str.content);
+		return (NULL);
+	}
+
+	result = toml_new();
+	if (unlikely(!result))
+	{
+		setting->free(str.content);
+		return (NULL);
+	}
+
+	else if (unlikely(_toml_parse_string(&result, str.content) != error_none))
+	{
+		toml_unload(result);
+		result = NULL;
+	}
+
+	setting->free(str.content);
+	return (result);
 }

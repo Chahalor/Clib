@@ -143,4 +143,11 @@ int		_toml_parse_string(
 			const char *const str
 			);
 
-#endif
+TOML	*_toml_load_file(
+			const char *const restrict path
+			);
+
+TOML	*_toml_load_str(
+			const char *const restrict format,
+			va_list *const args
+			);

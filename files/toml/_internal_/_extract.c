@@ -96,3 +96,52 @@ TOML	*_toml_get_field(
 	setting->free(split);
 	return (current);
 }
+
+void	*_toml_get(
+	TOML *const obj,
+	const char *const restrict key,
+	va_list *const args
+)
+{
+	char		*field = NULL;
+	TOML		*node;
+	void		*result;
+	t_toml_str	str = {0};
+
+	if (unlikely(_toml_fill_format(key, &str, args) != error_none))
+	{
+		setting->free(str.content);
+		return (NULL);
+	}
+	field = str.content;
+
+	node = _toml_get_field(obj, field, -1);
+	setting->free(field);
+	if (unlikely(!node))
+		return (NULL);
+
+	if (node->type == toml_tok_array || node->type == toml_tok_table)
+		result = node;
+	else
+		result = node->data;
+
+	return (result);
+}
+
+size_t	_toml_node_size(
+	const TOML *const node
+)
+{
+	size_t	size;
+
+	size = sizeof(TOML);
+	if (node->key)
+		size += strlen(node->key) + 1;
+
+	if (node->data)
+		size += strlen(node->data) + 1;
+
+	size += _toml_node_size(node->child);
+	size += _toml_node_size(node->next);
+	return (size);
+}

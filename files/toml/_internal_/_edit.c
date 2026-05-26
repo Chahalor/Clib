@@ -263,3 +263,102 @@ int	_toml_unset(
 	setting->free(field_buf);
 	return (errnum);
 }
+
+int	_toml_set_number_va_args(
+	TOML *const			toml,
+	const char *const	field,
+	const char *const	data,
+	va_list *const		args
+)
+{
+	t_toml_str	str_field = {0};
+	TOML		*root;
+	int			errnum;
+
+	root = toml;
+	errnum = _toml_fill_format(field, &str_field, args);
+	if (unlikely(errnum != error_none))
+		goto cleanup;
+
+	errnum = _toml_set_field(&root, str_field.content, data, toml_tok_int);
+
+cleanup:
+	setting->free(str_field.content);
+	return (errnum);
+}
+
+int	_toml_set_container_va(
+	TOML *const			toml,
+	const char *const	field,
+	TOML *const			var,
+	const int			type,
+	va_list *const		args
+)
+{
+	t_toml_str	str_field = {0};
+	TOML		*root;
+	int			errnum;
+
+	root = toml;
+	errnum = _toml_fill_format(field, &str_field, args);
+	if (unlikely(errnum != error_none))
+		goto cleanup;
+
+	errnum = _toml_set_node(&root, str_field.content, var, type);
+
+cleanup:
+	setting->free(str_field.content);
+	return (errnum);
+}
+
+int	_toml_set_wild(
+	TOML *const toml,
+	const char *const field,
+	void *var,
+	int type,
+	va_list *const args
+)
+{
+	t_toml_str	str_field = {0};
+	TOML		*root;
+	int			errnum;
+	char		*data;
+
+	root = toml;
+	data = NULL;
+	errnum = _toml_fill_format(field, &str_field, &args);
+	if (unlikely(errnum != error_none))
+		goto cleanup;
+	if (type == toml_tok_table || type == toml_tok_array)
+		errnum = _toml_set_node(&root, str_field.content, var, type);
+	else if (type == toml_tok_str || type == toml_tok_bool
+		|| type == toml_tok_int || type == toml_tok_float
+		|| type == toml_tok_datetime || type == toml_tok_null)
+	{
+		if (type == toml_tok_null)
+			errnum = _toml_set_field(&root, str_field.content, NULL, type);
+		else if (!var)
+			errnum = error_invalid_arg;
+		else
+		{
+			if (type == toml_tok_int)
+				data = _toml_itoa(*(const int *)var);
+			else if (type == toml_tok_bool)
+				data = setting->dup(*(const int *)var ? "true" : "false",
+						*(const int *)var ? sizeof("true") : sizeof("false"));
+			else
+				data = setting->dup(var, strlen((const char *)var) + 1);
+			if (unlikely(!data))
+				errnum = error_alloc_fail;
+			else
+				errnum = _toml_set_field(&root, str_field.content, data, type);
+		}
+	}
+	else
+		errnum = error_invalid_arg;
+
+cleanup:
+	setting->free(data);
+	setting->free(str_field.content);
+	return (errnum);
+}

@@ -81,3 +81,32 @@ int	_toml_str_append_char(
 {
 	return (_toml_str_append_n(dest, &c, 1));
 }
+
+int	_toml_set_string(
+	TOML *const toml,
+	const char *const field,
+	char *var,
+	va_list *const args
+)
+{
+	t_toml_str	str_field = {0};
+	t_toml_str	str_value = {0};
+	TOML		*root;
+	int			errnum;
+
+	root = toml;
+	errnum = _toml_fill_format(field, &str_field, &args);
+	if (unlikely(errnum != error_none))
+		goto cleanup;
+
+	errnum = _toml_fill_format(var, &str_value, &args);
+	if (unlikely(errnum != error_none))
+		goto cleanup;
+
+	errnum = _toml_set_field(&root, str_field.content, str_value.content, toml_tok_str);
+
+cleanup:
+	setting->free(str_field.content);
+	setting->free(str_value.content);
+	return (errnum);
+}

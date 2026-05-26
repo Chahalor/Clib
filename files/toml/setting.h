@@ -62,8 +62,6 @@ struct s_toml_settings
 	void	*(*realloc)(void *, size_t);
 	void	(*free)(void *);
 	void	*(*dup)(const void *, ssize_t);
-	void	*(*join)(const void *, const void *, ssize_t, ssize_t);
-	void	(*free_all)(void);
 };
 
 /* ************************************************************************** */
