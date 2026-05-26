@@ -1,23 +1,38 @@
 /**
  * @file _toml.h
  * @brief Internal TOML helpers.
- */
+*/
 #ifndef CLIB_FILES_TOML_INTERNAL_H
 # define CLIB_FILES_TOML_INTERNAL_H
 
 # pragma once
 
+/* ************************************************************************** */
+/*                                 Headers                                    */
+/* ************************************************************************** */
+
+/* -----| Systems   |----- */
+	//...
+
+/* -----| Globals   |----- */
+# include "lib_config.h"
+# include "lib_standards.h"
+
+/* -----| Internals |----- */
 # include "_types.h"
 # include "../../toml.h"
 
-typedef struct s_toml_str	t_toml_str;
+/* -----| Modules   |----- */
+	//...
 
-struct s_toml_str
-{
-	char	*content;
-	size_t	len;
-	size_t	size;
-};
+/* ************************************************************************** */
+/*                                 Macros                                     */
+/* ************************************************************************** */
+	//...
+
+/* ************************************************************************** */
+/*                                 Prototypes                                 */
+/* ************************************************************************** */
 
 TOML	*_toml_new_content(
 			const char *const key,

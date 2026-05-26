@@ -1,11 +1,22 @@
 /**
  * @file _format.c
  * @brief Internal format and numeric conversion helpers for TOML.
- */
-#include "_toml.h"
-
+*/
+/* ----| Headers    |----- */
+	/* Standard */
 #include <stdint.h>
 #include <string.h>
+
+	/* Internal */
+#include "_toml.h"
+
+	/* External */
+		//...
+
+/* ----| Prototypes |----- */
+	//...
+
+/* ----| Internals  |----- */
 
 static int	_toml_append_uint_base(
 	t_toml_str *const dest,
@@ -13,25 +24,28 @@ static int	_toml_append_uint_base(
 	const unsigned int base
 )
 {
-	char	buf[32];
-	size_t	i;
+	char	buf[32] = {0};
+	size_t	i = 0;
 
 	if (unlikely(!dest || base < 2 || base > 16))
 		return (error_invalid_arg);
+
 	i = sizeof(buf);
 	if (!value)
 		buf[--i] = '0';
+	
 	while (value)
 	{
 		buf[--i] = "0123456789abcdef"[value % base];
 		value /= base;
 	}
+
 	return (_toml_str_append_n(dest, buf + i, sizeof(buf) - i));
 }
 
 static int	_toml_append_int(
 	t_toml_str *const dest,
-	long long value
+	const long long value
 )
 {
 	if (value < 0)
@@ -40,10 +54,14 @@ static int	_toml_append_int(
 
 		if (unlikely(errnum != error_none))
 			return (errnum);
-		return (_toml_append_uint_base(dest, -(unsigned long long)value, 10));
+		else
+			return (_toml_append_uint_base(dest, -(unsigned long long)value, 10));
 	}
+
 	return (_toml_append_uint_base(dest, (unsigned long long)value, 10));
 }
+
+/* ----| Public     |----- */
 
 int	_toml_fill_format(
 	const char *const str,
@@ -56,6 +74,7 @@ int	_toml_fill_format(
 
 	if (unlikely(!str || !result || !args))
 		return (error_invalid_arg);
+
 	i = 0;
 	while (str[i])
 	{
@@ -64,11 +83,14 @@ int	_toml_fill_format(
 			errnum = _toml_str_append_char(result, str[i++]);
 			if (unlikely(errnum != error_none))
 				return (errnum);
+
 			continue ;
 		}
-		if (!str[i + 1])
+
+		else if (!str[i + 1])
 			return (_toml_str_append_char(result, '%'));
-		if (str[i + 1] == '%')
+
+		else if (str[i + 1] == '%')
 		{
 			errnum = _toml_str_append_char(result, '%');
 			if (unlikely(errnum != error_none))
@@ -76,45 +98,53 @@ int	_toml_fill_format(
 			i += 2;
 			continue ;
 		}
+
 		if (str[i + 1] == 'l' && (str[i + 2] == 'd' || str[i + 2] == 'i'))
 		{
 			errnum = _toml_append_int(result, va_arg(*args, long));
 			i += 3;
 		}
+
 		else if (str[i + 1] == 'l' && str[i + 2] == 'x')
 		{
 			errnum = _toml_append_uint_base(result,
 					va_arg(*args, unsigned long), 16);
 			i += 3;
 		}
+
 		else if (str[i + 1] == 'd' || str[i + 1] == 'i')
 		{
 			errnum = _toml_append_int(result, va_arg(*args, int));
 			i += 2;
 		}
+
 		else if (str[i + 1] == 's')
 		{
 			const char	*value = va_arg(*args, char *);
 
-			errnum = _toml_str_append_n(result, value ? value : "(null)",
-					strlen(value ? value : "(null)"));
+			errnum = _toml_str_append_n(result,
+						value ? value : "(null)",
+						strlen(value ? value : "(null)"));
 			i += 2;
 		}
+
 		else if (str[i + 1] == 'p')
 		{
 			errnum = _toml_str_append_n(result, "0x", 2);
 			if (unlikely(errnum != error_none))
 				return (errnum);
-			errnum = _toml_append_uint_base(result,
-					(unsigned long long)(uintptr_t)va_arg(*args, void *), 16);
+
+			errnum = _toml_append_uint_base(result, (unsigned long long)(uintptr_t)va_arg(*args, void *), 16);
 			i += 2;
 		}
+
 		else if (str[i + 1] == 'x')
 		{
 			errnum = _toml_append_uint_base(result,
 					va_arg(*args, unsigned int), 16);
 			i += 2;
 		}
+
 		else if (str[i + 1] == 'c')
 		{
 			const char	c = (char)va_arg(*args, int);
@@ -122,6 +152,7 @@ int	_toml_fill_format(
 			errnum = _toml_str_append_char(result, c);
 			i += 2;
 		}
+
 		else
 		{
 			errnum = _toml_str_append_char(result, '%');
@@ -130,6 +161,7 @@ int	_toml_fill_format(
 			errnum = _toml_str_append_char(result, str[i + 1]);
 			i += 2;
 		}
+
 		if (unlikely(errnum != error_none))
 			return (errnum);
 	}
@@ -140,9 +172,8 @@ char	*_toml_itoa(
 	long long value
 )
 {
-	t_toml_str	result;
+	t_toml_str	result = {0};
 
-	memset(&result, 0, sizeof(result));
 	if (unlikely(_toml_append_int(&result, value) != error_none))
 	{
 		mem_free(result.content);
@@ -155,9 +186,8 @@ char	*_toml_uitoa(
 	unsigned long long value
 )
 {
-	t_toml_str	result;
+	t_toml_str	result = {0};
 
-	memset(&result, 0, sizeof(result));
 	if (unlikely(_toml_append_uint_base(&result, value, 10) != error_none))
 	{
 		mem_free(result.content);

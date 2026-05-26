@@ -1,7 +1,7 @@
 /**
  * @file _types.h
  * @brief Internal TOML tree declarations.
- */
+*/
 #ifndef CLIB_FILES_TOML_INTERNAL_TYPES_H
 # define CLIB_FILES_TOML_INTERNAL_TYPES_H
 
@@ -37,7 +37,8 @@
 
 /* -----| Structs   |----- */
 
-typedef struct s_toml	t_toml;
+typedef struct s_toml_str	t_toml_str;
+typedef struct s_toml		t_toml;
 
 /* ************************************************************************** */
 /*                                 Enums                                      */
@@ -52,6 +53,13 @@ typedef struct s_toml	t_toml;
 /* ************************************************************************** */
 /*                                 Structs                                    */
 /* ************************************************************************** */
+
+struct s_toml_str
+{
+	char	*content;
+	size_t	len;
+	size_t	size;
+};
 
 struct s_toml
 {

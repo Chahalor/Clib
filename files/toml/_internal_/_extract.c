@@ -1,11 +1,39 @@
 /**
  * @file _extract.c
  * @brief Internal TOML tree lookup helpers.
- */
-#include "_toml.h"
-
+/* ----| Headers    |----- */
+	/* Standard */
 #include <stdlib.h>
 #include <string.h>
+ 
+	/* Internal */
+#include "_toml.h"
+ 
+	/* External */
+		//...
+
+/* ----| Prototypes |----- */
+	//...
+ 
+/* ----| Internals  |----- */
+
+static TOML	*_toml_get_array_index(
+	TOML *node,
+	const int index
+)
+{
+	int	i = 0;
+
+	while (node && i < index)
+	{
+		node = node->next;
+		i++;
+	}
+
+	return (node);
+}
+
+/* ----| Public     |----- */
 
 TOML	*_toml_find_child(
 	TOML *const parent,
@@ -16,6 +44,7 @@ TOML	*_toml_find_child(
 
 	if (unlikely(!parent || !key))
 		return (NULL);
+
 	node = parent->child;
 	while (node)
 	{
@@ -23,24 +52,10 @@ TOML	*_toml_find_child(
 			return (node);
 		node = node->next;
 	}
+
 	return (NULL);
 }
 
-static TOML	*_toml_get_array_index(
-	TOML *node,
-	const int index
-)
-{
-	int	i;
-
-	i = 0;
-	while (node && i < index)
-	{
-		node = node->next;
-		i++;
-	}
-	return (node);
-}
 
 TOML	*_toml_get_field(
 	TOML *const toml,
@@ -48,16 +63,18 @@ TOML	*_toml_get_field(
 	const int depth
 )
 {
-	char	**split;
-	TOML	*current;
-	size_t	limit;
-	size_t	i;
+	char	**split = NULL;
+	TOML	*current = NULL;
+	size_t	limit = 0;
+	size_t	i = 0;
 
 	if (unlikely(!toml || !field))
 		return (NULL);
+
 	split = _toml_split(field);
 	if (unlikely(!split))
 		return (NULL);
+
 	limit = depth < 0 ? _toml_split_len(split) : (size_t)depth;
 	current = toml;
 	i = 0;
@@ -74,6 +91,7 @@ TOML	*_toml_get_field(
 			i++;
 		}
 	}
+
 	mem_free(split);
 	return (current);
 }
