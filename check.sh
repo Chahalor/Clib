@@ -19,6 +19,7 @@ fi
 
 checks=(
 	files/json
+	files/toml
 	interface/args
 	interface/log
 	memory/

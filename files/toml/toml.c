@@ -1,8 +1,36 @@
-#include "toml.h"
-#include "_internal_/_toml.h"
-
+/**
+ * 
+*/
+/* ----| Headers    |----- */
+	/* Standard */
 #include <string.h>
 #include <unistd.h>
+
+	/* Internal */
+#include "toml.h"
+#include "setting.h"
+#include "_internal_/_toml.h"
+
+
+	/* External */
+		//...
+
+/* ----| Prototypes |----- */
+	//...
+
+/* ----| Internals  |----- */
+	//...
+
+/* ----| Public     |----- */
+	//...
+
+t_toml_settings	g_toml_settings = {
+	.alloc = mem_alloc,
+	.realloc = mem_realloc,
+	.free = mem_free,
+	.dup = mem_dup
+};
+
 
 TOML	*toml_new(void)
 {
