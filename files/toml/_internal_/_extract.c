@@ -1,6 +1,7 @@
 /**
  * @file _extract.c
  * @brief Internal TOML tree lookup helpers.
+ */
 /* ----| Headers    |----- */
 	/* Standard */
 #include <stdlib.h>
@@ -92,6 +93,6 @@ TOML	*_toml_get_field(
 		}
 	}
 
-	mem_free(split);
+	setting->free(split);
 	return (current);
 }

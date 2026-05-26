@@ -28,17 +28,17 @@ TOML	*_toml_new_content(
 {
 	TOML	*result = NULL;
 
-	result = mem_alloc(sizeof(TOML));
+	result = setting->alloc(sizeof(TOML));
 	if (unlikely(!result))
 		return (NULL);
 
 	memset(result, 0, sizeof(TOML));
 	if (key)
 	{
-		result->key = mem_dup(key, strlen(key) + 1);
+		result->key = setting->dup(key, strlen(key) + 1);
 		if (unlikely(!result->key))
 		{
-			mem_free(result);
+			setting->free(result);
 			return (NULL);
 		}
 	}
@@ -55,11 +55,11 @@ void	_toml_free_content(
 	if (unlikely(!node))
 		return ;
 
-	mem_free(node->key);
-	mem_free(node->data);
+	setting->free(node->key);
+	setting->free(node->data);
 	_toml_free_content(node->child);
 	_toml_free_content(node->next);
-	mem_free(node);
+	setting->free(node);
 }
 
 TOML	*_toml_clone_node(
@@ -75,7 +75,7 @@ TOML	*_toml_clone_node(
 	data = NULL;
 	if (src->data)
 	{
-		data = mem_dup(src->data, strlen(src->data) + 1);
+		data = setting->dup(src->data, strlen(src->data) + 1);
 		if (unlikely(!data))
 			return (NULL);
 	}
@@ -83,7 +83,7 @@ TOML	*_toml_clone_node(
 	node = _toml_new_content(src->key, src->type, data);
 	if (unlikely(!node))
 	{
-		mem_free(data);
+		setting->free(data);
 		return (NULL);
 	}
 	else if (src->child)

@@ -70,7 +70,7 @@ char	**_toml_split(
 
 	len = strlen(field);
 	count = _toml_count_field(field);
-	result = mem_alloc(sizeof(char *) * (count + 1) + len + count + 1);
+	result = setting->alloc(sizeof(char *) * (count + 1) + len + count + 1);
 	if (unlikely(!result))
 		return (NULL);
 

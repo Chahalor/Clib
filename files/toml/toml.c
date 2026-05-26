@@ -28,7 +28,9 @@ t_toml_settings	g_toml_settings = {
 	.alloc = mem_alloc,
 	.realloc = mem_realloc,
 	.free = mem_free,
-	.dup = mem_dup
+	.dup = mem_dup,
+	.join = mem_join,
+	.free_all = mem_free_all
 };
 
 
@@ -62,7 +64,7 @@ TOML	*toml_load(
 		fclose(file);
 		return (NULL);
 	}
-	buffer = mem_alloc((size_t)size + 1);
+	buffer = setting->alloc((size_t)size + 1);
 	if (unlikely(!buffer))
 	{
 		fclose(file);
@@ -70,14 +72,14 @@ TOML	*toml_load(
 	}
 	if (size && fread(buffer, 1, (size_t)size, file) != (size_t)size)
 	{
-		mem_free(buffer);
+		setting->free(buffer);
 		fclose(file);
 		return (NULL);
 	}
 	fclose(file);
 	buffer[size] = '\0';
 	result = toml_load_str("%s", buffer);
-	mem_free(buffer);
+	setting->free(buffer);
 	return (result);
 }
 
@@ -97,14 +99,14 @@ TOML	*toml_load_str(
 	if (unlikely(_toml_fill_format(format, &str, &args) != error_none))
 	{
 		va_end(args);
-		mem_free(str.content);
+		setting->free(str.content);
 		return (NULL);
 	}
 	va_end(args);
 	result = toml_new();
 	if (unlikely(!result))
 	{
-		mem_free(str.content);
+		setting->free(str.content);
 		return (NULL);
 	}
 	if (unlikely(_toml_parse_string(&result, str.content) != error_none))
@@ -112,7 +114,7 @@ TOML	*toml_load_str(
 		toml_unload(result);
 		result = NULL;
 	}
-	mem_free(str.content);
+	setting->free(str.content);
 	return (result);
 }
 
@@ -156,14 +158,14 @@ void	*toml_get(
 		if (unlikely(_toml_fill_format(key, &str, &args) != error_none))
 		{
 			va_end(args);
-			mem_free(str.content);
+			setting->free(str.content);
 			return (NULL);
 		}
 		field = str.content;
 	}
 	va_end(args);
 	node = _toml_get_field(obj, field, -1);
-	mem_free(field);
+	setting->free(field);
 	if (unlikely(!node))
 		return (NULL);
 	if (node->type == toml_tok_array || node->type == toml_tok_table)
@@ -237,7 +239,7 @@ static int	_toml_set_number_va_args(
 	errnum = _toml_set_field(&root, str_field.content, data, toml_tok_int);
 
 cleanup:
-	mem_free(str_field.content);
+	setting->free(str_field.content);
 	return (errnum);
 }
 
@@ -260,7 +262,7 @@ int	toml_set_signed_nb(
 	va_start(args, var);
 	errnum = _toml_set_number_va_args(toml, field, data, &args);
 	va_end(args);
-	mem_free(data);
+	setting->free(data);
 	return (errnum);
 }
 
@@ -283,7 +285,7 @@ int	toml_set_unsigned_nb(
 	va_start(args, var);
 	errnum = _toml_set_number_va_args(toml, field, data, &args);
 	va_end(args);
-	mem_free(data);
+	setting->free(data);
 	return (errnum);
 }
 
@@ -317,8 +319,8 @@ int	toml_set_string(
 
 cleanup:
 	va_end(args);
-	mem_free(str_field.content);
-	mem_free(str_value.content);
+	setting->free(str_field.content);
+	setting->free(str_value.content);
 	return (errnum);
 }
 
@@ -342,7 +344,7 @@ static int	_toml_set_container_va(
 	errnum = _toml_set_node(&root, str_field.content, var, type);
 
 cleanup:
-	mem_free(str_field.content);
+	setting->free(str_field.content);
 	return (errnum);
 }
 
@@ -420,10 +422,10 @@ int	toml_set_wild(
 			if (type == toml_tok_int)
 				data = _toml_itoa(*(const int *)var);
 			else if (type == toml_tok_bool)
-				data = mem_dup(*(const int *)var ? "true" : "false",
+				data = setting->dup(*(const int *)var ? "true" : "false",
 						*(const int *)var ? sizeof("true") : sizeof("false"));
 			else
-				data = mem_dup(var, strlen((const char *)var) + 1);
+				data = setting->dup(var, strlen((const char *)var) + 1);
 			if (unlikely(!data))
 				errnum = error_alloc_fail;
 			else
@@ -435,8 +437,8 @@ int	toml_set_wild(
 
 cleanup:
 	va_end(args);
-	mem_free(data);
-	mem_free(str_field.content);
+	setting->free(data);
+	setting->free(str_field.content);
 	return (errnum);
 }
 
@@ -486,11 +488,11 @@ int	toml_array_append(
 	else if (type == toml_tok_int)
 		data = _toml_itoa(*(const int *)value);
 	else if (type == toml_tok_bool)
-		data = mem_dup(*(const int *)value ? "true" : "false",
+		data = setting->dup(*(const int *)value ? "true" : "false",
 				*(const int *)value ? sizeof("true") : sizeof("false"));
 	else if (type == toml_tok_str || type == toml_tok_float
 		|| type == toml_tok_datetime)
-		data = mem_dup(value, strlen((const char *)value) + 1);
+		data = setting->dup(value, strlen((const char *)value) + 1);
 	else
 		return (error_invalid_arg);
 	if (type != toml_tok_null && unlikely(!data))
@@ -498,7 +500,7 @@ int	toml_array_append(
 	node = _toml_new_content(NULL, type, data);
 	if (unlikely(!node))
 	{
-		mem_free(data);
+		setting->free(data);
 		return (error_alloc_fail);
 	}
 	return (_toml_add_child(toml, node));
@@ -586,7 +588,7 @@ int	toml_set_from_array(
 	errnum = _toml_set_node(&toml, str_field.content, array_node, toml_tok_array);
 
 cleanup:
-	mem_free(str_field.content);
+	setting->free(str_field.content);
 	_toml_free_content(array_node);
 	return (errnum);
 }
@@ -809,7 +811,7 @@ static int	_toml_append_table(
 			errnum = _toml_str_append_char(out, '\n');
 			if (unlikely(errnum == error_none))
 				errnum = _toml_append_table(out, node, path, pretty);
-			mem_free(path);
+			setting->free(path);
 			if (unlikely(errnum != error_none))
 				return (errnum);
 		}
@@ -832,13 +834,13 @@ char	*toml_stringify(
 	{
 		if (unlikely(_toml_append_table(&out, toml, NULL, pretty) != error_none))
 		{
-			mem_free(out.content);
+			setting->free(out.content);
 			return (NULL);
 		}
 	}
 	else if (unlikely(_toml_append_value(&out, toml, pretty) != error_none))
 	{
-		mem_free(out.content);
+		setting->free(out.content);
 		return (NULL);
 	}
 	return (out.content);
@@ -862,7 +864,7 @@ int	toml_dump(
 	if (unlikely(!str))
 		return (error_alloc_fail);
 	write(fd, str, strlen(str));
-	mem_free(str);
+	setting->free(str);
 	return (error_none);
 }
 

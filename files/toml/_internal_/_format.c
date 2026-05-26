@@ -176,7 +176,7 @@ char	*_toml_itoa(
 
 	if (unlikely(_toml_append_int(&result, value) != error_none))
 	{
-		mem_free(result.content);
+		setting->free(result.content);
 		return (NULL);
 	}
 	return (result.content);
@@ -190,7 +190,7 @@ char	*_toml_uitoa(
 
 	if (unlikely(_toml_append_uint_base(&result, value, 10) != error_none))
 	{
-		mem_free(result.content);
+		setting->free(result.content);
 		return (NULL);
 	}
 	return (result.content);

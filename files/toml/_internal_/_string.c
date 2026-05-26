@@ -35,14 +35,14 @@ static int	_toml_str_reserve(
 	while (dest->len + add + 1 > new_size)
 		new_size *= 2;
 
-	new_content = mem_alloc(new_size);
+	new_content = setting->alloc(new_size);
 	if (unlikely(!new_content))
 		return (error_alloc_fail);
 
 	else if (dest->content)
 		memcpy(new_content, dest->content, dest->len);
 
-	mem_free(dest->content);
+	setting->free(dest->content);
 	dest->content = new_content;
 	dest->size = new_size;
 	dest->content[dest->len] = '\0';
