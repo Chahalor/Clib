@@ -5,7 +5,7 @@
 #include <unistd.h>
 
 #include "../../toml.h"
-#include "../../../memory.h"
+#include "../setting.h"
 #include "../../../standards/formating.h"
 
 typedef int	(*t_test_fn)(void);
@@ -303,7 +303,7 @@ static int	test_toml_stringify_dump_cases(void)
 	EXPECT_NOT_NULL(str);
 	EXPECT_CONTAINS(str, "name = \"bob\"");
 	EXPECT_CONTAINS(str, "[obj]");
-	mem_free(str);
+	g_toml_settings.free(str);
 
 	file = tmpfile();
 	EXPECT_NOT_NULL(file);

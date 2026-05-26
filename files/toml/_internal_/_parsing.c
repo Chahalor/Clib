@@ -77,7 +77,7 @@ static char	*_toml_dup_unquoted(
 	value = _toml_trim((char *)value);
 	quote = *value;
 	if (quote != '"' && quote != '\'')
-		return (mem_dup(value, strlen(value) + 1));
+		return (setting->dup(value, strlen(value) + 1));
 
 	i = 1;
 	while (value[i] && value[i] != quote)
@@ -177,13 +177,13 @@ static int	_toml_set_parsed_scalar(
 	if (type == toml_tok_str)
 		data = _toml_dup_unquoted(value);
 	else
-		data = mem_dup(value, strlen(value) + 1);
+		data = setting->dup(value, strlen(value) + 1);
 
 	if (unlikely(!data))
 		return (error_alloc_fail);
 
 	errnum = _toml_set_field(toml, path, data, type);
-	mem_free(data);
+	setting->free(data);
 	return (errnum);
 }
 
@@ -201,7 +201,7 @@ static int	_toml_parse_array_item(
 	if (type == toml_tok_str)
 		data = _toml_dup_unquoted(item);
 	else
-		data = mem_dup(item, strlen(item) + 1);
+		data = setting->dup(item, strlen(item) + 1);
 
 	if (unlikely(!data))
 		return (error_alloc_fail);
@@ -209,7 +209,7 @@ static int	_toml_parse_array_item(
 	node = _toml_new_content(NULL, type, data);
 	if (unlikely(!node))
 	{
-		mem_free(data);
+		setting->free(data);
 		return (error_alloc_fail);
 	}
 
@@ -224,7 +224,7 @@ static int	_toml_set_parsed_array(
 {
 	TOML	*array;
 	char	*start;
-	char	*end = '\0';
+	char	*end = NULL;
 	char	*item_start;
 	size_t	i;
 	int		in_quote = 0;
@@ -301,7 +301,7 @@ int	_toml_parse_string(
 	if (unlikely(!toml || !str))
 		return (error_invalid_arg);
 
-	copy = mem_dup(str, strlen(str) + 1);
+	copy = setting->dup(str, strlen(str) + 1);
 	if (unlikely(!copy))
 		return (error_alloc_fail);
 
@@ -332,8 +332,8 @@ int	_toml_parse_string(
 			}
 
 			*end = '\0';
-			mem_free(current_table);
-			current_table = mem_dup(_toml_trim(trimmed + 1), strlen(_toml_trim(trimmed + 1)) + 1);
+			setting->free(current_table);
+			current_table = setting->dup(_toml_trim(trimmed + 1), strlen(_toml_trim(trimmed + 1)) + 1);
 			if (unlikely(!current_table))
 			{
 				errnum = error_alloc_fail;
@@ -372,7 +372,7 @@ int	_toml_parse_string(
 			else
 				errnum = _toml_set_parsed_scalar(toml, path, value);
 
-			mem_free(path);
+			setting->free(path);
 			if (unlikely(errnum != error_none))
 				break ;
 		}
@@ -380,7 +380,7 @@ int	_toml_parse_string(
 		line = strtok(NULL, "\n");
 	}
 
-	mem_free(current_table);
-	mem_free(copy);
+	setting->free(current_table);
+	setting->free(copy);
 	return (errnum);
 }

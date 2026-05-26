@@ -30,7 +30,7 @@ static int	_toml_replace_node_value(
 
 	if (data)
 	{
-		new_data = mem_dup(data, strlen(data) + 1);
+		new_data = setting->dup(data, strlen(data) + 1);
 		if (unlikely(!new_data))
 			return (error_alloc_fail);
 	}
@@ -41,7 +41,7 @@ static int	_toml_replace_node_value(
 		target->child = NULL;
 	}
 
-	mem_free(target->data);
+	setting->free(target->data);
 	target->data = new_data;
 	target->type = type;
 	return (error_none);
@@ -56,7 +56,7 @@ static char	*_toml_format_field(
 
 	if (unlikely(_toml_fill_format(field, &result, args) != error_none))
 	{
-		mem_free(result.content);
+		setting->free(result.content);
 		return (NULL);
 	}
 
@@ -162,7 +162,7 @@ int	_toml_set_field(
 					i + 1 == len ? type : toml_tok_table, NULL);
 			if (unlikely(!child))
 			{
-				mem_free(split);
+				setting->free(split);
 				return (error_alloc_fail);
 			}
 
@@ -170,13 +170,13 @@ int	_toml_set_field(
 			if (unlikely(errnum != error_none))
 			{
 				_toml_free_content(child);
-				mem_free(split);
+				setting->free(split);
 				return (errnum);
 			}
 		}
 		else if (i + 1 < len && child->type != toml_tok_table)
 		{
-			mem_free(child->data);
+			setting->free(child->data);
 			child->data = NULL;
 			_toml_free_content(child->child);
 			child->child = NULL;
@@ -186,7 +186,7 @@ int	_toml_set_field(
 		current = child;
 		i++;
 	}
-	mem_free(split);
+	setting->free(split);
 	return (_toml_replace_node_value(current, data, type));
 }
 
@@ -254,12 +254,12 @@ int	_toml_unset(
 	target = _toml_get_field(*toml, field, -1);
 	if (!target)
 	{
-		mem_free(field_buf);
+		setting->free(field_buf);
 		return (error_none);
 	}
 
 	parent = depth <= 1 ? *toml : _toml_get_field(*toml, field, depth - 1);
 	errnum = _toml_detach_child(parent, target, should_free);
-	mem_free(field_buf);
+	setting->free(field_buf);
 	return (errnum);
 }

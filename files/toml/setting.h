@@ -8,6 +8,7 @@
 
 /* -----| Systems   |----- */
 #include <stddef.h>
+#include <sys/types.h>
 
 /* -----| Globals   |----- */
 # include "lib_config.h"
@@ -60,7 +61,9 @@ struct s_toml_settings
 	void	*(*alloc)(size_t);
 	void	*(*realloc)(void *, size_t);
 	void	(*free)(void *);
-	void	*(*dup)(void *, size_t);
+	void	*(*dup)(const void *, ssize_t);
+	void	*(*join)(const void *, const void *, ssize_t, ssize_t);
+	void	(*free_all)(void);
 };
 
 /* ************************************************************************** */
