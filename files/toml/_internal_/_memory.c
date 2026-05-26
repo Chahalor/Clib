@@ -1,10 +1,24 @@
 /**
  * @file _memory.c
  * @brief Internal TOML allocation and cloning helpers.
- */
+*/
+/* ----| Headers    |----- */
+	/* Standard */
+#include <string.h>
+
+	/* Internal */
 #include "_toml.h"
 
-#include <string.h>
+	/* External */
+		//...
+
+/* ----| Prototypes |----- */
+	//...
+
+/* ----| Internals  |----- */
+	//...
+
+/* ----| Public     |----- */
 
 TOML	*_toml_new_content(
 	const char *const key,
@@ -12,11 +26,12 @@ TOML	*_toml_new_content(
 	char *const data
 )
 {
-	TOML	*result;
+	TOML	*result = NULL;
 
 	result = mem_alloc(sizeof(TOML));
 	if (unlikely(!result))
 		return (NULL);
+
 	memset(result, 0, sizeof(TOML));
 	if (key)
 	{
@@ -27,6 +42,7 @@ TOML	*_toml_new_content(
 			return (NULL);
 		}
 	}
+
 	result->type = type;
 	result->data = data;
 	return (result);
@@ -36,8 +52,9 @@ void	_toml_free_content(
 	TOML *node
 )
 {
-	if (!node)
+	if (unlikely(!node))
 		return ;
+
 	mem_free(node->key);
 	mem_free(node->data);
 	_toml_free_content(node->child);
@@ -52,8 +69,9 @@ TOML	*_toml_clone_node(
 	TOML	*node;
 	char	*data;
 
-	if (!src)
+	if (unlikely(!src))
 		return (NULL);
+
 	data = NULL;
 	if (src->data)
 	{
@@ -61,24 +79,27 @@ TOML	*_toml_clone_node(
 		if (unlikely(!data))
 			return (NULL);
 	}
+
 	node = _toml_new_content(src->key, src->type, data);
 	if (unlikely(!node))
 	{
 		mem_free(data);
 		return (NULL);
 	}
-	if (src->child)
+	else if (src->child)
 	{
 		node->child = _toml_clone_node(src->child);
 		if (unlikely(!node->child))
 			goto error;
 	}
+
 	if (src->next)
 	{
 		node->next = _toml_clone_node(src->next);
 		if (unlikely(!node->next))
 			goto error;
 	}
+
 	return (node);
 
 error:

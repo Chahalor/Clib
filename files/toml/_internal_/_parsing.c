@@ -1,7 +1,7 @@
 /**
  * @file _parsing.c
  * @brief Internal TOML parser helpers.
- */
+*/
 /* ----| Headers    |----- */
 	/* Standard */
 #include <ctype.h>
