@@ -366,7 +366,7 @@ int	_toml_set_wild(
 
 	root = toml;
 	data = NULL;
-	errnum = _toml_fill_format(field, &str_field, &args);
+	errnum = _toml_fill_format(field, &str_field, args);
 	if (unlikely(errnum != error_none))
 		goto cleanup;
 	if (type == toml_tok_table || type == toml_tok_array)
@@ -519,7 +519,7 @@ int	_toml_set_from_array(
 	if (unlikely(!array_node))
 		return (error_alloc_fail);
 
-	errnum = _toml_fill_format(field, &str_field, &args);
+	errnum = _toml_fill_format(field, &str_field, args);
 	if (unlikely(errnum != error_none))
 		goto cleanup;
 
@@ -690,8 +690,6 @@ int	_toml_append_table(
 		{
 			if (out->len && out->content[out->len - 1] != '\n')
 				_toml_str_append_char(out, '\n');
-
-			if (out->len && out->content[out->len - 1] == '\n' && (!prefix || !*prefix));
 
 			path = _toml_child_path(prefix, node->key);
 			if (unlikely(!path))

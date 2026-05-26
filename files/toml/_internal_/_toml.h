@@ -50,20 +50,6 @@ TOML	*_toml_clone_node(
 			const TOML *const src
 			);
 
-TOML	*_toml_new_content(
-			const char *const key,
-			const int type,
-			char *const data
-			);
-
-void	_toml_free_content(
-			TOML *node
-			);
-
-TOML	*_toml_clone_node(
-			const TOML *const src
-			);
-
 int		_toml_fill_format(
 			const char *const str,
 			t_toml_str *const result,
@@ -97,6 +83,16 @@ TOML	*_toml_get_field(
 			const int depth
 			);
 
+void	*_toml_get(
+			TOML *const obj,
+			const char *const restrict key,
+			va_list *const args
+			);
+
+size_t	_toml_node_size(
+			const TOML *const node
+			);
+
 int		_toml_set_field(
 			TOML **const toml,
 			const char *const field,
@@ -115,6 +111,56 @@ int		_toml_unset(
 			TOML **const toml,
 			const char *field,
 			const int should_free,
+			va_list *const args
+			);
+
+int		_toml_set_number_va_args(
+			TOML *const toml,
+			const char *const field,
+			const char *const data,
+			va_list *const args
+			);
+
+int		_toml_set_container_va(
+			TOML *const toml,
+			const char *const field,
+			TOML *const var,
+			const int type,
+			va_list *const args
+			);
+
+int		_toml_set_wild(
+			TOML *const toml,
+			const char *const field,
+			void *var,
+			int type,
+			va_list *const args
+			);
+
+int		_toml_set_string(
+			TOML *const toml,
+			const char *const field,
+			char *var,
+			va_list *const args
+			);
+
+int		_toml_array_append(
+			TOML *const toml,
+			void *const value,
+			const int type
+			);
+
+int		_toml_array_pop(
+			TOML *const toml,
+			const size_t index
+			);
+
+int		_toml_set_from_array(
+			TOML *toml,
+			const char *const restrict field,
+			void *const array,
+			const size_t length,
+			const int type,
 			va_list *const args
 			);
 
@@ -151,3 +197,35 @@ TOML	*_toml_load_str(
 			const char *const restrict format,
 			va_list *const args
 			);
+
+int		_toml_append_indent(
+			t_toml_str *const out,
+			const int depth,
+			const int pretty
+			);
+
+int		_toml_append_value(
+			t_toml_str *const out,
+			TOML *const node,
+			const int pretty
+			);
+
+int		_toml_append_table(
+			t_toml_str *const out,
+			TOML *const table,
+			const char *const prefix,
+			const int pretty
+			);
+
+char	*_toml_stringify(
+			TOML *toml,
+			const int pretty
+			);
+
+int		_toml_dump(
+			TOML *const restrict toml,
+			FILE *const file,
+			const int pretty
+			);
+
+#endif	// CLIB_FILES_TOML_INTERNAL_H

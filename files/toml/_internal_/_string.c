@@ -95,11 +95,11 @@ int	_toml_set_string(
 	int			errnum;
 
 	root = toml;
-	errnum = _toml_fill_format(field, &str_field, &args);
+	errnum = _toml_fill_format(field, &str_field, args);
 	if (unlikely(errnum != error_none))
 		goto cleanup;
 
-	errnum = _toml_fill_format(var, &str_value, &args);
+	errnum = _toml_fill_format(var, &str_value, args);
 	if (unlikely(errnum != error_none))
 		goto cleanup;
 

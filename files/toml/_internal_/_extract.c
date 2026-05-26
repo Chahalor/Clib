@@ -6,6 +6,7 @@
 	/* Standard */
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
  
 	/* Internal */
 #include "_toml.h"
@@ -133,6 +134,9 @@ size_t	_toml_node_size(
 )
 {
 	size_t	size;
+
+	if (unlikely(!node))
+		return (0);
 
 	size = sizeof(TOML);
 	if (node->key)

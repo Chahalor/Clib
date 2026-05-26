@@ -131,13 +131,13 @@ static int	test_toml_load_cases(void)
 
 	EXPECT_EQ_INT(create_temp_file_with_content(
 			"name = \"alice\"\n", path_valid, sizeof(path_valid)), 0);
-	toml = toml_load(path_valid);
+	toml = toml_load_file(path_valid);
 	EXPECT_NOT_NULL(toml);
 	EXPECT_STREQ((const char *)toml_get(toml, "name"), "alice");
 	EXPECT_EQ_INT(toml_unload(toml), error_none);
 	unlink(path_valid);
 
-	EXPECT_NULL(toml_load(NULL));
+	EXPECT_NULL(toml_load_file(NULL));
 	return (0);
 }
 
