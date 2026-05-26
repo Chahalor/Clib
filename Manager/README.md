@@ -30,27 +30,63 @@ libmng setup/update/export
 #### export
 this file will say which module exist, where are they situated and which are they dependencies.
 
-
-legend:
-` (does not count in the format, only for the README representation)
- * mandatory informatiom
- - optional information
-`
 format
-```
-# comment
-/* same here */
-LIB NAME
+```toml
+name = "name"
+version = "version"
+url = "url to the repo"
 
-[Module Name]
-* headerFile: path
-* dependencies: [
-	module name,
-	module name, module name
+[export]
+includeDir = "include"
+sourceDir = "src"
+buildSystem = "cmake"
+
+[[moduleName]]
+path = "path/to/the/module"
+publicHeaders = [
+	"header.h"
 ]
-- Controls: path
+privateHeaders = [
+	"_internal_/_header.h"
+]
+dependencies = []
+defines = [
+	"MEMORY_DEBUG"
+]
+tags = [
+	"core",
+	"allocator"
+]
+controls = [
+	"path/to/the/controls/"
+]
+```
 
+exemple:
+```toml
+[[json]]
+path = "files/json/"
+publicHeaders = [
+	"../json.h"
+]
+privateHeaders = [
+	"_internal_/_json.h"
+]
 
+dependencies = [
+	"memory"
+]
 ```
 
 #### import
+```toml
+modules = [
+	module1,
+	module2,
+	module3,
+	module4
+]
+
+[[moduleName]]
+version=version
+```
