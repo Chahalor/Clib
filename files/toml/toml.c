@@ -94,7 +94,7 @@ void	*toml_get(
 		return (NULL);
 
 	va_start(args, key);
-	result = _toml_get(obj, key);
+	result = _toml_get(obj, key, &args);
 	va_end(args);
 	return (result);
 }
@@ -251,8 +251,8 @@ int	toml_set_wild(
 	if (unlikely(!toml || !field || !var))
 		return (error_invalid_arg);
 
-	va_start(args, var);
-	result = _toml_set_wild(toml, field, var, &args);
+	va_start(args, type);
+	result = _toml_set_wild(toml, field, var, type, &args);
 	va_end(args);
 	return (result);
 }

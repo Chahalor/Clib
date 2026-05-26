@@ -52,6 +52,9 @@ void	_toml_free_content(
 	TOML *node
 )
 {
+	if (unlikely(!node))
+		return ;
+
 	setting->free(node->key);
 	setting->free(node->data);
 	_toml_free_content(node->child);

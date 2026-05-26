@@ -42,7 +42,7 @@
 
 TOML	*toml_new(void);
 
-TOML	*toml_load(
+TOML	*toml_load_file(
 			const char *const restrict path
 			);
 
