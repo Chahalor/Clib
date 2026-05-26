@@ -33,6 +33,20 @@ TOML	*_toml_clone_node(
 			const TOML *const src
 			);
 
+TOML	*_toml_new_content(
+			const char *const key,
+			const int type,
+			char *const data
+			);
+
+void	_toml_free_content(
+			TOML *node
+			);
+
+TOML	*_toml_clone_node(
+			const TOML *const src
+			);
+
 int		_toml_fill_format(
 			const char *const str,
 			t_toml_str *const result,
@@ -53,6 +67,11 @@ int		_toml_str_append_char(
 int		_toml_add_child(
 			TOML *const parent,
 			TOML *const child
+			);
+
+TOML	*_toml_find_child(
+			TOML *const parent,
+			const char *const key
 			);
 
 TOML	*_toml_get_field(
@@ -84,6 +103,10 @@ int		_toml_unset(
 
 char	**_toml_split(
 			const char *const field
+			);
+
+size_t	_toml_split_len(
+			char **split
 			);
 
 int		_toml_count_field(
