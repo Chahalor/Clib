@@ -20,6 +20,7 @@
 // #include "files/csv.h"
 // #include "files/yml.h"
 #include "files/json.h"
+#include "files/toml.h"
 
 /* ************************************************************************** */
 /*                                 Macros                                     */
