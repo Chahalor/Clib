@@ -145,3 +145,49 @@ size_t	_toml_node_size(
 	size += _toml_node_size(node->next);
 	return (size);
 }
+
+char	*_toml_stringify(
+	TOML *toml,
+	const int pretty
+)
+{
+	t_toml_str	out = {0};
+
+	if (toml->type == toml_tok_table)
+	{
+		if (unlikely(_toml_append_table(&out, toml, NULL, pretty) != error_none))
+		{
+			setting->free(out.content);
+			return (NULL);
+		}
+	}
+	else if (unlikely(_toml_append_value(&out, toml, pretty) != error_none))
+	{
+		setting->free(out.content);
+		return (NULL);
+	}
+
+	return (out.content);
+}
+
+int	_toml_dump(
+	TOML *const restrict	toml,
+	FILE *const				file,
+	const int				pretty
+)
+{
+	char	*str;
+	int		fd;
+
+	fd = fileno(file);
+	if (unlikely(fd < 0))
+		return (error_invalid_file);
+
+	str = toml_stringify(toml, pretty);
+	if (unlikely(!str))
+		return (error_alloc_fail);
+
+	write(fd, str, strlen(str));
+	setting->free(str);
+	return (error_none);
+}

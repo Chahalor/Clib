@@ -96,6 +96,46 @@ static int	_toml_detach_child(
 	return (error_none);
 }
 
+static int	_toml_append_key_value(
+	t_toml_str *const out,
+	TOML *const node,
+	const int pretty
+)
+{
+	int	errnum;
+
+	errnum = _toml_append_indent(out, 0, 0);
+	if (unlikely(errnum != error_none))
+		return (errnum);
+	errnum = _toml_str_append_n(out, node->key, strlen(node->key));
+	if (unlikely(errnum != error_none))
+		return (errnum);
+	errnum = _toml_str_append_n(out, pretty ? " = " : "=", pretty ? 3 : 1);
+	if (unlikely(errnum != error_none))
+		return (errnum);
+	errnum = _toml_append_value(out, node, pretty);
+	if (unlikely(errnum != error_none))
+		return (errnum);
+	return (_toml_str_append_char(out, '\n'));
+}
+
+static char	*_toml_child_path(
+	const char *const prefix,
+	const char *const key
+)
+{
+	t_toml_str	result;
+
+	memset(&result, 0, sizeof(result));
+	if (prefix && *prefix)
+	{
+		_toml_str_append_n(&result, prefix, strlen(prefix));
+		_toml_str_append_char(&result, '.');
+	}
+	_toml_str_append_n(&result, key, strlen(key));
+	return (result.content);
+}
+
 /* ----| Public     |----- */
 
 int	_toml_add_child(
@@ -361,4 +401,312 @@ cleanup:
 	setting->free(data);
 	setting->free(str_field.content);
 	return (errnum);
+}
+
+static int	_toml_append_clone_child(
+	TOML *const	array,
+	TOML *const	src,
+	const int	type
+)
+{
+	TOML	*node;
+
+	node = _toml_new_content(NULL, type, NULL);
+	if (unlikely(!node))
+		return (error_alloc_fail);
+
+	else if (src->child)
+	{
+		node->child = _toml_clone_node(src->child);
+		if (unlikely(!node->child))
+		{
+			_toml_free_content(node);
+			return (error_alloc_fail);
+		}
+	}
+
+	return (_toml_add_child(array, node));
+}
+
+int	_toml_array_append(
+	TOML *const	toml,
+	void *const	value,
+	const int	type
+)
+{
+	TOML	*node;
+	char	*data;
+
+	if (type == toml_tok_array || type == toml_tok_table)
+		return (_toml_append_clone_child(toml, value, type));
+
+	data = NULL;
+	if (unlikely(!value))
+		return (error_invalid_arg);
+	else if (type == toml_tok_int)
+		data = _toml_itoa(*(const int *)value);
+	else if (type == toml_tok_bool)
+		data = setting->dup(*(const int *)value ? "true" : "false",
+				*(const int *)value ? sizeof("true") : sizeof("false"));
+	else if (type == toml_tok_str || type == toml_tok_float || type == toml_tok_datetime)
+		data = setting->dup(value, strlen((const char *)value) + 1);
+	else
+		return (error_invalid_arg);
+
+	if (type != toml_tok_null && unlikely(!data))
+		return (error_alloc_fail);
+
+	node = _toml_new_content(NULL, type, data);
+	if (unlikely(!node))
+	{
+		setting->free(data);
+		return (error_alloc_fail);
+	}
+
+	return (_toml_add_child(toml, node));
+}
+
+int	_toml_array_pop(
+	TOML *const		toml,
+	const size_t	index
+)
+{
+	TOML	*node;
+	TOML	*prev;
+	size_t	i;
+
+	if (unlikely(!toml || toml->type != toml_tok_array))
+		return (error_invalid_arg);
+
+	node = toml->child;
+	prev = NULL;
+	i = 0;
+	while (node && i < index)
+	{
+		prev = node;
+		node = node->next;
+		i++;
+	}
+	if (!node)
+		return (error_invalid_arg);
+
+	else if (prev)
+		prev->next = node->next;
+	else
+		toml->child = node->next;
+
+	node->next = NULL;
+	_toml_free_content(node);
+	return (error_none);
+}
+
+int	_toml_set_from_array(
+	TOML *						toml,
+	const char *const restrict	field,
+	void *const					array,
+	const size_t				length,
+	const int					type,
+	va_list *const				args
+)
+{
+	t_toml_str	str_field;
+	TOML		*array_node;
+	size_t		i;
+	int			errnum;
+
+	memset(&str_field, 0, sizeof(str_field));
+	array_node = _toml_new_content(NULL, toml_tok_array, NULL);
+	if (unlikely(!array_node))
+		return (error_alloc_fail);
+
+	errnum = _toml_fill_format(field, &str_field, &args);
+	if (unlikely(errnum != error_none))
+		goto cleanup;
+
+	i = 0;
+	while (i < length)
+	{
+		if (type == toml_tok_str || type == toml_tok_float || type == toml_tok_datetime)
+			errnum = toml_array_append(array_node, ((char **)array)[i], type);
+		else if (type == toml_tok_int || type == toml_tok_bool)
+			errnum = toml_array_append(array_node, &((int *)array)[i], type);
+		else if (type == toml_tok_table || type == toml_tok_array)
+			errnum = toml_array_append(array_node, ((TOML **)array)[i], type);
+		else if (type == toml_tok_null)
+			errnum = toml_array_append(array_node, NULL, type);
+		else
+			errnum = error_invalid_arg;
+		if (unlikely(errnum != error_none))
+			goto cleanup;
+		i++;
+	}
+	errnum = _toml_set_node(&toml, str_field.content, array_node, toml_tok_array);
+
+cleanup:
+	setting->free(str_field.content);
+	_toml_free_content(array_node);
+	return (errnum);
+}
+
+int	_toml_append_indent(
+	t_toml_str *const out,
+	const int depth,
+	const int pretty
+)
+{
+	int	i;
+	int	errnum;
+
+	if (pretty <= 0)
+		return (error_none);
+
+	i = 0;
+	while (i < depth * pretty)
+	{
+		errnum = _toml_str_append_char(out, ' ');
+		if (unlikely(errnum != error_none))
+			return (errnum);
+		i++;
+	}
+	return (error_none);
+}
+
+static int	_toml_append_quoted(
+	t_toml_str *const out,
+	const char *const value
+)
+{
+	size_t	i;
+	int		errnum;
+
+	errnum = _toml_str_append_char(out, '"');
+	if (unlikely(errnum != error_none))
+		return (errnum);
+	i = 0;
+	while (value && value[i])
+	{
+		if (value[i] == '"' || value[i] == '\\')
+			errnum = _toml_str_append_char(out, '\\');
+		else if (value[i] == '\n')
+			errnum = _toml_str_append_n(out, "\\n", 2);
+		else if (value[i] == '\t')
+			errnum = _toml_str_append_n(out, "\\t", 2);
+		else
+			errnum = _toml_str_append_char(out, value[i]);
+		if (unlikely(errnum != error_none))
+			return (errnum);
+		if (value[i] == '\n' || value[i] == '\t')
+		{
+			i++;
+			continue ;
+		}
+		i++;
+	}
+	return (_toml_str_append_char(out, '"'));
+}
+
+int	_toml_append_value(
+	t_toml_str *const	out,
+	TOML *const			node,
+	const int			pretty
+)
+{
+	TOML	*child;
+	int		errnum;
+
+	if (node->type == toml_tok_str)
+		return (_toml_append_quoted(out, node->data));
+
+	else if (node->type == toml_tok_array)
+	{
+		errnum = _toml_str_append_char(out, '[');
+		if (unlikely(errnum != error_none))
+			return (errnum);
+
+		child = node->child;
+		while (child)
+		{
+			errnum = _toml_append_value(out, child, pretty);
+			if (unlikely(errnum != error_none))
+				return (errnum);
+
+			else if (child->next)
+			{
+				errnum = _toml_str_append_n(out, pretty ? ", " : ",", pretty ? 2 : 1);
+				if (unlikely(errnum != error_none))
+					return (errnum);
+			}
+			child = child->next;
+		}
+		return (_toml_str_append_char(out, ']'));
+	}
+
+	if (node->type == toml_tok_null)
+		return (_toml_str_append_n(out, "\"\"", 2));
+
+	return (_toml_str_append_n(out, node->data ? node->data : "", strlen(node->data ? node->data : "")));
+}
+
+int	_toml_append_table(
+	t_toml_str *const	out,
+	TOML *const			table,
+	const char *const	prefix,
+	const int			pretty
+)
+{
+	TOML	*node;
+	char	*path;
+	int		errnum;
+
+	if (prefix && *prefix)
+	{
+		errnum = _toml_str_append_char(out, '[');
+		if (unlikely(errnum != error_none))
+			return (errnum);
+		errnum = _toml_str_append_n(out, prefix, strlen(prefix));
+		if (unlikely(errnum != error_none))
+			return (errnum);
+		errnum = _toml_str_append_n(out, "]\n", 2);
+		if (unlikely(errnum != error_none))
+			return (errnum);
+	}
+
+	node = table->child;
+	while (node)
+	{
+		if (node->type != toml_tok_table)
+		{
+			errnum = _toml_append_key_value(out, node, pretty);
+			if (unlikely(errnum != error_none))
+				return (errnum);
+		}
+		node = node->next;
+	}
+
+	node = table->child;
+	while (node)
+	{
+		if (node->type == toml_tok_table)
+		{
+			if (out->len && out->content[out->len - 1] != '\n')
+				_toml_str_append_char(out, '\n');
+
+			if (out->len && out->content[out->len - 1] == '\n' && (!prefix || !*prefix));
+
+			path = _toml_child_path(prefix, node->key);
+			if (unlikely(!path))
+				return (error_alloc_fail);
+
+			errnum = _toml_str_append_char(out, '\n');
+			if (unlikely(errnum == error_none))
+				errnum = _toml_append_table(out, node, path, pretty);
+
+			setting->free(path);
+			if (unlikely(errnum != error_none))
+				return (errnum);
+		}
+		node = node->next;
+	}
+
+	return (error_none);
 }
