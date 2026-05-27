@@ -26,5 +26,6 @@ int	setup(
 	Config *const config
 )
 {
-	
+	(void)config;
+	return (error_not_implemented);
 }

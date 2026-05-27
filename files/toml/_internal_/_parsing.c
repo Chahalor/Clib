@@ -383,6 +383,8 @@ int	_toml_parse_string(
 
 	setting->free(current_table);
 	setting->free(copy);
+
+	fprintf(stderr, "%s: errnum=%d\n", __func__, errnum);	//rm
 	return (errnum);
 }
 
@@ -456,6 +458,7 @@ TOML	*_toml_load_str(
 
 	else if (unlikely(_toml_parse_string(&result, str.content) != error_none))
 	{
+		fprintf(stderr, "%s: invalid file parsing\n", __func__);	//rm
 		toml_unload(result);
 		result = NULL;
 	}

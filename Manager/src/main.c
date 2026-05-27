@@ -9,6 +9,7 @@
 
 	/* Internal */
 #include "types.h"
+#include "manager.h"
 
 	/* External */
 #include "files/toml.h"
@@ -40,10 +41,10 @@ t_args_parser	*_setup_args(void)
 	args_add_param(setup, "target", "the requested module to be setup", args_param_specs_nargs | args_param_specs_require, param_type_str);
 
 	update = args_parser_add_sub(result, "update", "the module to they latest version");
-	args_add_param(setup, "target", "the requested module to be updated", args_param_specs_nargs | args_param_specs_require, param_type_str);
+	args_add_param(update, "target", "the requested module to be updated", args_param_specs_nargs | args_param_specs_require, param_type_str);
 
-	export = args_parser_add_sub(result, "update", "the module to they latest version");
-	args_add_param(setup, "dir", "the of the module to be used", 0, param_type_str);
+	export = args_parser_add_sub(result, "export", "export the module configuration");
+	args_add_param(export, "dir", "the module directory to be used", 0, param_type_str);
 
 	return (result);
 }
@@ -55,7 +56,8 @@ int	_arsg_extract(
 {
 	t_args_output_option	*output = args_get_option(out, "output");
 	t_args_output_option	*file = args_get_option(out, "config");
-	int						n = 0;
+	size_t					n = 0;
+	const char				*sub = NULL;
 
 	if (output)
 		config->dest = args_get_param(output, "path", &n);
@@ -64,16 +66,19 @@ int	_arsg_extract(
 		config->dest = ".";
 
 	if (file)
-		config->config_file = args_get_param(output, "path", &n);
+		config->config_file = args_get_param(file, "path", &n);
 
 	if (!config->config_file)
 		config->config_file = ".clib";
 
-	if (!strcmp("setup", args_active_subcommand(output)))
+	sub = args_active_subcommand(out);
+	if (!sub)
+		config->sub = UNKNOW;
+	else if (!strcmp("setup", sub))
 		config->sub = SETUP;
-	else if (!strcmp("update", args_active_subcommand(output)))
+	else if (!strcmp("update", sub))
 		config->sub = UPDATE;
-	else if (!strcmp("export", args_active_subcommand(output)))
+	else if (!strcmp("export", sub))
 		config->sub = EXPORT;
 	else
 		config->sub = UNKNOW;
@@ -101,15 +106,64 @@ int	_toml_extract(
 		f->remote_url = toml_get(f->toml, "Url");
 		if (unlikely(!f->remote_url))
 		{
-			fprintf(stderr, "Error: missing remote `url` field in the config file\n");
+			fprintf(stderr, "Error: missing `url` field in the config file\n");
 			return (EINVAL);
 		}
 	}
 
 	toml_foreach(array, f->toml)
 	{
-		
+		t_module	*new = NULL;
+		TOML		*node;
+
+		if (toml_get_type(array) != toml_array)
+			continue ;
+
+		new = module_new();
+		if (unlikely(!new))
+			return (1);
+
+		new->name = toml_get(array, "name");
+		new->path = toml_get(array, "path");
+		new->public_header = toml_get(array, "publicHeaders");
+		new->private_header = toml_get(array, "privateHeaders");
+		node = toml_get(array, "dependencies");
+		if (node && toml_len(node))
+		{
+			toml_foreach(dep, node)
+			{
+				array_append(&new->dependencies, dep);
+			}
+		}
+
+		node = toml_get(array, "tags");
+		if (node && toml_len(node))
+		{
+			toml_foreach(dep, node)
+			{
+				array_append(&new->dependencies, dep);
+			}
+		}
+
+		node = toml_get(array, "controls");
+		if (node && toml_len(node))
+		{
+			toml_foreach(dep, node)
+			{
+				array_append(&new->dependencies, dep);
+			}
+		}
+
+		node = toml_get(array, "defines");
+		if (node && toml_len(node))
+		{
+			toml_foreach(dep, node)
+			{
+				array_append(&new->dependencies, dep);
+			}
+		}
 	}
+	return (error_none);
 }
 
 /* ----| Public     |----- */
@@ -171,4 +225,3 @@ int main(int argc, char const *argv[])
 	args_output_free(output);
 	return (exit_status);
 }
-

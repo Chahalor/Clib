@@ -43,12 +43,8 @@ buildSystem = "cmake"
 
 [[moduleName]]
 path = "path/to/the/module"
-publicHeaders = [
-	"header.h"
-]
-privateHeaders = [
-	"_internal_/_header.h"
-]
+publicHeaders = "header.h"
+privateHeaders = "_internal_/_header.h"
 dependencies = []
 defines = [
 	"MEMORY_DEBUG"
