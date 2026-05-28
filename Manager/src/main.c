@@ -168,6 +168,7 @@ int	_toml_extract(
 
 		array_append(&config->conf.modules, new);
 	}
+
 	return (error_none);
 }
 
@@ -220,9 +221,22 @@ int main(int argc, char const *argv[])
 	{
 		t_args_output_parser	*sub = args_get_sub_output(output);
 		size_t					n;
-		char					*dest = args_get_param(sub, "target", &n);
+		void					*_allowed = args_get_param(sub, "target", &n);
 
-		config.dest = dest;
+		config.nb_allowed = n;
+		config.allowed = mem_alloc(sizeof(char *) * (n + 1));
+		if (!config.allowed)
+		{
+			perror("allowed alloc");
+			return (errno);
+		}
+
+		if (n != 1)
+			for (size_t i = 0; i < n; i++)
+				config.allowed[i] = ((char **)_allowed)[i];
+		else
+			config.allowed[0] = (char *)_allowed;
+
 		setup(&config);
 		break;
 	}

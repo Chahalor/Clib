@@ -230,15 +230,24 @@ int	setup(
 	if (unlikely(err))
 		return (err);
 
-	allowed = mem_alloc(sizeof(char *) * (config->conf.modules.length + 1));
+	allowed = mem_alloc(sizeof(char *) * (config->nb_allowed + 1));
 	if (unlikely(!allowed))
 		return (error_alloc_fail);
 
-	for (size_t i = 0; i < config->conf.modules.length; i++)
+	for (size_t i = 0; i < config->nb_allowed; i++)
 	{
-		t_module *const	this = (t_module *const)config->conf.modules.data[i];
+		const char	*const name = config->allowed[i];
 
-		allowed[nb_allowed++] = this->path;
+		for (size_t j = 0; j < config->conf.modules.length; j++)
+		{
+			t_module	*const this = config->conf.modules.data[j];
+
+			if (strcmp(name, this->name))
+				continue ;
+
+			allowed[nb_allowed++] = this->path;
+			break ;
+		}
 	}
 
 	err = _iterate(config->dest, "", allowed);

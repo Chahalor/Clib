@@ -92,5 +92,7 @@ struct s_config
 	struct s_conf_file	conf;
 	char				*config_file;
 	char				*dest;
+	char				**allowed;
+	uint32_t			nb_allowed;
 	enum e_subs			sub;
 };
