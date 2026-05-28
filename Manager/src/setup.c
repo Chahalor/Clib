@@ -18,6 +18,7 @@
 
 	/* Internal */
 #include "types.h"
+#include "manager.h"
 
 	/* External */
 #include "files/toml.h"
@@ -241,6 +242,7 @@ int	setup(
 	}
 
 	err = _iterate(config->dest, "", allowed);
+	cmake_write(config);
 
-	return (error_not_implemented);
+	return (error_none);
 }

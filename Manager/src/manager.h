@@ -52,3 +52,8 @@ t_module	*module_new(void);
 int	setup(
 	Config *const config
 );
+
+/** */
+int	cmake_write(
+	const Config *const	config
+);

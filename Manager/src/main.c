@@ -124,6 +124,9 @@ int	_toml_extract(
 			return (1);
 
 		new->name = toml_get(array, "name");
+		if (!new->name)
+			new->name = array->key;
+
 		new->path = toml_get(array, "path");
 		new->public_header = toml_get(array, "publicHeaders");
 		new->private_header = toml_get(array, "privateHeaders");
@@ -209,7 +212,7 @@ int main(int argc, char const *argv[])
 	if (unlikely(_toml_extract(&config)))
 		return (EXIT_FAILURE);
 
-	toml_dump(config.conf.toml, stdout, 4);
+	toml_dump(config.conf.toml, stderr, 4);
 
 	switch (config.sub)
 	{
