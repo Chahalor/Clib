@@ -56,6 +56,8 @@ static inline int	_dump_tty(
 			size_t len = strlen(error->str_line);
 
 			fprintf(file, GREEN "│" RESET " %s", error->str_line);
+			if (error->str_line[strlen(error->str_line) - 1] != '\n')
+				fprintf(file, "\n");
 			fprintf(file, GREEN "│%*s%s\n", error->col, "", "─┬─");
 			fprintf(file, "└");
 
@@ -79,6 +81,8 @@ static inline int	_dump_tty(
 			size_t len = strlen(error->str_line);
 
 			fprintf(file, GREEN "│" RESET " %s", error->str_line);
+			if (error->str_line[strlen(error->str_line) - 1] != '\n')
+				fprintf(file, "\n");
 			fprintf(file, GREEN "│%*s%s\n", error->col, "", "─┬─");
 			fprintf(file, "└");
 
@@ -116,6 +120,8 @@ static inline int	_dump(
 			size_t len = strlen(error->str_line);
 
 			fprintf(file, "│ %s", error->str_line);
+			if (error->str_line[len - 1] != '\n')
+				fprintf(file, "\n");
 			fprintf(file, "│%*s%s\n", error->col, "", "─┬─");
 			fprintf(file, "└");
 
@@ -139,6 +145,8 @@ static inline int	_dump(
 			size_t len = strlen(error->str_line);
 
 			fprintf(file, "│ %s", error->str_line);
+			if (error->str_line[len - 1] != '\n')
+				fprintf(file, "\n");
 			fprintf(file, "│%*s%s\n", error->col, "", "─┬─");
 			fprintf(file, "└");
 

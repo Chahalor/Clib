@@ -200,9 +200,12 @@ int main(int argc, char const *argv[])
 	config.conf.toml = toml_load_file(config.config_file);
 	if (unlikely(!config.conf.toml))
 	{
-		perror("openning config file");
+		// perror("openning config file");
+		toml_error_dump(stderr);
 		return (errno);
 	}
+
+	toml_dump(config.conf.toml, stdout, 4);
 
 	switch (config.sub)
 	{

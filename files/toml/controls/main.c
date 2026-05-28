@@ -359,6 +359,8 @@ static int	test_toml_type_foreach_cases(void)
 
 static int	test_toml_parse_error_cases(void)
 {
+	TOML	*toml;
+
 	EXPECT_NULL(toml_load_str("%s", "ok = 1\n\nbad line\n"));
 	EXPECT_EQ_INT(toml_errno(), TOML_ERROR_UNEXPECTED_TOKEN);
 	EXPECT_STREQ(toml_strerror(), "Unexpected TOML token");
@@ -370,6 +372,11 @@ static int	test_toml_parse_error_cases(void)
 	EXPECT_EQ_INT(toml_errno(), TOML_ERROR_DUPLICATE_KEY);
 	EXPECT_NULL(toml_load_str("%s", "bad = \"\\q\"\n"));
 	EXPECT_EQ_INT(toml_errno(), TOML_ERROR_INVALID_ESCAPE);
+	toml = toml_load_str("%s", "array = [\nvalue,\n\"second value\"\n]");
+	EXPECT_NOT_NULL(toml);
+	EXPECT_STREQ((const char *)toml_get(toml, "array.0"), "value");
+	EXPECT_STREQ((const char *)toml_get(toml, "array.1"), "second value");
+	EXPECT_EQ_INT(toml_unload(toml), error_none);
 	return (0);
 }
 

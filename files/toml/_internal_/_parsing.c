@@ -54,6 +54,45 @@ static int	_toml_only_space(
 	return (1);
 }
 
+static int	_toml_array_is_closed(
+	const char *const value
+)
+{
+	size_t	i;
+	int		depth;
+	int		in_quote;
+	char	quote;
+
+	i = 0;
+	depth = 0;
+	in_quote = 0;
+	quote = '\0';
+	while (value && value[i])
+	{
+		if ((value[i] == '"' || value[i] == '\'') && (i == 0 || value[i - 1] != '\\'))
+		{
+			if (!in_quote)
+			{
+				in_quote = 1;
+				quote = value[i];
+			}
+			else if (value[i] == quote)
+				in_quote = 0;
+		}
+		else if (!in_quote && value[i] == '[')
+			depth++;
+		else if (!in_quote && value[i] == ']')
+		{
+			depth--;
+			if (depth <= 0)
+				return (1);
+		}
+		i++;
+	}
+
+	return (0);
+}
+
 static char	*_toml_trim(
 	char *str
 )
@@ -226,8 +265,7 @@ static int	_toml_value_type(
 		else if (value[i] == '-' || value[i] == '+' || value[i] == '_')
 			;
 		else
-			return ((strchr(value, '-') || strchr(value, ':'))
-						? toml_tok_datetime : toml_tok_str);
+			return ((strchr(value, '-') || strchr(value, ':')) ? toml_tok_datetime : toml_tok_str);
 		i++;
 	}
 
@@ -313,8 +351,7 @@ static int	_toml_parse_array_item(
 
 	item = _toml_trim(item);
 	if (unlikely(!*item))
-		return (_toml_parse_error(line, file, line_nb, item_col,
-				TOML_ERROR_INVALID_ARRAY));
+		return (_toml_parse_error(line, file, line_nb, item_col, TOML_ERROR_INVALID_ARRAY));
 	type = _toml_value_type(item);
 	if (type == toml_tok_str && (*item == '"' || *item == '\''))
 	{
@@ -356,26 +393,22 @@ static int	_toml_set_parsed_array(
 	const int value_col
 )
 {
-	TOML	*array;
-	char	*line_copy;
-	const char	*err_line;
-	char	*start;
-	char	*end = NULL;
-	char	*item_start;
-	size_t	i;
-	int		in_quote = 0;
-	char	quote = '\0';
-	int		errnum;
-	int		item_col;
+	TOML		*array = _toml_new_content(NULL, toml_tok_array, NULL);
+	char		*line_copy = setting->dup(line, strlen(line) + 1);
+	const char	*err_line = line_copy ? line_copy : line;
+	char		*start;
+	char		*end = NULL;
+	char		*item_start;
+	size_t		i;
+	int			in_quote = 0;
+	char		quote = '\0';
+	int			errnum;
+	int			item_col;
 
-	line_copy = setting->dup(line, strlen(line) + 1);
-	err_line = line_copy ? line_copy : line;
-	array = _toml_new_content(NULL, toml_tok_array, NULL);
 	if (unlikely(!array))
 	{
 		setting->free(line_copy);
-		return (_toml_parse_error(line, file, line_nb, value_col,
-				TOML_ERROR_ALLOC_FAIL));
+		return (_toml_parse_error(line, file, line_nb, value_col, TOML_ERROR_ALLOC_FAIL));
 	}
 
 	start = strchr(value, '[');
@@ -384,8 +417,7 @@ static int	_toml_set_parsed_array(
 	{
 		_toml_free_content(array);
 		setting->free(line_copy);
-		return (_toml_parse_error(line, file, line_nb, value_col,
-				TOML_ERROR_UNTERMINATED_ARRAY));
+		return (_toml_parse_error(line, file, line_nb, value_col, TOML_ERROR_UNTERMINATED_ARRAY));
 	}
 	if (unlikely(!_toml_only_space(end + 1)))
 	{
@@ -451,6 +483,35 @@ cleanup:
 	_toml_free_content(array);
 	setting->free(line_copy);
 	return (errnum);
+}
+
+static int	_toml_collect_array_value(
+	t_toml_str *const	out,
+	char **const		line,
+	char **const		next,
+	int *const			line_nb
+)
+{
+	char	*trimmed;
+	int		errnum;
+
+	while (*next && !_toml_array_is_closed(out->content))
+	{
+		*line = *next + 1;
+		(*line_nb)++;
+		*next = strchr(*line, '\n');
+		if (*next)
+			**next = '\0';
+		_toml_strip_comment(*line);
+		trimmed = _toml_trim(*line);
+		errnum = _toml_str_append_char(out, '\n');
+		if (unlikely(errnum != error_none))
+			return (errnum);
+		errnum = _toml_str_append_n(out, trimmed, strlen(trimmed));
+		if (unlikely(errnum != error_none))
+			return (errnum);
+	}
+	return (error_none);
 }
 
 /* ----| Public     |----- */
@@ -575,6 +636,9 @@ int	_toml_parse_string(
 			char	*key = _toml_trim(trimmed);
 			char	*value = _toml_trim(eq + 1);
 			char	*path = NULL;
+			int		value_col;
+			int		value_line_nb;
+			char	*value_line;
 
 			if (unlikely(!*key))
 			{
@@ -592,6 +656,9 @@ int	_toml_parse_string(
 						TOML_ERROR_INVALID_VALUE);
 				break ;
 			}
+			value_col = _toml_col(line, value);
+			value_line_nb = line_nb;
+			value_line = line;
 			path = _toml_join_path(current_table, key);
 			if (unlikely(!path))
 			{
@@ -613,11 +680,25 @@ int	_toml_parse_string(
 
 			*eq = '=';
 			if (_toml_value_type(value) == toml_tok_array)
-				errnum = _toml_set_parsed_array(toml, path, value, line, file,
-						line_nb, _toml_col(line, value));
+			{
+				t_toml_str	array_value = {0};
+
+				errnum = _toml_str_append_n(&array_value, value, strlen(value));
+				if (unlikely(errnum == error_none))
+					errnum = _toml_collect_array_value(&array_value,
+							&line, &next, &line_nb);
+				if (unlikely(errnum != error_none))
+					_toml_parse_error(line, file, line_nb, value_col,
+						TOML_ERROR_ALLOC_FAIL);
+				else
+					errnum = _toml_set_parsed_array(toml, path,
+							array_value.content, value_line, file,
+							value_line_nb, value_col);
+				setting->free(array_value.content);
+			}
 			else
 				errnum = _toml_set_parsed_scalar(toml, path, value, line, file,
-						line_nb, _toml_col(line, value));
+						line_nb, value_col);
 
 			setting->free(path);
 			if (unlikely(errnum != error_none))
