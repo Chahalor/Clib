@@ -29,43 +29,6 @@
 
 /* ----| Internals  |----- */
 
-int	_execute(
-	const char *const	command,
-	char *const *		argv
-)
-{
-	pid_t	pid;
-	int		status;
-
-	pid = fork();
-	if (unlikely(pid == -1))
-	{
-		perror("fork");
-		return (-errno);
-	}
-	else if (pid == 0)
-	{
-		execvp(command, argv);
-
-		perror("execvp");
-		_exit(errno ? errno : EXIT_FAILURE);
-	}
-
-	if (waitpid(pid, &status, 0) == -1)
-	{
-		perror("waitpid");
-		return (-errno);
-	}
-
-	if (WIFEXITED(status))
-		return (-WEXITSTATUS(status));
-
-	else if (WIFSIGNALED(status))
-		return (-128 - WTERMSIG(status));
-
-	return (-ECHILD);
-}
-
 int _dir_rm(const char *const restrict path)
 {
 	DIR				*dir;
@@ -225,7 +188,7 @@ int	setup(
 	char	**allowed = NULL;
 	int		nb_allowed = 0;
 
-	err = _execute("git", (char *[5]){"git", "clone", config->conf.remote_url, config->dest, NULL});
+	err = execute("git", (char *[5]){"git", "clone", config->conf.remote_url, config->dest, NULL});
 	if (unlikely(err))
 		return (err);
 

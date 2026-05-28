@@ -25,7 +25,12 @@
 /*                                 Macros                                     */
 /* ************************************************************************** */
 
-#define ALLOC_SIZE	256
+#define	ALLOC_SIZE			256
+
+#define	HOME				"~"
+#define	DEFAULT_CACHE_DIR	HOME"/.clib"
+#define	DEFAULT_CONFIG_FILE	".clib"
+#define	DEFAULT_URL_GIT		""
 
 /* ************************************************************************** */
 /*                                 Prototypes                                 */
@@ -56,4 +61,9 @@ int	setup(
 /** */
 int	cmake_write(
 	const Config *const	config
+);
+
+int	execute(
+	const char *const	command,
+	char *const *		argv
 );

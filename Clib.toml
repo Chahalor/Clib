@@ -1,6 +1,6 @@
-name = "clib"
-version = "1.0.0"
-url = "git@github.com:Chahalor/Clib.git"
+name	= "clib"
+version	= "1.0.0"
+url		= "git@github.com:Chahalor/Clib.git"
 
 [export]
 includeDir = "."

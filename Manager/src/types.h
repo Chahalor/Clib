@@ -93,15 +93,18 @@ struct s_cli
 	char	help;
 };
 
-struct s_setup
+struct s_constants
 {
-
+	char	*path_cache_dir;
+	char	*path_config_file;
+	char	*url_git;
 };
 
 struct s_config
 {
 	struct s_conf_file	conf;
 	struct s_cli		cli;
+	struct s_constants	consts;
 	char				*config_file;
 	char				*dest;
 	char				**allowed;

@@ -20,6 +20,12 @@
 
 /* ----| Internals  |----- */
 
+/**
+ * add args for:
+ * - cache dir
+ * - remote url
+ * - config file used
+*/
 t_args_parser	*_setup_args(void)
 {
 	t_args_parser	*result;
