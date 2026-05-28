@@ -73,6 +73,7 @@ struct s_toml
 
 struct s_toml_error
 {
+	char				*file;
 	char				*str_line;
 	int					line;
 	int					col;

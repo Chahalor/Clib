@@ -5,6 +5,7 @@
 #include <unistd.h>
 
 #include "../../toml.h"
+#include "../_internal_/_toml.h"
 #include "../setting.h"
 #include "../../../standards/formating.h"
 
@@ -345,6 +346,16 @@ static int	test_toml_type_foreach_cases(void)
 	return (0);
 }
 
+static int	test_toml_error(void)
+{
+	toml_perror("bob");
+
+	_toml_error_set("var = \"unfinished string", "file.toml", 12, 23, 0);
+	toml_error_dump(stderr);
+
+	return (0);
+}
+
 int	main(void)
 {
 	char	*color_total;
@@ -360,6 +371,7 @@ int	main(void)
 	run_test("toml_unset_remove_cases", test_toml_unset_remove_cases);
 	run_test("toml_stringify_dump_cases", test_toml_stringify_dump_cases);
 	run_test("toml_type_foreach_cases", test_toml_type_foreach_cases);
+	run_test("toml_errors", test_toml_error);
 
 	if (g_tests_failed == 0)
 		color_total = GREEN;
