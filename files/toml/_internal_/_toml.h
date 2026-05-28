@@ -186,7 +186,8 @@ char	*_toml_uitoa(
 
 int		_toml_parse_string(
 			TOML **const toml,
-			const char *const str
+			const char *const str,
+			const char *const file
 			);
 
 TOML	*_toml_load_file(

@@ -346,13 +346,30 @@ static int	test_toml_type_foreach_cases(void)
 	return (0);
 }
 
-static int	test_toml_error(void)
+// manual testing tkt
+// static int	test_toml_error(void)
+// {
+// 	toml_perror("bob");
+
+// 	_toml_error_set("var = \"unfinished string", "file.toml", 12, 23, 0);
+// 	toml_error_dump(stderr);
+
+// 	return (0);
+// }
+
+static int	test_toml_parse_error_cases(void)
 {
-	toml_perror("bob");
-
-	_toml_error_set("var = \"unfinished string", "file.toml", 12, 23, 0);
-	toml_error_dump(stderr);
-
+	EXPECT_NULL(toml_load_str("%s", "ok = 1\n\nbad line\n"));
+	EXPECT_EQ_INT(toml_errno(), TOML_ERROR_UNEXPECTED_TOKEN);
+	EXPECT_STREQ(toml_strerror(), "Unexpected TOML token");
+	EXPECT_NULL(toml_load_str("%s", "name = \"unterminated\n"));
+	EXPECT_EQ_INT(toml_errno(), TOML_ERROR_UNTERMINATED_STRING);
+	EXPECT_NULL(toml_load_str("%s", "arr = [1,,2]\n"));
+	EXPECT_EQ_INT(toml_errno(), TOML_ERROR_INVALID_ARRAY);
+	EXPECT_NULL(toml_load_str("%s", "name = \"a\"\nname = \"b\"\n"));
+	EXPECT_EQ_INT(toml_errno(), TOML_ERROR_DUPLICATE_KEY);
+	EXPECT_NULL(toml_load_str("%s", "bad = \"\\q\"\n"));
+	EXPECT_EQ_INT(toml_errno(), TOML_ERROR_INVALID_ESCAPE);
 	return (0);
 }
 
@@ -371,7 +388,8 @@ int	main(void)
 	run_test("toml_unset_remove_cases", test_toml_unset_remove_cases);
 	run_test("toml_stringify_dump_cases", test_toml_stringify_dump_cases);
 	run_test("toml_type_foreach_cases", test_toml_type_foreach_cases);
-	run_test("toml_errors", test_toml_error);
+	// run_test("toml_errors", test_toml_error);
+	run_test("toml_parse_error_cases", test_toml_parse_error_cases);
 
 	if (g_tests_failed == 0)
 		color_total = GREEN;
