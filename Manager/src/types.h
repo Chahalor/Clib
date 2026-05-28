@@ -87,9 +87,21 @@ struct s_conf_file
 	char	*remote_url;	// url of the remote git
 };
 
+struct s_cli
+{
+	char	verbose;
+	char	help;
+};
+
+struct s_setup
+{
+
+};
+
 struct s_config
 {
 	struct s_conf_file	conf;
+	struct s_cli		cli;
 	char				*config_file;
 	char				*dest;
 	char				**allowed;

@@ -225,7 +225,6 @@ int	setup(
 	char	**allowed = NULL;
 	int		nb_allowed = 0;
 
-	fprintf(stderr, "url=%s, dest=%s\n", config->conf.remote_url, config->dest);	//rm
 	err = _execute("git", (char *[5]){"git", "clone", config->conf.remote_url, config->dest, NULL});
 	if (unlikely(err))
 		return (err);

@@ -37,6 +37,8 @@ t_args_parser	*_setup_args(void)
 	t_args_option	*file = args_parser_add_option(result, "config", 'c', "config file that will be used for this action");
 	args_add_param(file, "path", NULL, args_param_specs_require, param_type_file);
 
+	args_parser_add_option(result, "verbose", 'v', "enable the verbose mode for the app");
+
 	setup = args_parser_add_sub(result, "setup", "setup the module in the targeted dir");
 	args_add_param(setup, "target", "the requested module to be setup", args_param_specs_nargs | args_param_specs_require, param_type_str);
 
@@ -70,6 +72,9 @@ int	_arsg_extract(
 
 	if (!config->config_file)
 		config->config_file = ".clib";
+
+	config->cli.verbose = args_has_option(out, "verbose");
+	config->cli.help    = args_has_option(out, "help");
 
 	sub = args_active_subcommand(out);
 	if (!sub)
@@ -203,6 +208,9 @@ int main(int argc, char const *argv[])
 	if (unlikely(_arsg_extract(output, &config)))
 		fprintf(stderr, "invalid args found\n");
 
+	if (config.cli.help)
+		args_show_help(parser, EXIT_SUCCESS);
+
 	config.conf.toml = toml_load_file(config.config_file);
 	if (unlikely(!config.conf.toml))
 	{
@@ -212,8 +220,6 @@ int main(int argc, char const *argv[])
 
 	if (unlikely(_toml_extract(&config)))
 		return (EXIT_FAILURE);
-
-	toml_dump(config.conf.toml, stderr, 4);
 
 	switch (config.sub)
 	{
