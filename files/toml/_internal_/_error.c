@@ -73,7 +73,7 @@ static inline int	_dump_tty(
 		if (error->str_line)
 		{
 			fprintf(file, GREEN "┌┤" RED "Error:" RESET " %s (%s:%d:%d)\n",
-				_toml_error_str(-error->errnum), error->file ? error->file : "",
+				_toml_error_str(error->errnum), error->file ? error->file : "",
 				error->line, error->col);
 
 			size_t len = strlen(error->str_line);
@@ -88,7 +88,7 @@ static inline int	_dump_tty(
 		}
 		else
 			fprintf(file, RED "Error:" RESET " %s (%s:%d:%d)\n",
-				_toml_error_str(-error->errnum), error->file ? error->file : "",
+				_toml_error_str(error->errnum), error->file ? error->file : "",
 				error->line, error->col);
 	}
 
@@ -133,7 +133,7 @@ static inline int	_dump(
 		if (error->str_line)
 		{
 			fprintf(file, "┌┤Error: %s (%s:%d:%d)\n",
-				_toml_error_str(-error->errnum), error->file ? error->file : "",
+				_toml_error_str(error->errnum), error->file ? error->file : "",
 				error->line, error->col);
 
 			size_t len = strlen(error->str_line);
@@ -148,7 +148,7 @@ static inline int	_dump(
 		}
 		else
 			fprintf(file, "Error: %s (%s:%d:%d)\n",
-				_toml_error_str(-error->errnum), error->file ? error->file : "",
+				_toml_error_str(error->errnum), error->file ? error->file : "",
 				error->line, error->col);
 	}
 
@@ -226,13 +226,44 @@ const char	*_toml_error_str(
 )
 {
 	static const char	*strs[] = {
-		[TOML_ERROR_NONE] = "Success"
+		[TOML_ERROR_NONE] = "Success",
+		[TOML_ERROR_INVALID_ARG] = "Invalid argument",
+		[TOML_ERROR_ALLOC_FAIL] = "Allocation failed",
+		[TOML_ERROR_INVALID_FILE] = "Invalid file",
+		[TOML_ERROR_NOT_IMPLEMENTED] = "Not implemented",
+		[TOML_ERROR_SYSCALL_FAIL] = "System call failed",
+		[TOML_ERROR_CONNECTION_FAIL] = "Connection failed",
+		[TOML_ERROR_PARSE] = "TOML parsing failed",
+		[TOML_ERROR_UNEXPECTED_EOF] = "Unexpected end of TOML input",
+		[TOML_ERROR_UNEXPECTED_TOKEN] = "Unexpected TOML token",
+		[TOML_ERROR_INVALID_KEY] = "Invalid TOML key",
+		[TOML_ERROR_EMPTY_KEY] = "Empty TOML key",
+		[TOML_ERROR_INVALID_PATH] = "Invalid TOML path",
+		[TOML_ERROR_PATH_CONFLICT] = "TOML path conflicts with an existing value",
+		[TOML_ERROR_INVALID_TABLE] = "Invalid TOML table",
+		[TOML_ERROR_DUPLICATE_TABLE] = "Duplicate TOML table",
+		[TOML_ERROR_DUPLICATE_KEY] = "Duplicate TOML key",
+		[TOML_ERROR_INVALID_VALUE] = "Invalid TOML value",
+		[TOML_ERROR_INVALID_STRING] = "Invalid TOML string",
+		[TOML_ERROR_UNTERMINATED_STRING] = "Unterminated TOML string",
+		[TOML_ERROR_INVALID_ESCAPE] = "Invalid TOML escape sequence",
+		[TOML_ERROR_INVALID_INTEGER] = "Invalid TOML integer",
+		[TOML_ERROR_INVALID_FLOAT] = "Invalid TOML float",
+		[TOML_ERROR_INVALID_BOOL] = "Invalid TOML boolean",
+		[TOML_ERROR_INVALID_DATETIME] = "Invalid TOML date/time",
+		[TOML_ERROR_INVALID_ARRAY] = "Invalid TOML array",
+		[TOML_ERROR_UNTERMINATED_ARRAY] = "Unterminated TOML array",
+		[TOML_ERROR_INVALID_INLINE_TABLE] = "Invalid TOML inline table",
+		[TOML_ERROR_UNTERMINATED_INLINE_TABLE] = "Unterminated TOML inline table",
+		[TOML_ERROR_INVALID_TYPE] = "Invalid TOML type",
+		[TOML_ERROR_TYPE_MISMATCH] = "TOML type mismatch",
+		[TOML_ERROR_INDEX_OUT_OF_RANGE] = "TOML array index out of range"
 	};
 	static char			fallback[32] = {0};
 
-	if (unlikely(errnum < 0))
+	if (unlikely(errnum < 0 || errnum >= TOML_ERROR_COUNT || !strs[errnum]))
 	{
-		snprintf(fallback, sizeof(fallback), "Unknow error (%d)", errnum);
+		snprintf(fallback, sizeof(fallback), "Unknown error (%d)", errnum);
 		return (fallback);
 	}
 
