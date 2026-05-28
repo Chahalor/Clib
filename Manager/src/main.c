@@ -116,7 +116,7 @@ int	_toml_extract(
 		t_module	*new = NULL;
 		TOML		*node;
 
-		if (toml_get_type(array) != toml_array)
+		if (toml_get_type(array) != toml_table)
 			continue ;
 
 		new = module_new();
@@ -162,6 +162,8 @@ int	_toml_extract(
 				array_append(&new->dependencies, dep);
 			}
 		}
+
+		array_append(&config->conf.modules, new);
 	}
 	return (error_none);
 }
@@ -200,27 +202,35 @@ int main(int argc, char const *argv[])
 	config.conf.toml = toml_load_file(config.config_file);
 	if (unlikely(!config.conf.toml))
 	{
-		// perror("openning config file");
 		toml_error_dump(stderr);
-		return (errno);
+		return (toml_errno());
 	}
+
+	if (unlikely(_toml_extract(&config)))
+		return (EXIT_FAILURE);
 
 	toml_dump(config.conf.toml, stdout, 4);
 
 	switch (config.sub)
 	{
 	case SETUP:
-		/* code */
+	{
+		t_args_output_parser	*sub = args_get_sub_output(output);
+		size_t					n;
+		char					*dest = args_get_param(sub, "target", &n);
+
+		config.dest = dest;
+		setup(&config);
 		break;
+	}
 	case UPDATE:
-		/* code */
+		fprintf(stderr, "Not implemented yet\n");
 		break;
 	case EXPORT:
-		/* code */
+		fprintf(stderr, "Not implemented yet\n");
 		break;
 	default:
-		fprintf(stderr, "wtf did the parser just got ? Or did i never update the dispatch logic after adding a new sub parser ?\nany way here the sub command: '%s'\n", args_active_subcommand(output));
-		exit_status = EINVAL;
+		args_show_help(parser, EINVAL);
 		break;
 	}
 

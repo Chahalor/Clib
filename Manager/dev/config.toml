@@ -10,13 +10,6 @@ dependencies = [
 	memory
 ]
 
-array = [
-	d = [
-		bob
-	],
-	hello
-]
-
 [memory]
 path = "memory"
 publicHeaders = "memory.h"

@@ -31,20 +31,24 @@
 /*                                 Prototypes                                 */
 /* ************************************************************************** */
 
-int			array_alloc(
-				t_array *const	target,
-				const uint32_t	capacity,
-				const uint32_t	size_elts
-			);
+int	array_alloc(
+	t_array *const	array,
+	uint32_t		capacity
+);
 
 void		array_free(
 				t_array *const	array,
 				const int		all
 			);
 
-			int			array_append(
-				t_array *const	array,
-				void *const		data
-			);
+int	array_append(
+	t_array *const	array,
+	void *const		data
+);
 
 t_module	*module_new(void);
+
+/** */
+int	setup(
+	Config *const config
+);

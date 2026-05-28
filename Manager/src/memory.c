@@ -24,21 +24,16 @@
 /* ----| Public     |----- */
 
 int	array_alloc(
-	t_array *const	target,
-	const uint32_t	capacity,
-	const uint32_t	size_elts
+	t_array *const	array,
+	uint32_t		capacity
 )
 {
-	void	**r;
-
-	r = mem_alloc(size_elts * capacity);
-	if (unlikely(!r))
+	array->data = mem_alloc(sizeof(void *) * capacity);
+	if (unlikely(!array->data))
 		return (error_alloc_fail);
 
-	target->data = r;
-	target->capacity = capacity;
-	target->size = size_elts;
-	target->length = 0;
+	array->length = 0;
+	array->capacity = capacity;
 
 	return (error_none);
 }
@@ -62,24 +57,28 @@ int	array_append(
 	void *const		data
 )
 {
-	if (unlikely(array->length + 1 >= array->size))
-	{
-		const uint32_t	new_capacity = array->capacity + ALLOC_SIZE;
-		void			**new;
+	void		**new_data;
+	uint32_t	new_capacity;
 
-		new = mem_alloc(array->size * new_capacity);
-		if (unlikely(!new))
+	if (array->length >= array->capacity)
+	{
+		new_capacity = array->capacity + ALLOC_SIZE;
+
+		new_data = mem_alloc(sizeof(void *) * new_capacity);
+		if (unlikely(!new_data))
 			return (error_alloc_fail);
 
-		for (size_t i = 0; i < array->length; i++)
-			new[i] = array->data[i];
+		for (uint32_t i = 0; i < array->length; ++i)
+			new_data[i] = array->data[i];
 
 		mem_free(array->data);
-		array->data = new;
+
+		array->data = new_data;
 		array->capacity = new_capacity;
 	}
 
 	array->data[array->length++] = data;
+
 	return (error_none);
 }
 
@@ -91,22 +90,17 @@ t_module	*module_new(void)
 	if (unlikely(!result))
 		return (NULL);
 
-	if (unlikely(array_alloc(&result->dependencies, ALLOC_SIZE, sizeof(char *))))
-		goto cleannup;
-	else if (unlikely(array_alloc(&result->defines, ALLOC_SIZE, sizeof(char *))))
-		goto cleannup;
-	else if (unlikely(array_alloc(&result->tags, ALLOC_SIZE, sizeof(char *))))
-		goto cleannup;
-	else if (unlikely(array_alloc(&result->controls, ALLOC_SIZE, sizeof(char *))))
-		goto cleannup;
+	if (array_alloc(&result->dependencies, ALLOC_SIZE) || array_alloc(&result->defines, ALLOC_SIZE)
+		|| array_alloc(&result->tags, ALLOC_SIZE) || array_alloc(&result->controls, ALLOC_SIZE))
+	{
+		array_free(&result->dependencies, false);
+		array_free(&result->defines, false);
+		array_free(&result->tags, false);
+		array_free(&result->controls, false);
+
+		mem_free(result);
+		return (NULL);
+	}
 
 	return (result);
-
-cleannup:
-	mem_free(result->dependencies.data);
-	mem_free(result->defines.data);
-	mem_free(result->tags.data);
-	mem_free(result->controls.data);
-	mem_free(result);
-	return (NULL);
 }

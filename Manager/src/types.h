@@ -59,13 +59,12 @@ enum e_subs
 /*                                 Structs                                    */
 /* ************************************************************************** */
 
-struct s_array
+typedef struct s_array
 {
 	void		**data;
 	uint32_t	length;
 	uint32_t	capacity;
-	uint32_t	size;
-};
+}	t_array;
 
 struct s_module
 {

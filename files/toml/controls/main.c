@@ -377,6 +377,10 @@ static int	test_toml_parse_error_cases(void)
 	EXPECT_STREQ((const char *)toml_get(toml, "array.0"), "value");
 	EXPECT_STREQ((const char *)toml_get(toml, "array.1"), "second value");
 	EXPECT_EQ_INT(toml_unload(toml), error_none);
+	toml = toml_load_str("%s", "array = [[bob,f = [tkt]],hello]");
+	EXPECT_NOT_NULL(toml);
+	// sould be a nested array
+
 	return (0);
 }
 
