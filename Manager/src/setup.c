@@ -172,7 +172,7 @@ static int _iterate(
 
 	while ((entry = readdir(dir)))
 	{
-		if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, "..") || !strcmp(entry->d_name, ".git"))
+		if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, "..") || !strcmp(entry->d_name, ".git") || !strcmp(entry->d_name, "_internal_"))
 			continue;
 
 		snprintf(fullpath, sizeof(fullpath), "%s/%s",root, entry->d_name);
