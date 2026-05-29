@@ -4,7 +4,14 @@
 ### args
 
 ## files
-## toml
+### filesystem
+this module would:
+ - functions/types to manage path easly
+ - functions do create file/dir based on a path (not juste one file/dir but the full tree)
+ - functions to delete file/dir based on a path (not juste one file/dir but the full tree)
+ - functions to copy   file/dir based on a path (not juste one file/dir but the full tree)
+ - 
+### toml
 - [ ] nested named array are not counted as array but has string (so two or more nested array are lost)
 ```toml
 array = [
