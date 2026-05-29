@@ -75,7 +75,8 @@ int	setup(
 
 /** */
 int	cmake_write(
-	const Config *const	config
+	const Config *const	config,
+	const t_array *const	modules
 );
 
 int	execute(

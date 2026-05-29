@@ -163,9 +163,11 @@ static void	_write_include_path(
 
 static inline void	_write_include_directories(
 	const Config *const	config,
+	const t_array *const	modules,
 	FILE *const			file
 )
 {
+	(void)config;
 	fprintf(file,
 		"target_include_directories(clib PUBLIC\n"
 		"\t${CMAKE_CURRENT_SOURCE_DIR}\n"
@@ -177,9 +179,9 @@ static inline void	_write_include_directories(
 		"\t${CMAKE_CURRENT_SOURCE_DIR}/standards\n"
 	);
 
-	for (size_t i = 0; i < config->lib.modules.length; i++)
+	for (size_t i = 0; i < modules->length; i++)
 	{
-		t_module	*const this = (t_module *const)config->lib.modules.data[i];
+		t_module	*const this = (t_module *const)modules->data[i];
 
 		_write_include_path(file, this->path);
 	}
@@ -205,22 +207,19 @@ static int	_write_module(
 	fprintf(file,
 		"if (EXISTS \"${CMAKE_CURRENT_SOURCE_DIR}/%s/CMakeLists.txt\")\n"
 		"\tadd_subdirectory(\"%s\")\n"
-		"else()\n"
-		"\tmessage(FATAL_ERROR \"Required Clib module '%s' is missing\")\n"
-		"endif()\n"
-		"\n"
-		"if (TARGET %s)\n"
-		"\tget_target_property(_clib_target_type %s TYPE)\n"
-		"\tif (_clib_target_type STREQUAL \"OBJECT_LIBRARY\")\n"
-		"\t\ttarget_sources(clib PRIVATE $<TARGET_OBJECTS:%s>)\n"
+		"\tif (TARGET %s)\n"
+		"\t\tget_target_property(_clib_target_type %s TYPE)\n"
+		"\t\tif (_clib_target_type STREQUAL \"OBJECT_LIBRARY\")\n"
+		"\t\t\ttarget_sources(clib PRIVATE $<TARGET_OBJECTS:%s>)\n"
+		"\t\telse()\n"
+		"\t\t\ttarget_link_libraries(clib PRIVATE %s)\n"
+		"\t\tendif()\n"
 		"\telse()\n"
-		"\t\ttarget_link_libraries(clib PRIVATE %s)\n"
+		"\t\tmessage(FATAL_ERROR \"Required Clib module '%s' did not create target '%s'\")\n"
 		"\tendif()\n"
-		"else()\n"
-		"\tmessage(FATAL_ERROR \"Required Clib module '%s' did not create target '%s'\")\n"
 		"endif()\n"
 		"\n",
-		module->path, module->path, module->path,
+		module->path, module->path,
 		target, target, target, target, module->path, target);
 
 	return (error_none);
@@ -228,27 +227,15 @@ static int	_write_module(
 
 static int	_write_sub_directories(
 	const Config *const	config,
+	const t_array *const	modules,
 	FILE *const			file
 )
 {
 	int	err;
 
-	fprintf(file,
-		"if (EXISTS \"${CMAKE_CURRENT_SOURCE_DIR}/_internal_/CMakeLists.txt\")\n"
-		"\tadd_subdirectory(_internal_)\n"
-		"\ttarget_sources(clib PRIVATE $<TARGET_OBJECTS:clib_internal>)\n"
-		"endif()\n"
-		"\n"
-		"if (EXISTS \"${CMAKE_CURRENT_SOURCE_DIR}/standards/CMakeLists.txt\")\n"
-		"\tadd_subdirectory(standards)\n"
-		"\ttarget_link_libraries(clib PRIVATE clib_standards)\n"
-		"endif()\n"
-		"\n"
-	);
-
-	for (size_t i = 0; i < config->lib.modules.length; i++)
+	for (size_t i = 0; i < modules->length; i++)
 	{
-		t_module	*const this = (t_module *const)config->lib.modules.data[i];
+		t_module	*const this = (t_module *const)modules->data[i];
 
 		err = _write_module(config, file, this);
 		if (unlikely(err))
@@ -284,14 +271,15 @@ static inline void	_write_footer(
 /* ----| Public     |----- */
 
 int	cmake_write(
-	const Config *const	config
+	const Config *const	config,
+	const t_array *const	modules
 )
 {
 	char	path[PATH_MAX] = {0};
 	FILE	*file = NULL;
 	int		err;
 
-	if (unlikely(!config))
+	if (unlikely(!config || !modules))
 		return (-EINVAL);
 
 	if (unlikely(snprintf(path, sizeof(path), "%s/CMakeLists.txt", config->dest ? config->dest : ".") >= (int)sizeof(path)))
@@ -305,8 +293,8 @@ int	cmake_write(
 	}
 
 	_write_header(file);
-	_write_include_directories(config, file);
-	err = _write_sub_directories(config, file);
+	_write_include_directories(config, modules, file);
+	err = _write_sub_directories(config, modules, file);
 	if (unlikely(err))
 	{
 		fclose(file);

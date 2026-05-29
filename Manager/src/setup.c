@@ -100,8 +100,9 @@ int mkdir_p(
 {
 	char	tmp[PATH_MAX];
 	char	*p;
+	int		nb_creation = 0;
 
-	if (strlen(path) >= sizeof(tmp))
+	if (unlikely(strlen(path) >= sizeof(tmp)))
 		return (-ENAMETOOLONG);
 
 	strcpy(tmp, path);
@@ -112,17 +113,18 @@ int mkdir_p(
 		{
 			*p = '\0';
 
-			if (mkdir(tmp, mode) < 0 && errno != EEXIST)
+			if (unlikely(mkdir(tmp, mode) < 0 && errno != EEXIST))
 				return (-errno);
 
+			nb_creation++;
 			*p = '/';
 		}
 	}
 
-	if (mkdir(tmp, mode) < 0 && errno != EEXIST)
+	if (unlikely(mkdir(tmp, mode) < 0 && errno != EEXIST))
 		return (-errno);
 
-	return (0);
+	return (nb_creation++);
 }
 
 #define GOTO_ERROR() \
@@ -199,6 +201,28 @@ static int	copy_file(
 	close(in);
 	close(out);
 	return (0);
+}
+
+static int	mkdir_parent(
+	const char *const	path,
+	const mode_t		mode
+)
+{
+	char	parent[PATH_MAX];
+	char	*slash;
+
+	if (unlikely(!path || snprintf(parent, sizeof(parent), "%s", path) >= (int)sizeof(parent)))
+		return (-ENAMETOOLONG);
+
+	slash = strrchr(parent, '/');
+	if (!slash)
+		return (error_none);
+
+	*slash = '\0';
+	if (!*parent)
+		return (error_none);
+
+	return (mkdir_p(parent, mode));
 }
 
 int	copy_dir(
@@ -285,34 +309,164 @@ error:
 	return (result);
 }
 
-int	copy_modules(
+static t_module	*find_module(
 	const Config *const		config,
-	const t_module *const	allowed,
-	const int				nb_allowed
+	const char *const		name
+)
+{
+	for (size_t i = 0; i < config->lib.modules.length; i++)
+	{
+		t_module	*const	this = config->lib.modules.data[i];
+
+		if (this->name && !strcmp(name, this->name))
+			return (this);
+	}
+	return (NULL);
+}
+
+static int	module_is_selected(
+	const t_array *const	modules,
+	const t_module *const	module
+)
+{
+	for (size_t i = 0; i < modules->length; i++)
+	{
+		if (modules->data[i] == module)
+			return (true);
+	}
+	return (false);
+}
+
+static int	resolve_module(
+	const Config *const	config,
+	t_array *const		modules,
+	const char *const	name
+)
+{
+	t_module	*module;
+	int			err;
+
+	if (unlikely(!name || !*name))
+		return (-EINVAL);
+
+	module = find_module(config, name);
+	if (unlikely(!module))
+	{
+		fprintf(stderr, "[" YELLOW "warn" RESET "] module " BOLD "%s" RESET " not found in the clib config\n", name);
+		return (-ENOENT);
+	}
+
+	if (module_is_selected(modules, module))
+		return (error_none);
+
+	for (size_t i = 0; i < module->dependencies.length; i++)
+	{
+		TOML *const	dep = module->dependencies.data[i];
+
+		if (unlikely(!dep || !dep->data))
+			return (-EINVAL);
+
+		err = resolve_module(config, modules, dep->data);
+		if (unlikely(err))
+			return (err);
+	}
+
+	return (array_append(modules, module));
+}
+
+static int	copy_optional_file(
+	const Config *const	config,
+	const char *const	relative_path
 )
 {
 	char	src[PATH_MAX];
 	char	dest[PATH_MAX];
+	int		err;
+
+	if (!relative_path || !*relative_path)
+		return (error_none);
+
+	snprintf(src, sizeof(src), "%s/%s", config->consts.path_cache_dir, relative_path);
+	snprintf(dest, sizeof(dest), "%s/%s", config->dest, relative_path);
+
+	err = mkdir_parent(dest, 0777);
+	if (unlikely(err < 0))
+		return (err);
+
+	printf("copy FILE %s -> %s\n", src, dest);
+	return (copy_file(src, dest));
+}
+
+static int	write_lib_header(
+	const Config *const	config,
+	const t_array *const	modules
+)
+{
+	char	path[PATH_MAX];
+	FILE	*file;
+
+	if (unlikely(snprintf(path, sizeof(path), "%s/lib.h", config->dest) >= (int)sizeof(path)))
+		return (-ENAMETOOLONG);
+
+	file = fopen(path, "w");
+	if (unlikely(!file))
+		return (-errno);
+
+	fprintf(file,
+		"#ifndef LIB_H\n"
+		"# define LIB_H\n"
+		"\n"
+		"# pragma once\n"
+		"\n"
+	);
+
+	for (size_t i = 0; i < modules->length; i++)
+	{
+		t_module *const	module = modules->data[i];
+
+		if (module->public_header && *module->public_header)
+			fprintf(file, "# include \"%s\"\n", module->public_header);
+	}
+
+	fprintf(file,
+		"\n"
+		"#endif\t// LIB_H\n"
+	);
+	fclose(file);
+	return (error_none);
+}
+
+int	copy_modules(
+	const Config *const	config,
+	const t_array *const	modules
+)
+{
+	char	src[PATH_MAX];
+	char	dest[PATH_MAX];
+	struct stat	st;
 	int		err = 0;
 
-	for (int i = 0; i < nb_allowed; i++)
+	for (size_t i = 0; i < modules->length; i++)
 	{
-		snprintf(src, sizeof(src), "%s/%s", config->consts.path_cache_dir, allowed[i].path);
-		snprintf(dest, sizeof(src), "%s/%s", config->dest, allowed[i].path);
+		t_module *const	module = modules->data[i];
 
-		printf("copy DIR %s -> %s\n", src, dest);
-		err = copy_dir(src, dest);
-		if (unlikely(err))
+		snprintf(src, sizeof(src), "%s/%s", config->consts.path_cache_dir, module->path);
+		snprintf(dest, sizeof(dest), "%s/%s", config->dest, module->path);
+
+		if (!stat(src, &st) && S_ISDIR(st.st_mode))
 		{
-			perror("copy dir");
-			return (err);
+			printf("copy DIR %s -> %s\n", src, dest);
+			err = copy_dir(src, dest);
+			if (unlikely(err))
+			{
+				perror("copy dir");
+				return (err);
+			}
 		}
+		else if (errno != ENOENT)
+			return (-errno);
 
-		snprintf(src, sizeof(src), "%s/%s", config->consts.path_cache_dir, allowed[i].public_header);
-		snprintf(dest, sizeof(src), "%s/%s", config->dest, allowed[i].public_header);
-
-		printf("copy FILE %s -> %s\n", src, dest);
-		err = copy_file(src, dest);
+		err = copy_optional_file(config, module->public_header);
 		if (unlikely(err))
 		{
 			perror("copy file");
@@ -320,7 +474,7 @@ int	copy_modules(
 		}
 	}
 
-	return (err);
+	return (write_lib_header(config, modules));
 }
 
 
@@ -357,36 +511,39 @@ int	setup(
 	Config *const config
 )
 {
-	t_module	*allowed;
-	int			nb_allowed = 0;
+	t_array	modules;
+	int		err;
 
-	allowed = mem_alloc(sizeof(t_module) * (config->nb_allowed + 1));
-	if (unlikely(!allowed))
-		return (error_alloc_fail);
+	err = array_alloc(&modules, ALLOC_SIZE);
+	if (unlikely(err))
+		return (err);
 
 	for (size_t i = 0; i < config->nb_allowed; i++)
 	{
 		const char *const	name = config->allowed[i];
-		int					found = false;
 
-		for (size_t j = 0; j < config->lib.modules.length; j++)
+		err = resolve_module(config, &modules, name);
+		if (unlikely(err))
 		{
-			t_module	*const this = config->lib.modules.data[j];
-
-			if (strcmp(name, this->name))
-				continue ;
-
-			allowed[nb_allowed++] = *this;
-			found = true;
-			break ;
+			array_free(&modules, false);
+			return (err);
 		}
-
-		if (unlikely(!found))
-			fprintf(stderr, "[" YELLOW "warn" RESET "] module " BOLD "%s" RESET " not found in the clib config\n", name);
 	}
 
-	copy_modules(config, allowed, nb_allowed);
-	cmake_write(config);
+	err = copy_modules(config, &modules);
+	if (unlikely(err))
+	{
+		array_free(&modules, false);
+		return (err);
+	}
 
+	err = cmake_write(config, &modules);
+	if (unlikely(err))
+	{
+		array_free(&modules, false);
+		return (err);
+	}
+
+	array_free(&modules, false);
 	return (error_none);
 }

@@ -526,8 +526,13 @@ int	modules_load(
 	{
 		t_module	*new = NULL;
 		TOML		*node;
+		char		*path;
 
 		if (toml_get_type(array) != toml_table)
+			continue ;
+
+		path = toml_get(array, "path");
+		if (!path)
 			continue ;
 
 		new = module_new();
@@ -538,7 +543,7 @@ int	modules_load(
 		if (!new->name)
 			new->name = array->key;
 
-		new->path = toml_get(array, "path");
+		new->path = path;
 		new->public_header = toml_get(array, "publicHeaders");
 		new->private_header = toml_get(array, "privateHeaders");
 		node = toml_get(array, "dependencies");
@@ -552,21 +557,21 @@ int	modules_load(
 		if (node && toml_len(node))
 		{
 			toml_foreach(dep, node)
-				array_append(&new->dependencies, dep);
+				array_append(&new->tags, dep);
 		}
 
 		node = toml_get(array, "controls");
 		if (node && toml_len(node))
 		{
 			toml_foreach(dep, node)
-				array_append(&new->dependencies, dep);
+				array_append(&new->controls, dep);
 		}
 
 		node = toml_get(array, "defines");
 		if (node && toml_len(node))
 		{
 			toml_foreach(dep, node)
-				array_append(&new->dependencies, dep);
+				array_append(&new->defines, dep);
 		}
 
 		array_append(&config->lib.modules, new);
