@@ -23,10 +23,11 @@
 t_args_parser	*_setup_args(void)
 {
 	t_args_parser	*result;
-	t_args_parser	*setup;
 	t_args_parser	*init;
+	t_args_parser	*setup;
 	t_args_parser	*update;
-	t_args_parser	*export;
+	t_args_parser	*list;
+	t_args_parser	*help;
 
 	result = args_parser_new();
 	if (unlikely(!result))
@@ -62,9 +63,11 @@ t_args_parser	*_setup_args(void)
 	update = args_parser_add_sub(result, "update", "the module to they latest version");
 	args_add_param(update, "target", "the requested module to be updated", args_param_specs_nargs | args_param_specs_require, param_type_str);
 
-	/* Sub-parser export */
-	export = args_parser_add_sub(result, "export", "export the module configuration");
-	args_add_param(export, "dir", "the module directory to be used", 0, param_type_str);
+	/* Sub-parser list */
+	list = args_parser_add_sub(result, "list", "List all the avaible module in the current system");
+
+	/* Sub-parser help */
+	help = args_parser_add_sub(result, "help", "display the app help");
 
 	return (result);
 }
@@ -111,8 +114,13 @@ int	_arsg_extract(
 		config->sub = UPDATE;
 	else if (!strcmp("init", sub))
 		config->sub = INIT;
-	else if (!strcmp("export", sub))
-		config->sub = EXPORT;
+	else if (!strcmp("list", sub))
+		config->sub = LIST;
+	else if (!strcmp("help", sub))
+	{
+		config->sub = HELP;
+		config->cli.help = true;
+	}
 	else
 		config->sub = UNKNOW;
 
@@ -198,7 +206,7 @@ int main(int argc, char const *argv[])
 		fprintf(stderr, "Not implemented yet\n");
 		exit_status = ENOSYS;
 		break;
-	case EXPORT:
+	case LIST:
 		fprintf(stderr, "Not implemented yet\n");
 		exit_status = ENOSYS;
 		break;

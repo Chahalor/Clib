@@ -48,7 +48,8 @@ enum e_subs
 	INIT,
 	SETUP,
 	UPDATE,
-	EXPORT,
+	LIST,
+	HELP,
 	UNKNOW,
 };
 

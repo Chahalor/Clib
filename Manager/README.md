@@ -21,9 +21,11 @@ If i would only want the json module all of it dependencies would also be copied
 ### CLI
 libmng setup/update/export
 
-- setup setup the requested modules in the targeted dir
-- update update the locals modules by updating the sources files and and importing new dependencies.
-- export take the targeted dir and export at as a lib dir (create the lib files)
+- init:		init the lib in the current session
+- setup:	setup the requested modules in the targeted dir
+- update	update the locals modules by updating the sources files and and importing new dependencies.
+- list:		list all the available modules and the current version of tghe lib register in cache
+- help:		same has --help/-h
 
 ### Files
 
