@@ -10,7 +10,7 @@ CLIB_LIB := $(CLIB_BUILD)/libclib.a
 SRC_DIR := src
 OBJ_DIR := build/obj
 
-SRCS := $(wildcard $(SRC_DIR)/*.c)
+SRCS := $(wildcard $(SRC_DIR)/*.c) $(wildcard $(SRC_DIR)/**/*.c)
 OBJS := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRCS))
 DEPS := $(OBJS:.o=.d)
 
