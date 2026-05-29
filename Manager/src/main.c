@@ -19,6 +19,7 @@
 	//...
 
 /* ----| Internals  |----- */
+	//...
 
 /* ----| Public     |----- */
 
@@ -26,7 +27,7 @@ int main(int argc, char const *argv[])
 {
 	int				exit_status = EXIT_SUCCESS;
 	Config			config = {0};
-	t_args_parser	*parser = _setup_args();
+	t_args_parser	*parser = setup_args();
 	t_args_output	*output = NULL;
 	int				err = 0;
 
@@ -49,7 +50,7 @@ int main(int argc, char const *argv[])
 		return (EINVAL);
 	}
 
-	if (unlikely(_arsg_extract(output, &config)))
+	if (unlikely(arsg_extract(output, &config)))
 	{
 		fprintf(stderr, "invalid args found\n");
 		args_show_help(parser, EINVAL);
@@ -95,17 +96,11 @@ int main(int argc, char const *argv[])
 		if (unlikely(err))
 			return (err);
 
-		const char	*s = config.lib.modules.length > 1 ? "s" : "";
-		printf("Clib: Module%s available%s: %u\n", s, s, config.lib.modules.length);
-		for (size_t i = 0; i < config.lib.modules.length; i++)
-		{
-			const t_module	 *const	this = config.lib.modules.data[i];
-
-			printf(" - %s\n", this->name);
-		}
+		exit_status = list(&config);
 		break;
 	}
 	default:
+		fprintf(stderr, "default way, look like the wrong sub command has been used\n");	//rm
 		args_show_help(parser, EINVAL);
 		break;
 	}

@@ -63,6 +63,13 @@ int	array_append(
 
 t_module	*module_new(void);
 
+t_args_parser	*setup_args(void);
+
+int	arsg_extract(
+	t_args_output	*const	out,
+	Config			*const	config
+);
+
 int	dir_rm(
 	const char *const restrict	path
 );
@@ -94,6 +101,15 @@ int	copy_dir(
 	const char *const	dst
 );
 
+int	count_dir_files(
+	const char *const	path,
+	const bool			recursive
+);
+
+size_t	dir_size(
+	const char *const	path
+);
+
 int	copy_modules(
 	const Config *const	config,
 	const t_array *const	modules
@@ -107,6 +123,11 @@ int	setup_setup(
 /** */
 int	setup(
 	Config *const config
+);
+
+/** */
+int	list(
+	const Config *const config
 );
 
 /** */

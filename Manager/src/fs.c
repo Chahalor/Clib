@@ -567,3 +567,88 @@ int	copy_modules(
 
 	return (write_lib_header(config, modules));
 }
+
+int	count_dir_files(
+	const char *const	path,
+	const bool			recursive
+)
+{
+	int				result = 0;
+	DIR				*dir;
+	struct dirent	*entry;
+	struct stat		st;
+	char			_path[PATH_MAX];
+
+	dir = opendir(path);
+	if (unlikely(!dir))
+		return (-errno);
+
+	while ((entry = readdir(dir)) != NULL)
+	{
+		if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
+			continue;
+
+		else if (snprintf(_path, sizeof(_path), "%s/%s", path, entry->d_name) >= (int)sizeof(_path))
+			continue;
+
+		else if (lstat(_path, &st) < 0)
+			continue;
+
+		else if (S_ISDIR(st.st_mode) && recursive)
+		{
+			const int	tmp = count_dir_files(_path, true);
+
+			if (unlikely(tmp < 0))
+				continue;
+
+			result += tmp;
+		}
+		else if (S_ISREG(st.st_mode))
+				result++;
+	}
+
+	closedir(dir);
+	return (result);
+}
+
+size_t	dir_size(
+	const char *const	path
+)
+{
+	size_t			result = 0;
+	DIR				*dir;
+	struct dirent	*entry;
+	struct stat		st;
+	char			_path[PATH_MAX];
+
+	dir = opendir(path);
+	if (unlikely(!dir))
+	{
+		fprintf(stderr, "could not open dir %s: %s\n", path, strerror(errno));	//rm
+		return (0);
+	}
+
+	while ((entry = readdir(dir)) != NULL)
+	{
+		if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
+			continue;
+
+		else if (snprintf(_path, sizeof(_path), "%s/%s", path, entry->d_name) >= (int)sizeof(_path))
+			continue;
+
+		else if (lstat(_path, &st) < 0)
+			continue;
+
+		else if (S_ISDIR(st.st_mode))
+		{
+			const int	tmp = dir_size(_path);
+
+			result += tmp;
+		}
+		else if (S_ISREG(st.st_mode))
+				result += st.st_size;
+	}
+
+	closedir(dir);
+	return (result);
+}

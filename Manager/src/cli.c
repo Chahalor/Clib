@@ -3,7 +3,7 @@
 */
 /* ----| Headers    |----- */
 	/* Standard */
-		//...
+#include <string.h>
 
 	/* Internal */
 #include "manager.h"
@@ -21,7 +21,7 @@ void	_extract_init(
 	t_args_output_parser *const	sub_out
 )
 {
-	int						n = 0;
+	size_t					n = 0;
 	char					*init_cache_dir;
 	t_args_output_option	*init_url = args_get_option(sub_out, "remote-url");
 
@@ -38,7 +38,7 @@ void	_extract_list(
 	t_args_output_parser *const	out
 )
 {
-	int								n;
+	size_t							n;
 	typeof(config->sub.list) *const	d = &config->sub.list;
 	t_args_output_option *			opt_dest;
 	t_args_output_option *			opt_installed;
@@ -66,7 +66,7 @@ void	_extract_list(
 
 /* ----| Public     |----- */
 
-t_args_parser	*_setup_args(void)
+t_args_parser	*setup_args(void)
 {
 	t_args_parser	*result;
 	t_args_parser	*init;
@@ -112,8 +112,7 @@ t_args_parser	*_setup_args(void)
 	/* Sub-parser list */
 	list = args_parser_add_sub(result, "list", "List all the avaible module in the current system");
 	args_add_param(list, "target", "target of the lsiting action", args_param_specs_nargs, param_type_str);
-	t_args_option	*opt_list_deps = args_parser_add_option(list, "deps", 'd', "show the dependencies of each module, using --deps=<name> will show which modules use 'name' has a dependencie");
-	args_parser_add_param(opt_list_deps, "path", NULL, 0, param_type_file);
+	args_parser_add_option(list, "deps", 'd', "show the dependencies of each module");
 	args_parser_add_option(list, "version", 'v', "show the version of each modules");
 	args_parser_add_option(list, "stats", 's', "show many stats about each module, like they size, number of file, ...");
 	t_args_option	*opt_list_installed = args_parser_add_option(list, "installed", 'i', "show which module are currently installed in the pwd. By default will check ./clib or ./Clib. By using --installed=<path> it will use this path insted");
@@ -163,6 +162,7 @@ int	arsg_extract(
 	sub_out = args_get_sub_output(out);
 	if (!sub)
 		config->sub.name = UNKNOW;
+
 	else if (!strcmp("setup", sub))
 		config->sub.name = SETUP;
 	else if (!strcmp("update", sub))
