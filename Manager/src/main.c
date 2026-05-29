@@ -50,6 +50,7 @@ t_args_parser	*_setup_args(void)
 	/* Sub-parser setup */
 	setup = args_parser_add_sub(result, "setup", "setup the module in the targeted dir");
 	args_add_param(setup, "target", "the requested module to be setup", args_param_specs_nargs | args_param_specs_require, param_type_str);
+	args_parser_add_option(setup, "init", 0, "if the lib is not init in the environement, init it");
 
 	/* Sub-parser init */
 	init = args_parser_add_sub(result, "init", "init the lib for the full session");
@@ -178,15 +179,15 @@ int main(int argc, char const *argv[])
 	}
 	case SETUP:
 	{
-		err = config_load(&config, config.consts.path_config_file);
+		err = setup_setup(&config, output);
+		if (unlikely(err))
+			return (err);
+
+		err = config_load(&config, config.consts.path_config_file, config.cli.init);
 		if (unlikely(err))
 			return (err);
 
 		err = modules_load(&config, config.consts.path_modules_file);
-		if (unlikely(err))
-			return (err);
-
-		err = setup_setup(&config, output);
 		if (unlikely(err))
 			return (err);
 

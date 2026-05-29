@@ -189,6 +189,7 @@ int	setup_setup(
 	size_t					n;
 	void					*_allowed = args_get_param(sub, "target", &n);
 
+	config->cli.init = args_output_parser_get_option(sub, "init") != NULL;
 	config->nb_allowed = n;
 	config->allowed = mem_alloc(sizeof(char *) * (n + 1));
 	if (!config->allowed)

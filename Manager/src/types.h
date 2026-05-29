@@ -107,6 +107,7 @@ struct s_cli
 {
 	char	verbose;
 	char	help;
+	char	init;
 };
 
 struct s_constants

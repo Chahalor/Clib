@@ -318,6 +318,58 @@ static void	_init_verbose_paths(
 		config->consts.version.minor, config->consts.version.patch);
 }
 
+static int	_write_config(
+	Config *const	config
+)
+{
+	TOML	*config_file;
+	FILE	*file;
+	int		mkdir_err;
+
+	config_file = toml_new();
+	if (unlikely(!config_file))
+	{
+		toml_error_dump(stderr);
+		return (toml_errno());
+	}
+
+	toml_set(config_file, "name", "clib");
+	toml_set(config_file, "version", "%d.%d.%d", config->consts.version.major, config->consts.version.minor, config->consts.version.patch);
+	toml_set(config_file, "url-remote", config->consts.url_git);
+	toml_set(config_file, "path-cache", config->consts.path_cache_dir);
+
+	if (unlikely((config->cli.verbose)))
+		printf("Creating config parent directories\n");
+
+	mkdir_err = _mkdir_parent(config->consts.path_config_file);
+	if (unlikely(mkdir_err))
+	{
+		toml_unload(config_file);
+		return (mkdir_err);
+	}
+
+	if (unlikely((config->cli.verbose)))
+		printf("Writing config file: %s\n", config->consts.path_config_file);
+
+	file = fopen(config->consts.path_config_file, "w");
+	if (unlikely(!file))
+	{
+		fprintf(stderr, "could not open %s: %s\n",
+			config->consts.path_config_file, strerror(errno));
+		toml_unload(config_file);
+		return (-errno);
+	}
+
+	toml_dump(config_file, file, 4);
+	fclose(file);
+	toml_unload(config_file);
+
+	if (unlikely((config->cli.verbose)))
+		printf("Config file created\n");
+
+	return (error_none);
+}
+
 /* ----| Publics    |----- */
 
 int	execute(
@@ -359,7 +411,8 @@ int	execute(
 
 int	config_load(
 	Config *const		config,
-	const char *const	path
+	const char *const	path,
+	const int			should_init
 )
 {
 	TOML	*file;
@@ -372,16 +425,32 @@ int	config_load(
 		return (result);
 
 	errno = 0;
-	file = toml_load_file(path ? path : config->consts.path_config_file);
+	file = toml_load_file(path);
 	if (unlikely(!file))
 	{
-		result = errno ? -errno : -ENOENT;
-		errno = 0;
+		if (toml_errno())
+		{
+			if (errno == ENOENT || toml_errno() == TOML_ERROR_INVALID_FILE || !should_init)
+			{
+				printf("It look like the Clib is not init in this setup\n");
+				printf("To init, run: `modulesmng init`");
+				return (-ENOENT);
+			}
+			else if (!should_init)
+			{
+				toml_error_dump(stderr);
+				return (toml_errno());
+			}
+		}
+
 		defaults_err = _set_config_defaults(config);
 		if (unlikely(defaults_err))
 			return (defaults_err);
 
-		if (unlikelyunlikely((config->cli.verbose)))
+		if (unlikely(_write_config(config)))
+			return (1);
+
+		if (unlikely((config->cli.verbose)))
 		{
 			printf("No default config file found, writing a new one at %s\n", config->consts.path_config_file);
 			printf("Defaults values:\n");
@@ -394,9 +463,8 @@ int	config_load(
 		return (result);
 	}
 
-	if (unlikelyunlikely((config->cli.verbose)))
-		printf("Loaded config file: %s\n",
-			path ? path : config->consts.path_config_file);
+	if (unlikely((config->cli.verbose)))
+		printf("Loaded config file: %s\n", path ? path : config->consts.path_config_file);
 
 	if (!config->consts.url_git)
 	{
@@ -585,7 +653,7 @@ int	init_all(
 	if (unlikely((config->cli.verbose)))
 		printf("Initializing clib manager session\n");
 
-	err = config_load(config, config->consts.path_config_file);
+	err = config_load(config, config->consts.path_config_file, true);
 	if (err && err != -ENOENT)
 		return (err);
 
@@ -593,50 +661,9 @@ int	init_all(
 
 	if (err)
 	{
-		TOML	*config_file;
-		FILE	*file;
-		int		mkdir_err;
-
-		config_file = toml_new();
-		if (unlikely(!config_file))
-		{
-			toml_error_dump(stderr);
-			return (toml_errno());
-		}
-
-		toml_set(config_file, "name", "clib");
-		toml_set(config_file, "version", "%d.%d.%d", config->consts.version.major, config->consts.version.minor, config->consts.version.patch);
-		toml_set(config_file, "url-remote", config->consts.url_git);
-		toml_set(config_file, "path-cache", config->consts.path_cache_dir);
-
-		if (unlikely((config->cli.verbose)))
-			printf("Creating config parent directories\n");
-
-		mkdir_err = _mkdir_parent(config->consts.path_config_file);
-		if (unlikely(mkdir_err))
-		{
-			toml_unload(config_file);
-			return (mkdir_err);
-		}
-
-		if (unlikely((config->cli.verbose)))
-			printf("Writing config file: %s\n", config->consts.path_config_file);
-
-		file = fopen(config->consts.path_config_file, "w");
-		if (unlikely(!file))
-		{
-			fprintf(stderr, "could not open %s: %s\n",
-				config->consts.path_config_file, strerror(errno));
-			toml_unload(config_file);
-			return (-errno);
-		}
-
-		toml_dump(config_file, file, 4);
-		fclose(file);
-		toml_unload(config_file);
-
-		if (unlikely((config->cli.verbose)))
-			printf("Config file created\n");
+		err = _write_config(config);
+		if (unlikely(err))
+			return (err);
 	}
 	else if (unlikely((config->cli.verbose)))
 		printf("Config file already exists, keeping current settings\n");

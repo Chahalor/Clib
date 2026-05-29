@@ -85,7 +85,8 @@ int	execute(
 
 int	config_load(
 	Config *const		config,
-	const char *const	path
+	const char *const	path,
+	const int			should_init
 );
 
 int	modules_load(
