@@ -203,6 +203,7 @@ static char	*_toml_dup_unquoted(
 	t_toml_str	result = {0};
 	size_t		i;
 	char		quote;
+	int			errnum;
 
 	value = _toml_trim((char *)value);
 	quote = *value;
@@ -210,22 +211,30 @@ static char	*_toml_dup_unquoted(
 		return (setting->dup(value, strlen(value) + 1));
 
 	i = 1;
+	errnum = error_none;
 	while (value[i] && value[i] != quote)
 	{
 		if (quote == '"' && value[i] == '\\' && value[i + 1])
 		{
 			i++;
 			if (value[i] == 'n')
-				_toml_str_append_char(&result, '\n');
+				errnum = _toml_str_append_char(&result, '\n');
 			else if (value[i] == 't')
-				_toml_str_append_char(&result, '\t');
+				errnum = _toml_str_append_char(&result, '\t');
 			else
-				_toml_str_append_char(&result, value[i]);
+				errnum = _toml_str_append_char(&result, value[i]);
 		}
 		else
-			_toml_str_append_char(&result, value[i]);
+			errnum = _toml_str_append_char(&result, value[i]);
+		if (unlikely(errnum != error_none))
+		{
+			setting->free(result.content);
+			return (NULL);
+		}
 		i++;
 	}
+	if (!result.content)
+		return (setting->dup("", 1));
 	return (result.content);
 }
 
@@ -308,15 +317,14 @@ static int	_toml_set_parsed_scalar(
 	int		col;
 
 	if (unlikely(!*value))
-		return (_toml_parse_error(line, file, line_nb, value_col,
-				TOML_ERROR_INVALID_VALUE));
+		return (_toml_parse_error(line, file, line_nb, value_col, TOML_ERROR_INVALID_VALUE));
+
 	type = _toml_value_type(value);
 	if (type == toml_tok_str && (*value == '"' || *value == '\''))
 	{
 		errnum = _toml_validate_quoted(value, &col);
 		if (unlikely(errnum != TOML_ERROR_NONE))
-			return (_toml_parse_error(line, file, line_nb,
-					value_col + col - 1, errnum));
+			return (_toml_parse_error(line, file, line_nb, value_col + col - 1, errnum));
 	}
 	if (type == toml_tok_str)
 		data = _toml_dup_unquoted(value);
@@ -324,13 +332,13 @@ static int	_toml_set_parsed_scalar(
 		data = setting->dup(value, strlen(value) + 1);
 
 	if (unlikely(!data))
-		return (_toml_parse_error(line, file, line_nb, value_col,
-				TOML_ERROR_ALLOC_FAIL));
+		return (_toml_parse_error(line, file, line_nb, value_col, TOML_ERROR_ALLOC_FAIL));
 
 	errnum = _toml_set_field(toml, path, data, type);
 	setting->free(data);
 	if (unlikely(errnum != error_none))
 		_toml_parse_error(line, file, line_nb, value_col, errnum);
+
 	return (errnum);
 }
 
@@ -352,6 +360,7 @@ static int	_toml_parse_array_item(
 	item = _toml_trim(item);
 	if (unlikely(!*item))
 		return (_toml_parse_error(line, file, line_nb, item_col, TOML_ERROR_INVALID_ARRAY));
+
 	type = _toml_value_type(item);
 	if (type == toml_tok_str && (*item == '"' || *item == '\''))
 	{
@@ -360,26 +369,26 @@ static int	_toml_parse_array_item(
 			return (_toml_parse_error(line, file, line_nb,
 					item_col + col - 1, errnum));
 	}
+
 	if (type == toml_tok_str)
 		data = _toml_dup_unquoted(item);
 	else
 		data = setting->dup(item, strlen(item) + 1);
 
 	if (unlikely(!data))
-		return (_toml_parse_error(line, file, line_nb, item_col,
-				TOML_ERROR_ALLOC_FAIL));
+		return (_toml_parse_error(line, file, line_nb, item_col, TOML_ERROR_ALLOC_FAIL));
 
 	node = _toml_new_content(NULL, type, data);
 	if (unlikely(!node))
 	{
 		setting->free(data);
-		return (_toml_parse_error(line, file, line_nb, item_col,
-				TOML_ERROR_ALLOC_FAIL));
+		return (_toml_parse_error(line, file, line_nb, item_col, TOML_ERROR_ALLOC_FAIL));
 	}
 
 	errnum = _toml_add_child(array, node);
 	if (unlikely(errnum != error_none))
 		_toml_parse_error(line, file, line_nb, item_col, errnum);
+
 	return (errnum);
 }
 

@@ -152,6 +152,15 @@ static int	test_toml_load_str_cases(void)
 	EXPECT_STREQ((const char *)toml_get(toml, "name"), "alice");
 	EXPECT_EQ_INT(toml_unload(toml), error_none);
 
+	toml = toml_load_str("%s",
+			"privateHeaders = \"\"\n"
+			"array = [\"\", \"value\"]\n");
+	EXPECT_NOT_NULL(toml);
+	EXPECT_STREQ((const char *)toml_get(toml, "privateHeaders"), "");
+	EXPECT_STREQ((const char *)toml_get(toml, "array.0"), "");
+	EXPECT_STREQ((const char *)toml_get(toml, "array.1"), "value");
+	EXPECT_EQ_INT(toml_unload(toml), error_none);
+
 	EXPECT_NULL(toml_load_str(NULL));
 	return (0);
 }
