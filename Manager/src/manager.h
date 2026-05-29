@@ -36,11 +36,11 @@
 
 #define	ALLOC_SIZE			256
 
-#define	DEFAULT_CONFIG_DIR	"clib"
-#define	DEFAULT_CONFIG_FILE	"config.toml"
-#define	DEFAULT_CACHE_DIR	"clib"
+#define	DEFAULT_CONFIG_DIR		"clib"
+#define	DEFAULT_CONFIG_FILE		"config.toml"
+#define	DEFAULT_CACHE_DIR		"clib"
 #define	DEFAULT_MODULES_FILE	"Clib.toml"
-#define	DEFAULT_URL_GIT		"git@github.com:Chahalor/Clib.git"
+#define	DEFAULT_URL_GIT			"git@github.com:Chahalor/Clib.git"
 
 /* ************************************************************************** */
 /*                                 Prototypes                                 */

@@ -117,7 +117,7 @@ static int	_set_default_cache_path(
 		if (unlikely(!base || !*base))
 			return (-ENOENT);
 
-		config->consts.path_cache_dir = _path_join(base, ".cache/" DEFAULT_CACHE_DIR);
+		config->consts.path_cache_dir = _path_join(base, DEFAULT_CACHE_DIR);
 	}
 
 	if (unlikely(!config->consts.path_cache_dir))
