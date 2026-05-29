@@ -31,10 +31,19 @@ static char	*_str_dup(
 	const char *const	src
 )
 {
+	char	*result;
+	size_t	len;
+
 	if (unlikely(!src))
 		return (NULL);
 
-	return (mem_dup(src, strlen(src)));
+	len = strlen(src);
+	result = mem_alloc(len + 1);
+	if (unlikely(!result))
+		return (NULL);
+
+	memcpy(result, src, len + 1);
+	return (result);
 }
 
 static char	*_path_join(
@@ -293,6 +302,22 @@ static int	_cache_has_git_metadata(
 	return (result);
 }
 
+static void	_init_verbose_paths(
+	const Config *const	config
+)
+{
+	if (!config->cli.verbose)
+		return ;
+
+	printf("Init configuration:\n");
+	printf(" - config file  = '%s'\n", config->consts.path_config_file);
+	printf(" - cache dir    = '%s'\n", config->consts.path_cache_dir);
+	printf(" - modules file = '%s'\n", config->consts.path_modules_file);
+	printf(" - remote url   = '%s'\n", config->consts.url_git);
+	printf(" - version      = v%d.%d.%d\n", config->consts.version.major,
+		config->consts.version.minor, config->consts.version.patch);
+}
+
 /* ----| Publics    |----- */
 
 int	execute(
@@ -356,7 +381,7 @@ int	config_load(
 		if (unlikely(defaults_err))
 			return (defaults_err);
 
-		if (unlikely(config->cli.verbose))
+		if (unlikelyunlikely((config->cli.verbose)))
 		{
 			printf("No default config file found, writing a new one at %s\n", config->consts.path_config_file);
 			printf("Defaults values:\n");
@@ -368,6 +393,10 @@ int	config_load(
 
 		return (result);
 	}
+
+	if (unlikelyunlikely((config->cli.verbose)))
+		printf("Loaded config file: %s\n",
+			path ? path : config->consts.path_config_file);
 
 	if (!config->consts.url_git)
 	{
@@ -492,8 +521,14 @@ int	init_cache(
 		return (-EINVAL);
 	}
 
+	if (unlikely((config->cli.verbose)))
+		printf("Checking cache directory: %s\n", config->consts.path_cache_dir);
+
 	if (!stat(config->consts.path_cache_dir, &st))
 	{
+		if (unlikely((config->cli.verbose)))
+			printf("Cache path exists\n");
+
 		if (unlikely(!S_ISDIR(st.st_mode)))
 		{
 			fprintf(stderr, "cache path exists and is not a directory: %s\n", config->consts.path_cache_dir);
@@ -502,7 +537,7 @@ int	init_cache(
 
 		if (_cache_has_git_metadata(config->consts.path_cache_dir))
 		{
-			if (config->cli.verbose)
+			if (unlikely((config->cli.verbose)))
 				printf("Cache already initialized at %s\n", config->consts.path_cache_dir);
 			return (error_none);
 		}
@@ -515,15 +550,28 @@ int	init_cache(
 			fprintf(stderr, "cache directory is not empty and is not a git repo: %s\n", config->consts.path_cache_dir);
 			return (-EEXIST);
 		}
+
+		if (unlikely((config->cli.verbose)))
+			printf("Cache directory is empty, cloning into it\n");
 	}
 	else if (errno == ENOENT)
 	{
+		if (unlikely((config->cli.verbose)))
+			printf("Cache directory does not exist, creating parent directories\n");
+
 		err = _mkdir_parent(config->consts.path_cache_dir);
 		if (unlikely(err))
 			return (err);
 	}
 	else
 		return (-errno);
+
+	if (unlikely((config->cli.verbose)))
+	{
+		printf("Cloning cache from '%s' into '%s'\n",
+			config->consts.url_git, config->consts.path_cache_dir);
+		fflush(stdout);
+	}
 
 	return (execute("git", (char *[5]){"git", "clone", config->consts.url_git, config->consts.path_cache_dir}));
 }
@@ -534,9 +582,14 @@ int	init_all(
 {
 	int	err = 0;
 
+	if (unlikely((config->cli.verbose)))
+		printf("Initializing clib manager session\n");
+
 	err = config_load(config, config->consts.path_config_file);
 	if (err && err != -ENOENT)
 		return (err);
+
+	_init_verbose_paths(config);
 
 	if (err)
 	{
@@ -556,12 +609,18 @@ int	init_all(
 		toml_set(config_file, "url-remote", config->consts.url_git);
 		toml_set(config_file, "path-cache", config->consts.path_cache_dir);
 
+		if (unlikely((config->cli.verbose)))
+			printf("Creating config parent directories\n");
+
 		mkdir_err = _mkdir_parent(config->consts.path_config_file);
 		if (unlikely(mkdir_err))
 		{
 			toml_unload(config_file);
 			return (mkdir_err);
 		}
+
+		if (unlikely((config->cli.verbose)))
+			printf("Writing config file: %s\n", config->consts.path_config_file);
 
 		file = fopen(config->consts.path_config_file, "w");
 		if (unlikely(!file))
@@ -575,9 +634,16 @@ int	init_all(
 		toml_dump(config_file, file, 4);
 		fclose(file);
 		toml_unload(config_file);
+
+		if (unlikely((config->cli.verbose)))
+			printf("Config file created\n");
 	}
+	else if (unlikely((config->cli.verbose)))
+		printf("Config file already exists, keeping current settings\n");
 
 	err = init_cache(config);
+	if (!err && config->cli.verbose)
+		printf("Init completed\n");
 
 	return (err);
 }
