@@ -10,6 +10,7 @@
 #include <dirent.h>
 #include <stdio.h>
 #include <limits.h>
+#include <fcntl.h>
 
 #include <linux/limits.h>
 
@@ -23,6 +24,7 @@
 	/* External */
 #include "files/toml.h"
 #include "interface/args.h"
+#include "standards/formating.h"
 
 /* ----| Prototypes |----- */
 	//...
@@ -91,92 +93,236 @@ int _dir_rm(const char *const restrict path)
 	return (0);
 }
 
-static int _is_allowed(
-	const char *const			relpath,
-	char **allowed
+int mkdir_p(
+	const char *	path,
+	mode_t			mode
 )
 {
-	size_t	i;
-	size_t	len;
+	char	tmp[PATH_MAX];
+	char	*p;
 
-	i = 0;
-	len = strlen(relpath);
+	if (strlen(path) >= sizeof(tmp))
+		return (-ENAMETOOLONG);
 
-	while (allowed[i])
+	strcpy(tmp, path);
+
+	for (p = tmp + 1; *p; p++)
 	{
-		if (!strcmp(relpath, allowed[i]))
-			return (1);
-		else if (!strncmp(relpath, allowed[i], len) && allowed[i][len] == '/')
-			return (1);
+		if (*p == '/')
+		{
+			*p = '\0';
 
-		++i;
+			if (mkdir(tmp, mode) < 0 && errno != EEXIST)
+				return (-errno);
+
+			*p = '/';
+		}
 	}
+
+	if (mkdir(tmp, mode) < 0 && errno != EEXIST)
+		return (-errno);
 
 	return (0);
 }
 
-__attribute_maybe_unused__
-static int _iterate(
-	const char *const				root,
-	const char *const				relpath,
-	char **		allowed
+#define GOTO_ERROR() \
+	do \
+	{ \
+		result = -errno; \
+		goto error; \
+	} while (0)
+
+static int	copy_file(
+	const char *const	src,
+	const char *const	dst
 )
 {
-	DIR				*dir;
-	struct dirent	*entry;
-	struct stat		st;
-	char			fullpath[PATH_MAX];
-	char			childrel[PATH_MAX];
-	int				err;
+	int			in, out, err;
+	ssize_t		n, w;
+	char		buf[8192];
+	char		*p;
+	struct stat	st;
 
-	dir = opendir(root);
-	if (!dir)
+	if (unlikely(stat(src, &st) < 0))
 		return (-errno);
 
-	while ((entry = readdir(dir)))
+	in = open(src, O_RDONLY);
+	if (unlikely(in < 0))
+		return (-errno);
+
+	out = open(dst, O_WRONLY | O_CREAT | O_TRUNC, st.st_mode & 0777);
+	if (unlikely(out < 0))
 	{
-		if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, "..") || !strcmp(entry->d_name, ".git") || !strcmp(entry->d_name, "_internal_"))
-			continue;
+		err = errno;
+		close(in);
+		return (-err);
+	}
 
-		snprintf(fullpath, sizeof(fullpath), "%s/%s",root, entry->d_name);
+	while (true)
+	{
+		do
+			n = read(in, buf, sizeof(buf));
+		while (n < 0 && errno == EINTR);
 
-		if (*relpath)
-			snprintf(childrel, sizeof(childrel), "%s/%s", relpath, entry->d_name);
-		else
-			snprintf(childrel, sizeof(childrel), "%s", entry->d_name);
+		if (n <= 0)
+			break;
 
-		if (lstat(fullpath, &st))
+		p = buf;
+
+		while (n > 0)
 		{
-			closedir(dir);
-			return (-errno);
-		}
+			do
+				w = write(out, p, n);
+			while (w < 0 && errno == EINTR);
 
-		if (!S_ISDIR(st.st_mode))
-			continue;
-
-		if (!_is_allowed(childrel, allowed))
-		{
-			err = _dir_rm(fullpath);
-			if (err)
+			if (unlikely(w < 0))
 			{
-				closedir(dir);
-				return (err);
+				err = errno;
+				close(in);
+				close(out);
+				return (-err);
 			}
 
+			p += w;
+			n -= w;
+		}
+	}
+
+	if (n < 0)
+	{
+		err = errno;
+		close(in);
+		close(out);
+		return (-err);
+	}
+
+	close(in);
+	close(out);
+	return (0);
+}
+
+int	copy_dir(
+	const char *const	src,
+	const char *const	dst
+)
+{
+	int				result;
+	DIR				*dir;
+	struct stat		st;
+	struct dirent	*entry;
+	char			src_path[PATH_MAX];
+	char			dst_path[PATH_MAX];
+
+	result = error_none;
+
+	dir = opendir(src);
+	if (unlikely(!dir))
+		return (-errno);
+
+	if (unlikely(lstat(src, &st) < 0))
+		GOTO_ERROR();
+
+	result = mkdir_p(dst, st.st_mode & 0777);
+	if (unlikely(result < 0))
+		GOTO_ERROR();
+
+	while ((entry = readdir(dir)) != NULL)
+	{
+		if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
 			continue;
+
+		if (snprintf(src_path, sizeof(src_path), "%s/%s", src, entry->d_name) >= (int)sizeof(src_path))
+		{
+			result = -ENAMETOOLONG;
+			goto error;
 		}
 
-		err = _iterate(fullpath, childrel, allowed);
-		if (err)
+		if (snprintf(dst_path, sizeof(dst_path), "%s/%s", dst, entry->d_name ) >= (int)sizeof(dst_path))
 		{
-			closedir(dir);
+			result = -ENAMETOOLONG;
+			goto error;
+		}
+
+		if (unlikely(lstat(src_path, &st) < 0))
+			GOTO_ERROR();
+
+		if (S_ISDIR(st.st_mode))
+		{
+			result = copy_dir(src_path, dst_path);
+
+			if (unlikely(result < 0))
+				goto error;
+		}
+		else if (S_ISREG(st.st_mode))
+		{
+			result = copy_file(src_path, dst_path);
+
+			if (unlikely(result < 0))
+				goto error;
+		}
+		else if (S_ISLNK(st.st_mode))
+		{
+			char	link_target[PATH_MAX];
+			ssize_t	len;
+
+			len = readlink(src_path, link_target, sizeof(link_target) - 1 );
+
+			if (unlikely(len < 0))
+				GOTO_ERROR();
+
+			link_target[len] = '\0';
+
+			if (unlikely(symlink(link_target, dst_path) < 0))
+			{
+				if (errno != EEXIST)
+					GOTO_ERROR();
+			}
+		}
+	}
+
+error:
+	closedir(dir);
+	return (result);
+}
+
+int	copy_modules(
+	const Config *const		config,
+	const t_module *const	allowed,
+	const int				nb_allowed
+)
+{
+	char	src[PATH_MAX];
+	char	dest[PATH_MAX];
+	int		err = 0;
+
+	for (int i = 0; i < nb_allowed; i++)
+	{
+		snprintf(src, sizeof(src), "%s/%s", config->consts.path_cache_dir, allowed[i].path);
+		snprintf(dest, sizeof(src), "%s/%s", config->dest, allowed[i].path);
+
+		printf("copy DIR %s -> %s\n", src, dest);
+		err = copy_dir(src, dest);
+		if (unlikely(err))
+		{
+			perror("copy dir");
+			return (err);
+		}
+
+		snprintf(src, sizeof(src), "%s/%s", config->consts.path_cache_dir, allowed[i].public_header);
+		snprintf(dest, sizeof(src), "%s/%s", config->dest, allowed[i].public_header);
+
+		printf("copy FILE %s -> %s\n", src, dest);
+		err = copy_file(src, dest);
+		if (unlikely(err))
+		{
+			perror("copy file");
 			return (err);
 		}
 	}
 
-	closedir(dir);
-	return (0);
+	return (err);
 }
+
 
 /* ----| Public     |----- */
 
@@ -211,21 +357,17 @@ int	setup(
 	Config *const config
 )
 {
-	int		err = 0;
-	char	**allowed = NULL;
-	int		nb_allowed = 0;
+	t_module	*allowed;
+	int			nb_allowed = 0;
 
-	err = execute("git", (char *[5]){"git", "clone", config->lib.remote_url, config->dest, NULL});
-	if (unlikely(err))
-		return (err);
-
-	allowed = mem_alloc(sizeof(char *) * (config->nb_allowed + 1));
+	allowed = mem_alloc(sizeof(t_module) * (config->nb_allowed + 1));
 	if (unlikely(!allowed))
 		return (error_alloc_fail);
 
 	for (size_t i = 0; i < config->nb_allowed; i++)
 	{
-		const char	*const name = config->allowed[i];
+		const char *const	name = config->allowed[i];
+		int					found = false;
 
 		for (size_t j = 0; j < config->lib.modules.length; j++)
 		{
@@ -234,12 +376,16 @@ int	setup(
 			if (strcmp(name, this->name))
 				continue ;
 
-			allowed[nb_allowed++] = this->path;
+			allowed[nb_allowed++] = *this;
+			found = true;
 			break ;
 		}
+
+		if (unlikely(!found))
+			fprintf(stderr, "[" YELLOW "warn" RESET "] module " BOLD "%s" RESET " not found in the clib config\n", name);
 	}
 
-	err = _iterate(config->dest, "", allowed);
+	copy_modules(config, allowed, nb_allowed);
 	cmake_write(config);
 
 	return (error_none);
