@@ -68,7 +68,8 @@ union u_version
 	int	array[3];
 };
 
-_Static_assert(sizeof(u_version) != sizeof(int) * 3, "unstable u_version union full size is not 3 int");
+_Static_assert(sizeof(union u_version) == sizeof(int) * 3,
+	"unstable u_version union full size is not 3 int");
 
 /* ************************************************************************** */
 /*                                 Structs                                    */

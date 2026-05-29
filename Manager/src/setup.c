@@ -202,6 +202,8 @@ int	setup_setup(
 			config->allowed[i] = ((char **)_allowed)[i];
 	else
 		config->allowed[0] = (char *)_allowed;
+
+	return (error_none);
 }
 
 int	setup(

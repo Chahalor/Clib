@@ -55,7 +55,7 @@ t_args_parser	*_setup_args(void)
 	init = args_parser_add_sub(result, "init", "init the lib for the full session");
 	args_add_param(init, "cache-dir", "The dir used to store the lib cache", 0, param_type_file);
 	t_args_option	*init_url = args_parser_add_option(init, "remote-url", 0, "the url to the cache remote git");
-	args_add_param(init_url, "path", NULL, args_param_specs_require, param_type_str);
+	args_add_param(init_url, "url", NULL, args_param_specs_require, param_type_str);
 
 	/* Sub-parser update */
 	update = args_parser_add_sub(result, "update", "the module to they latest version");
@@ -77,6 +77,7 @@ int	_arsg_extract(
 	t_args_output_option	*file = args_get_option(out, "config");
 	t_args_output_option	*cache_dir = args_get_option(out, "cache-dir");
 	t_args_output_option	*remote_url = args_get_option(out, "remote-url");
+	t_args_output_parser	*sub_out = NULL;
 	size_t					n = 0;
 	const char				*sub = NULL;
 
@@ -89,8 +90,7 @@ int	_arsg_extract(
 	if (file)
 		config->config_file = args_get_param(file, "path", &n);
 
-	if (!config->config_file)
-		config->config_file = HOME "/" DEFAULT_CONFIG_FILE;
+	config->consts.path_config_file = config->config_file;
 
 	if (cache_dir)
 		config->consts.path_cache_dir = args_get_param(cache_dir, "path", &n);
@@ -114,6 +114,20 @@ int	_arsg_extract(
 		config->sub = EXPORT;
 	else
 		config->sub = UNKNOW;
+
+	sub_out = args_get_sub_output(out);
+	if (sub_out && config->sub == INIT)
+	{
+		t_args_output_option	*init_url = args_get_option(sub_out, "remote-url");
+		char					*init_cache_dir;
+
+		init_cache_dir = args_get_param(sub_out, "cache-dir", &n);
+		if (init_cache_dir)
+			config->consts.path_cache_dir = init_cache_dir;
+
+		if (init_url)
+			config->consts.url_git = args_get_param(init_url, "url", &n);
+	}
 
 	return (config->sub == UNKNOW);
 }
@@ -155,14 +169,6 @@ int main(int argc, char const *argv[])
 	else if (config.cli.help)
 		args_show_help(parser, EXIT_SUCCESS);
 
-	err = config_load(&config, config.consts.path_config_file);
-	if (unlikely(err))
-		return (err);
-
-	err = modules_load(&config, config.consts.path_modules_file);
-	if (unlikely(err))
-		return (err);
-
 	switch (config.sub)
 	{
 	case INIT:
@@ -172,6 +178,14 @@ int main(int argc, char const *argv[])
 	}
 	case SETUP:
 	{
+		err = config_load(&config, config.consts.path_config_file);
+		if (unlikely(err))
+			return (err);
+
+		err = modules_load(&config, config.consts.path_modules_file);
+		if (unlikely(err))
+			return (err);
+
 		err = setup_setup(&config, output);
 		if (unlikely(err))
 			return (err);
