@@ -20,16 +20,11 @@
 
 /* ----| Internals  |----- */
 
-/**
- * add args for:
- * - cache dir
- * - remote url
- * - config file used
-*/
 t_args_parser	*_setup_args(void)
 {
 	t_args_parser	*result;
 	t_args_parser	*setup;
+	t_args_parser	*init;
 	t_args_parser	*update;
 	t_args_parser	*export;
 
@@ -37,20 +32,36 @@ t_args_parser	*_setup_args(void)
 	if (unlikely(!result))
 		return (NULL);
 
+	/* Main parser options */
 	t_args_option	*output = args_parser_add_option(result, "output", 'o', "destination of the action");
 	args_add_param(output, "path", NULL, args_param_specs_require, param_type_file);
 
 	t_args_option	*file = args_parser_add_option(result, "config", 'c', "config file that will be used for this action");
 	args_add_param(file, "path", NULL, args_param_specs_require, param_type_file);
 
+	t_args_option	*cache_dir = args_parser_add_option(result, "cache-dir", 0, "path to the cache dir used for this action");
+	args_add_param(cache_dir, "path", NULL, args_param_specs_require, param_type_file);
+
+	t_args_option	*remote_url = args_parser_add_option(result, "remote-url", 0, "remote url used for this action");
+	args_add_param(remote_url, "url", NULL, args_param_specs_require, param_type_str);
+
 	args_parser_add_option(result, "verbose", 'v', "enable the verbose mode for the app");
 
+	/* Sub-parser setup */
 	setup = args_parser_add_sub(result, "setup", "setup the module in the targeted dir");
 	args_add_param(setup, "target", "the requested module to be setup", args_param_specs_nargs | args_param_specs_require, param_type_str);
 
+	/* Sub-parser init */
+	init = args_parser_add_sub(result, "init", "init the lib for the full session");
+	args_add_param(init, "cache-dir", "The dir used to store the lib cache", 0, param_type_file);
+	t_args_option	*init_url = args_parser_add_option(init, "remote-url", 0, "the url to the cache remote git");
+	args_add_param(init_url, "path", NULL, args_param_specs_require, param_type_str);
+
+	/* Sub-parser update */
 	update = args_parser_add_sub(result, "update", "the module to they latest version");
 	args_add_param(update, "target", "the requested module to be updated", args_param_specs_nargs | args_param_specs_require, param_type_str);
 
+	/* Sub-parser export */
 	export = args_parser_add_sub(result, "export", "export the module configuration");
 	args_add_param(export, "dir", "the module directory to be used", 0, param_type_str);
 
@@ -64,6 +75,8 @@ int	_arsg_extract(
 {
 	t_args_output_option	*output = args_get_option(out, "output");
 	t_args_output_option	*file = args_get_option(out, "config");
+	t_args_output_option	*cache_dir = args_get_option(out, "cache-dir");
+	t_args_output_option	*remote_url = args_get_option(out, "remote-url");
 	size_t					n = 0;
 	const char				*sub = NULL;
 
@@ -77,7 +90,13 @@ int	_arsg_extract(
 		config->config_file = args_get_param(file, "path", &n);
 
 	if (!config->config_file)
-		config->config_file = ".clib";
+		config->config_file = HOME "/" DEFAULT_CONFIG_FILE;
+
+	if (cache_dir)
+		config->consts.path_cache_dir = args_get_param(cache_dir, "path", &n);
+
+	if (remote_url)
+		config->consts.url_git = args_get_param(remote_url, "url", &n);
 
 	config->cli.verbose = args_has_option(out, "verbose");
 	config->cli.help    = args_has_option(out, "help");
@@ -89,98 +108,14 @@ int	_arsg_extract(
 		config->sub = SETUP;
 	else if (!strcmp("update", sub))
 		config->sub = UPDATE;
+	else if (!strcmp("init", sub))
+		config->sub = INIT;
 	else if (!strcmp("export", sub))
 		config->sub = EXPORT;
 	else
 		config->sub = UNKNOW;
 
 	return (config->sub == UNKNOW);
-}
-
-int	_toml_extract(
-	Config *const config
-)
-{
-	struct s_conf_file *const	f = &config->conf;
-
-	f->name = toml_get(f->toml, "name");
-	if (!f->name)
-		f->name = toml_get(f->toml, "Name");
-
-	f->version = toml_get(f->toml, "version");
-	if (!f->version)
-		f->version = toml_get(f->toml, "version");
-
-	f->remote_url = toml_get(f->toml, "url");
-	if (!f->remote_url)
-	{
-		f->remote_url = toml_get(f->toml, "Url");
-		if (unlikely(!f->remote_url))
-		{
-			fprintf(stderr, "Error: missing `url` field in the config file\n");
-			return (EINVAL);
-		}
-	}
-
-	toml_foreach(array, f->toml)
-	{
-		t_module	*new = NULL;
-		TOML		*node;
-
-		if (toml_get_type(array) != toml_table)
-			continue ;
-
-		new = module_new();
-		if (unlikely(!new))
-			return (1);
-
-		new->name = toml_get(array, "name");
-		if (!new->name)
-			new->name = array->key;
-
-		new->path = toml_get(array, "path");
-		new->public_header = toml_get(array, "publicHeaders");
-		new->private_header = toml_get(array, "privateHeaders");
-		node = toml_get(array, "dependencies");
-		if (node && toml_len(node))
-		{
-			toml_foreach(dep, node)
-			{
-				array_append(&new->dependencies, dep);
-			}
-		}
-
-		node = toml_get(array, "tags");
-		if (node && toml_len(node))
-		{
-			toml_foreach(dep, node)
-			{
-				array_append(&new->dependencies, dep);
-			}
-		}
-
-		node = toml_get(array, "controls");
-		if (node && toml_len(node))
-		{
-			toml_foreach(dep, node)
-			{
-				array_append(&new->dependencies, dep);
-			}
-		}
-
-		node = toml_get(array, "defines");
-		if (node && toml_len(node))
-		{
-			toml_foreach(dep, node)
-			{
-				array_append(&new->dependencies, dep);
-			}
-		}
-
-		array_append(&config->conf.modules, new);
-	}
-
-	return (error_none);
 }
 
 /* ----| Public     |----- */
@@ -191,6 +126,7 @@ int main(int argc, char const *argv[])
 	Config			config = {0};
 	t_args_parser	*parser = _setup_args();
 	t_args_output	*output = NULL;
+	int				err = 0;
 
 	if (unlikely(!parser))
 	{
@@ -212,51 +148,44 @@ int main(int argc, char const *argv[])
 	}
 
 	if (unlikely(_arsg_extract(output, &config)))
+	{
 		fprintf(stderr, "invalid args found\n");
-
-	if (config.cli.help)
+		args_show_help(parser, EINVAL);
+	}
+	else if (config.cli.help)
 		args_show_help(parser, EXIT_SUCCESS);
 
-	config.conf.toml = toml_load_file(config.config_file);
-	if (unlikely(!config.conf.toml))
-	{
-		toml_error_dump(stderr);
-		return (toml_errno());
-	}
+	err = config_load(&config, config.consts.path_config_file);
+	if (unlikely(err))
+		return (err);
 
-	if (unlikely(_toml_extract(&config)))
-		return (EXIT_FAILURE);
+	err = modules_load(&config, config.consts.path_modules_file);
+	if (unlikely(err))
+		return (err);
 
 	switch (config.sub)
 	{
+	case INIT:
+	{
+		exit_status = init_all(&config);
+		break;
+	}
 	case SETUP:
 	{
-		t_args_output_parser	*sub = args_get_sub_output(output);
-		size_t					n;
-		void					*_allowed = args_get_param(sub, "target", &n);
+		err = setup_setup(&config, output);
+		if (unlikely(err))
+			return (err);
 
-		config.nb_allowed = n;
-		config.allowed = mem_alloc(sizeof(char *) * (n + 1));
-		if (!config.allowed)
-		{
-			perror("allowed alloc");
-			return (errno);
-		}
-
-		if (n != 1)
-			for (size_t i = 0; i < n; i++)
-				config.allowed[i] = ((char **)_allowed)[i];
-		else
-			config.allowed[0] = (char *)_allowed;
-
-		setup(&config);
+		exit_status = setup(&config);
 		break;
 	}
 	case UPDATE:
 		fprintf(stderr, "Not implemented yet\n");
+		exit_status = ENOSYS;
 		break;
 	case EXPORT:
 		fprintf(stderr, "Not implemented yet\n");
+		exit_status = ENOSYS;
 		break;
 	default:
 		args_show_help(parser, EINVAL);

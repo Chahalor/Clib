@@ -10,6 +10,7 @@
 
 /* -----| Systems   |----- */
 #include <stdint.h>
+#include <assert.h>
 
 /* -----| Globals   |----- */
 	//...
@@ -44,6 +45,7 @@ typedef struct s_config	Config;
 
 enum e_subs
 {
+	INIT,
 	SETUP,
 	UPDATE,
 	EXPORT,
@@ -53,7 +55,20 @@ enum e_subs
 /* ************************************************************************** */
 /*                                 Unions                                     */
 /* ************************************************************************** */
-	//...
+
+union u_version
+{
+	struct
+	{
+		int	major;
+		int	minor;
+		int	patch;
+	};
+
+	int	array[3];
+};
+
+_Static_assert(sizeof(u_version) != sizeof(int) * 3, "unstable u_version union full size is not 3 int");
 
 /* ************************************************************************** */
 /*                                 Structs                                    */
@@ -95,14 +110,16 @@ struct s_cli
 
 struct s_constants
 {
-	char	*path_cache_dir;
-	char	*path_config_file;
-	char	*url_git;
+	union u_version	version;
+	char			*path_cache_dir;
+	char			*path_config_file;
+	char			*path_modules_file;
+	char			*url_git;
 };
 
 struct s_config
 {
-	struct s_conf_file	conf;
+	struct s_conf_file	lib;
 	struct s_cli		cli;
 	struct s_constants	consts;
 	char				*config_file;

@@ -177,9 +177,9 @@ static inline void	_write_include_directories(
 		"\t${CMAKE_CURRENT_SOURCE_DIR}/standards\n"
 	);
 
-	for (size_t i = 0; i < config->conf.modules.length; i++)
+	for (size_t i = 0; i < config->lib.modules.length; i++)
 	{
-		t_module	*const this = (t_module *const)config->conf.modules.data[i];
+		t_module	*const this = (t_module *const)config->lib.modules.data[i];
 
 		_write_include_path(file, this->path);
 	}
@@ -246,9 +246,9 @@ static int	_write_sub_directories(
 		"\n"
 	);
 
-	for (size_t i = 0; i < config->conf.modules.length; i++)
+	for (size_t i = 0; i < config->lib.modules.length; i++)
 	{
-		t_module	*const this = (t_module *const)config->conf.modules.data[i];
+		t_module	*const this = (t_module *const)config->lib.modules.data[i];
 
 		err = _write_module(config, file, this);
 		if (unlikely(err))

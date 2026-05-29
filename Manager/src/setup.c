@@ -180,6 +180,30 @@ static int _iterate(
 
 /* ----| Public     |----- */
 
+int	setup_setup(
+	Config *const			config,
+	t_args_output *const	output
+)
+{
+	t_args_output_parser	*sub = args_get_sub_output(output);
+	size_t					n;
+	void					*_allowed = args_get_param(sub, "target", &n);
+
+	config->nb_allowed = n;
+	config->allowed = mem_alloc(sizeof(char *) * (n + 1));
+	if (!config->allowed)
+	{
+		perror("allowed alloc");
+		return (errno);
+	}
+
+	if (n != 1)
+		for (size_t i = 0; i < n; i++)
+			config->allowed[i] = ((char **)_allowed)[i];
+	else
+		config->allowed[0] = (char *)_allowed;
+}
+
 int	setup(
 	Config *const config
 )
@@ -188,7 +212,7 @@ int	setup(
 	char	**allowed = NULL;
 	int		nb_allowed = 0;
 
-	err = execute("git", (char *[5]){"git", "clone", config->conf.remote_url, config->dest, NULL});
+	err = execute("git", (char *[5]){"git", "clone", config->lib.remote_url, config->dest, NULL});
 	if (unlikely(err))
 		return (err);
 
@@ -200,9 +224,9 @@ int	setup(
 	{
 		const char	*const name = config->allowed[i];
 
-		for (size_t j = 0; j < config->conf.modules.length; j++)
+		for (size_t j = 0; j < config->lib.modules.length; j++)
 		{
-			t_module	*const this = config->conf.modules.data[j];
+			t_module	*const this = config->lib.modules.data[j];
 
 			if (strcmp(name, this->name))
 				continue ;
