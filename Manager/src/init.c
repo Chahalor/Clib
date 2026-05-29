@@ -7,10 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <wordexp.h>
 #include <stdio.h>
-#include <dirent.h>
-#include <limits.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 
@@ -46,34 +43,6 @@ static char	*_str_dup(
 	return (result);
 }
 
-static char	*_path_join(
-	const char *const	left,
-	const char *const	right
-)
-{
-	char	*result;
-	size_t	left_len;
-	size_t	right_len;
-	size_t	need_slash;
-
-	if (unlikely(!left || !*left || !right || !*right))
-		return (NULL);
-
-	left_len = strlen(left);
-	right_len = strlen(right);
-	need_slash = left[left_len - 1] != '/';
-	result = mem_alloc(left_len + need_slash + right_len + 1);
-	if (unlikely(!result))
-		return (NULL);
-
-	memcpy(result, left, left_len);
-	if (need_slash)
-		result[left_len++] = '/';
-
-	memcpy(result + left_len, right, right_len + 1);
-	return (result);
-}
-
 static int	_set_default_config_path(
 	Config *const	config
 )
@@ -86,20 +55,20 @@ static int	_set_default_config_path(
 
 	base = getenv("XDG_CONFIG_HOME");
 	if (base && *base)
-		dir = _path_join(base, DEFAULT_CONFIG_DIR);
+		dir = path_join(base, DEFAULT_CONFIG_DIR);
 	else
 	{
 		base = getenv("HOME");
 		if (unlikely(!base || !*base))
 			return (-ENOENT);
 
-		dir = _path_join(base, ".config/" DEFAULT_CONFIG_DIR);
+		dir = path_join(base, ".config/" DEFAULT_CONFIG_DIR);
 	}
 
 	if (unlikely(!dir))
 		return (error_alloc_fail);
 
-	config->consts.path_config_file = _path_join(dir, DEFAULT_CONFIG_FILE);
+	config->consts.path_config_file = path_join(dir, DEFAULT_CONFIG_FILE);
 	mem_free(dir);
 	if (unlikely(!config->consts.path_config_file))
 		return (error_alloc_fail);
@@ -119,14 +88,14 @@ static int	_set_default_cache_path(
 
 	base = getenv("XDG_CACHE_HOME");
 	if (base && *base)
-		config->consts.path_cache_dir = _path_join(base, DEFAULT_CACHE_DIR);
+		config->consts.path_cache_dir = path_join(base, DEFAULT_CACHE_DIR);
 	else
 	{
 		base = getenv("HOME");
 		if (unlikely(!base || !*base))
 			return (-ENOENT);
 
-		config->consts.path_cache_dir = _path_join(base, DEFAULT_CACHE_DIR);
+		config->consts.path_cache_dir = path_join(base, DEFAULT_CACHE_DIR);
 	}
 
 	if (unlikely(!config->consts.path_cache_dir))
@@ -142,7 +111,7 @@ static int	_set_default_modules_path(
 	if (config->consts.path_modules_file)
 		return (error_none);
 
-	config->consts.path_modules_file = _path_join(config->consts.path_cache_dir, DEFAULT_MODULES_FILE);
+	config->consts.path_modules_file = path_join(config->consts.path_cache_dir, DEFAULT_MODULES_FILE);
 	if (unlikely(!config->consts.path_modules_file))
 		return (error_alloc_fail);
 
@@ -179,127 +148,6 @@ static int	_set_config_defaults(
 		config->consts.url_git = DEFAULT_URL_GIT;
 
 	return (error_none);
-}
-
-static int	_mkdir_checked(
-	const char *const	path
-)
-{
-	struct stat	st;
-
-	if (!mkdir(path, 0700))
-		return (error_none);
-
-	if (errno != EEXIST)
-		return (-errno);
-
-	if (unlikely(stat(path, &st) || !S_ISDIR(st.st_mode)))
-		return (-ENOTDIR);
-
-	return (error_none);
-}
-
-static int	_mkdir_recursive(
-	const char *const	path
-)
-{
-	char	*tmp;
-	int		err;
-
-	if (unlikely(!path || !*path))
-		return (error_none);
-
-	tmp = _str_dup(path);
-	if (unlikely(!tmp))
-		return (error_alloc_fail);
-
-	for (size_t i = tmp[0] == '/'; tmp[i]; ++i)
-	{
-		if (tmp[i] != '/')
-			continue ;
-
-		tmp[i] = '\0';
-		err = _mkdir_checked(tmp);
-		tmp[i] = '/';
-		if (unlikely(err))
-		{
-			mem_free(tmp);
-			return (err);
-		}
-	}
-
-	err = _mkdir_checked(tmp);
-	mem_free(tmp);
-	return (err);
-}
-
-static int	_mkdir_parent(
-	const char *const	path
-)
-{
-	char	*parent;
-	char	*slash;
-	int		err;
-
-	if (unlikely(!path || !*path))
-		return (-EINVAL);
-
-	parent = _str_dup(path);
-	if (unlikely(!parent))
-		return (error_alloc_fail);
-
-	slash = strrchr(parent, '/');
-	if (!slash)
-	{
-		mem_free(parent);
-		return (error_none);
-	}
-
-	*slash = '\0';
-	err = _mkdir_recursive(parent);
-	mem_free(parent);
-	return (err);
-}
-
-static int	_is_dir_empty(
-	const char *const	path
-)
-{
-	DIR				*dir;
-	struct dirent	*entry;
-
-	dir = opendir(path);
-	if (unlikely(!dir))
-		return (-errno);
-
-	while ((entry = readdir(dir)))
-	{
-		if (!strcmp(entry->d_name, ".") || !strcmp(entry->d_name, ".."))
-			continue ;
-
-		closedir(dir);
-		return (0);
-	}
-
-	closedir(dir);
-	return (1);
-}
-
-static int	_cache_has_git_metadata(
-	const char *const	path
-)
-{
-	struct stat	st;
-	char		*git_path;
-	int			result;
-
-	git_path = _path_join(path, ".git");
-	if (unlikely(!git_path))
-		return (0);
-
-	result = !stat(git_path, &st);
-	mem_free(git_path);
-	return (result);
 }
 
 static void	_init_verbose_paths(
@@ -341,7 +189,7 @@ static int	_write_config(
 	if (unlikely((config->cli.verbose)))
 		printf("Creating config parent directories\n");
 
-	mkdir_err = _mkdir_parent(config->consts.path_config_file);
+	mkdir_err = mkdir_parent(config->consts.path_config_file);
 	if (unlikely(mkdir_err))
 	{
 		toml_unload(config_file);
@@ -608,14 +456,14 @@ int	init_cache(
 			return (-ENOTDIR);
 		}
 
-		if (_cache_has_git_metadata(config->consts.path_cache_dir))
+		if (cache_has_git_metadata(config->consts.path_cache_dir))
 		{
 			if (unlikely((config->cli.verbose)))
 				printf("Cache already initialized at %s\n", config->consts.path_cache_dir);
 			return (error_none);
 		}
 
-		empty = _is_dir_empty(config->consts.path_cache_dir);
+		empty = is_dir_empty(config->consts.path_cache_dir);
 		if (unlikely(empty < 0))
 			return (empty);
 		if (unlikely(!empty))
@@ -632,7 +480,7 @@ int	init_cache(
 		if (unlikely((config->cli.verbose)))
 			printf("Cache directory does not exist, creating parent directories\n");
 
-		err = _mkdir_parent(config->consts.path_cache_dir);
+		err = mkdir_parent(config->consts.path_cache_dir);
 		if (unlikely(err))
 			return (err);
 	}

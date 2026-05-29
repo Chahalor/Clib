@@ -9,7 +9,7 @@
 /* ************************************************************************** */
 
 /* -----| Systems   |----- */
-	//...
+# include <sys/types.h>
 
 /* -----| Globals   |----- */
 // # include "config.h"
@@ -62,6 +62,42 @@ int	array_append(
 );
 
 t_module	*module_new(void);
+
+int	dir_rm(
+	const char *const restrict	path
+);
+
+char	*path_join(
+	const char *const	left,
+	const char *const	right
+);
+
+int	mkdir_parent(
+	const char *const	path
+);
+
+int	is_dir_empty(
+	const char *const	path
+);
+
+int	cache_has_git_metadata(
+	const char *const	path
+);
+
+int	mkdir_p(
+	const char *	path,
+	mode_t			mode
+);
+
+int	copy_dir(
+	const char *const	src,
+	const char *const	dst
+);
+
+int	copy_modules(
+	const Config *const	config,
+	const t_array *const	modules
+);
 
 int	setup_setup(
 	Config *const			config,
