@@ -203,10 +203,7 @@ static int	_parse_all(
 	return (error_none);
 }
 
-
-/* ----| Publics    |----- */
-
-int	list(
+static int	_list_modules(
 	const Config *const config
 )
 {
@@ -263,4 +260,28 @@ int	list(
 
 	array_free(&arr, true);
 	return (err);
+}
+
+static int	_list_config(
+	const Config *const	config
+)
+{
+	printf("Config (%s):\n - Cache dir:   %s\n - Remote url:  %s\n - Module file: %s\n - version:     %s\n",
+		config->consts.path_config_file, config->consts.path_cache_dir, config->consts.url_git, config->consts.path_modules_file, "v1.0.0"
+	);
+
+	return (error_none);
+}
+
+
+/* ----| Publics    |----- */
+
+int	list(
+	const Config *const config
+)
+{
+	if (config->sub.list.options.config)
+		return (_list_config(config));
+	else
+		return (_list_modules(config));
 }

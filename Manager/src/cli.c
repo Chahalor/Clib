@@ -111,7 +111,7 @@ t_args_parser	*setup_args(void)
 
 	/* Sub-parser list */
 	list = args_parser_add_sub(result, "list", "List all the avaible module in the current system");
-	args_add_param(list, "target", "target of the lsiting action", args_param_specs_nargs, param_type_str);
+	args_add_param(list, "target", "target of the listing action", args_param_specs_nargs, param_type_str);
 	args_parser_add_option(list, "deps", 'd', "show the dependencies of each module");
 	args_parser_add_option(list, "version", 'v', "show the version of each modules");
 	args_parser_add_option(list, "stats", 's', "show many stats about each module, like they size, number of file, ...");
