@@ -652,5 +652,4 @@ void		toml_perror(
 void		toml_error_dump(
 				FILE *const file
 				);
-
 #endif	// CLIB_FILES_TOML_H
