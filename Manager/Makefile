@@ -10,6 +10,8 @@ CLIB_LIB := $(CLIB_BUILD)/libclib.a
 SRC_DIR := src
 OBJ_DIR := build/obj
 
+INSTALL_DIR	:= ~/.local/bin
+
 SRCS := $(wildcard $(SRC_DIR)/*.c) $(wildcard $(SRC_DIR)/**/*.c)
 OBJS := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRCS))
 DEPS := $(OBJS:.o=.d)
@@ -54,5 +56,8 @@ fclean: clean
 	$(RM) $(NAME)
 
 re: fclean all
+
+install: all
+	cp ./$(NAME) $(INSTALL_DIR)/
 
 -include $(DEPS)
