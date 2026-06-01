@@ -138,6 +138,13 @@ int	setup(
 		}
 	}
 
+	err = mkdir_p(config->dest, 0777);
+	if (unlikely(err < 0))
+	{
+		array_free(&modules, false);
+		return (err);
+	}
+
 	err = copy_modules(config, &modules);
 	if (unlikely(err))
 	{
