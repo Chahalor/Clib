@@ -87,22 +87,42 @@ static t_size_unit	get_unit(
 	});
 }
 
-// static inline int	get_max_size(
-// 	const t_array *const modules
-// )
-// {
-// 	int	result = 0;
+static void	set_max(
+	int *const	value,
+	const int	candidate
+)
+{
+	if (candidate > *value)
+		*value = candidate;
+}
 
-// 	for (size_t i = 0; i < modules->length; i++)
-// 	{
-// 		const int length = strlen((char *)modules->data[i]);
+static int	get_uint_display_size(
+	uint64_t	value
+)
+{
+	int	size = 1;
 
-// 		if (length > result)
-// 			result = length;
-// 	}
+	while (value >= 10)
+	{
+		value /= 10;
+		size++;
+	}
+	return (size);
+}
 
-// 	return (result);
-// }
+static int	get_module_size_display_size(
+	const struct s_mod *const	module
+)
+{
+	char	buffer[64];
+	int		size;
+
+	size = snprintf(buffer, sizeof(buffer), "%.0f%s",
+		(double)module->size / module->unit.divisor, module->unit.name);
+	if (size < 0)
+		return (0);
+	return (size);
+}
 
 static int	_parse_all(
 	const Config *const	config,
@@ -110,10 +130,15 @@ static int	_parse_all(
 	t_display *const	display
 )
 {
+	int	err;
+
+	set_max(&display->max_name, strlen("Module"));
+	set_max(&display->max_deps, strlen("Deps"));
+	set_max(&display->max_files, strlen("Files"));
+	set_max(&display->max_size, strlen("Size"));
 	for (size_t i = 0; i < config->lib.modules.length; i++)
 	{
 		const t_module	*const	this = config->lib.modules.data[i];
-		// const int				nb_deps = this->dependencies.length;
 		struct s_mod			*module = NULL;
 
 
@@ -123,15 +148,20 @@ static int	_parse_all(
 			perror("mem_alloc");
 			return (-errno);
 		}
+
 		module->deps = (char **)(module + 1);
 		module->name = this->name;
 		module->nb_deps = this->dependencies.length;
+		set_max(&display->max_name, strlen(module->name));
+		set_max(&display->max_deps, get_uint_display_size(module->nb_deps));
 
 		if (config->sub.list.options.version)
 		{
 			char *		version = config->sub.list.options.version
 									? toml_get(config->lib.toml, "%s.version", this->name)
 									: "";
+			if (!version)
+				version = "";
 			const int	length = strlen(version);
 
 			module->version = version;
@@ -141,7 +171,7 @@ static int	_parse_all(
 
 		if (config->sub.list.options.stats)
 		{
-			char					path[PATH_MAX];
+			char				path[PATH_MAX];
 			snprintf(path, sizeof(path), "%s/%s", config->consts.path_cache_dir, this->path);
 			const int			nb_files = count_dir_files(path, true);
 			const size_t		size = dir_size(path);
@@ -150,7 +180,8 @@ static int	_parse_all(
 			module->nb_files = nb_files;
 			module->unit = unit;
 			module->size = size;
-			// TODO check for the display size
+			set_max(&display->max_files, get_uint_display_size(module->nb_files));
+			set_max(&display->max_size, get_module_size_display_size(module));
 		}
 
 		if (config->sub.list.options.deps && this->dependencies.length)
@@ -160,11 +191,13 @@ static int	_parse_all(
 				const TOML	*const	dep = this->dependencies.data[j];
 
 				module->deps[j] = dep->data;
-				// TODO: check for the display size of each deps
+				set_max(&display->max_deps, strlen(module->deps[j]));
 			}
 		}
 
-		array_append(array, (void *)module);
+		err = array_append(array, (void *)module);
+		if (unlikely(err))
+			return (err);
 	}
 
 	return (error_none);
@@ -181,39 +214,48 @@ int	list(
 	int			err = 0;
 	t_array		arr = {0};
 	t_display	display = {0};
-	/**
-	 * TODO:
-	 * - parse every modules and file the new `display` struct
-	 * - get the max for every module
-	 * - dissplay it.
-	*/
 
 	if (unlikely(array_alloc(&arr, 32)))
 	{
 		perror("mem_alloc");
 		return (-errno);
 	}
+
 	err = _parse_all(config, &arr, &display);
 	if (unlikely(err))
+	{
+		array_free(&arr, true);
 		return (err);
+	}
 
 	printf("Clib: Module%s available%s: %u\n", s, s, config->lib.modules.length);
 	if (config->sub.list.options.stats)
-		printf("%-*s %*s %*s %*s\n", display.max_name, "Module", display.max_deps, "Deps", display.max_files, "Files", display.max_size, "Size");
+		printf("%-*s %-*s %*s %*s\n", display.max_name, "Module", display.max_deps, "Deps", display.max_files, "Files", display.max_size, "Size");
+
 	for (size_t i = 0; i < arr.length; i++)
 	{
-		struct s_mod	*this = arr.data[i];
-		printf("%-*s %*d %*d %*.0f%s\n",
-			(int)display.max_name, this->name,
-			(int)display.max_deps, this->nb_deps,
-			(int)display.max_files, this->nb_files,
-			(int)(display.max_size - strlen(this->unit.name)), (double)this->size / this->unit.divisor, this->unit.name
-		);
-		if (this->nb_deps)
+		struct s_mod *const	this = arr.data[i];
+
+		printf("%-*s", (int)display.max_name, this->name);
+		if (config->sub.list.options.version && this->version && *this->version)
+			printf(FORMAT_VERSION, this->version);
+
+		if (config->sub.list.options.stats)
+		{
+			printf(" %-*d %-*d %*.0f%s",
+				(int)display.max_deps, this->nb_deps,
+				(int)display.max_files, this->nb_files,
+				(int)(display.max_size - strlen(this->unit.name)), (double)this->size / this->unit.divisor, this->unit.name
+			);
+		}
+
+		printf("\n");
+		if (config->sub.list.options.deps && this->nb_deps)
 		{
 			for (int i = 0; i < this->nb_deps; i++)
 			{
 				const char *const	prefix = i + 1 == this->nb_deps ? "└─" : "├─";
+
 				printf("%s%s\n", prefix, this->deps[i]);
 			}
 		}
