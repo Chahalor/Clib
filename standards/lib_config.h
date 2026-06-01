@@ -10,7 +10,7 @@
 /* ************************************************************************** */
 
 /* -----| Systems   |----- */
-	//...
+#include <errno.h>
 
 /* -----| Globals   |----- */
 	//...
@@ -46,7 +46,7 @@ enum e_error_standard	// TODO: remove after checking it compile
 	error_none = 0,
 	error_invalid_arg,
 	error_alloc_fail,
-	error_invalid_file,
+	error_invalid_file = ENOENT,
 	error_not_implemented,
 	error_syscall_fail,
 	error_connection_fail

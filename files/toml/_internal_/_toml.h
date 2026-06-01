@@ -186,7 +186,8 @@ char	*_toml_uitoa(
 
 int		_toml_parse_string(
 			TOML **const toml,
-			const char *const str
+			const char *const str,
+			const char *const file
 			);
 
 TOML	*_toml_load_file(
@@ -227,5 +228,32 @@ int		_toml_dump(
 			FILE *const file,
 			const int pretty
 			);
+
+t_toml_error	*_toml_error(void);
+
+__attribute__((destructor))
+void			_toml_error_free(void);
+
+int				_toml_error_set(
+					const char *const	line_str,
+					const char *const	file,
+					const int			line,
+					const int			col,
+					const int			errnum
+				);
+
+const char		*_toml_error_str(
+					const enum e_toml_errors	errnum
+				);
+
+char			*_toml_error_get(void);
+
+void	_toml_perror(
+	const char *const s
+);
+
+void	_toml_error_dump(
+	FILE *const file
+);
 
 #endif	// CLIB_FILES_TOML_INTERNAL_H

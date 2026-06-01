@@ -641,4 +641,15 @@ int		toml_get_type(
 				const TOML *const node
 				);
 
+int		toml_errno(void);
+
+const char	*toml_strerror(void);
+
+void		toml_perror(
+				const char *const msg
+				);
+
+void		toml_error_dump(
+				FILE *const file
+				);
 #endif	// CLIB_FILES_TOML_H

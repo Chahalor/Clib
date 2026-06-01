@@ -374,3 +374,27 @@ int	toml_get_type(
 {
 	return (node ? node->type : 0);
 }
+
+int		toml_errno(void)
+{
+	return (_toml_error()->errnum);
+}
+
+const char	*toml_strerror(void)
+{
+	return (_toml_error_str(_toml_error()->errnum));
+}
+
+void		toml_perror(
+	const char *const msg
+)
+{
+	_toml_perror(msg);
+}
+
+void		toml_error_dump(
+	FILE *const file
+)
+{
+	_toml_error_dump(file);
+}

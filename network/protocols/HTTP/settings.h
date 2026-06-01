@@ -40,7 +40,7 @@
 typedef struct s_http_settings
 {
 	void	*allocator;	// showed has `void *` but this is an internal struct
-	int		errno;
+	int		errnum;
 	int		version_min;
 	int		version_max;
 }	t_http_settings;

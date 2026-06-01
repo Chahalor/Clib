@@ -33,7 +33,7 @@ name=FirstName+LastName&email=bsmth%40example.com
 
 #define _internal_server_error(ret)\
 {  \
-	g_net_prot_http_settings.errno = error_alloc_fail; \
+	g_net_prot_http_settings.errnum = error_alloc_fail; \
 	*error = INTERNAL_SERVER_ERROR;                    \
 	fprintf(stderr, "internal server error at %s:%d\n", __FILE__, __LINE__);	\
 	_http_free_list(&_list, true);                     \
@@ -272,7 +272,7 @@ t_http	*_http_parse_1_0(
 	_path = _g_net_prot_http_allocator.alloc(sizeof(char) * (path_len + 1));
 	if (unlikely(!_path))
 	{
-		g_net_prot_http_settings.errno = error_alloc_fail;
+		g_net_prot_http_settings.errnum = error_alloc_fail;
 		*error = INTERNAL_SERVER_ERROR;
 		return (NULL);
 	}

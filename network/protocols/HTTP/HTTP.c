@@ -24,7 +24,7 @@
 
 t_http_settings	g_net_prot_http_settings = {
 	.allocator = (void *)&_g_net_prot_http_allocator,
-	.errno = error_none
+	.errnum = error_none
 };
 
 
@@ -65,7 +65,7 @@ t_http_header_list	*http_new_list(void)
 	result = _g_net_prot_http_allocator.alloc(sizeof(t_http_header_list));
 	if(unlikely(!result))
 	{
-		g_net_prot_http_settings.errno = error_alloc_fail;
+		g_net_prot_http_settings.errnum = error_alloc_fail;
 		return (NULL);
 	}
 
@@ -83,7 +83,7 @@ t_http_header_list	*http_new_list_size_t(
 	result = _g_net_prot_http_allocator.alloc(sizeof(t_http_header_list));
 	if(unlikely(!result))
 	{
-		g_net_prot_http_settings.errno = error_alloc_fail;
+		g_net_prot_http_settings.errnum = error_alloc_fail;
 		return (NULL);
 	}
 
@@ -110,7 +110,7 @@ int	http_add_header_raw(
 
 	_new = _http_new_header(key, value);
 	if (unlikely(!_new))
-		return (g_net_prot_http_settings.errno);
+		return (g_net_prot_http_settings.errnum);
 
 	return (http_add_header(list, _new));
 }

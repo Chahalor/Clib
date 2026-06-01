@@ -1,0 +1,17 @@
+name = "clib"
+version = "1.0.0"
+url = "git@github.com:Chahalor/Clib.git"
+
+[json]
+path = "files/json"
+publicHeaders = "files/json.h"
+privateHeaders = "files/json/_internal_/_json.h"
+dependencies = [
+	memory
+]
+
+[memory]
+path = "memory"
+publicHeaders = "memory.h"
+privateHeaders = "memory/_internal_/_json.h"
+dependencies = []

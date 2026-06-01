@@ -1,0 +1,318 @@
+name	= "clib"
+version	= "1.0.0"
+url		= "git@github.com:Chahalor/Clib.git"
+
+[export]
+includeDir = "."
+sourceDir = "."
+buildSystem = "cmake"
+
+[standards]
+path = "standards"
+publicHeaders = "standards/lib_standards.h"
+privateHeaders = ""
+dependencies = []
+defines = []
+tags = [
+	"core"
+]
+controls = []
+
+[internal]
+path = "_internal_"
+publicHeaders = ""
+privateHeaders = "_internal_/_internal_.h"
+dependencies = [
+	"standards",
+	"memory"
+]
+defines = []
+tags = [
+	"core",
+	"internal"
+]
+controls = []
+
+[math]
+path = "math"
+publicHeaders = "math.h"
+privateHeaders = ""
+dependencies = [
+	"standards"
+]
+defines = []
+tags = [
+	"core",
+	"header-only"
+]
+controls = []
+
+[memory]
+path = "memory"
+publicHeaders = "memory.h"
+privateHeaders = "memory/_internal_/_memory.h"
+dependencies = [
+	"standards",
+	"math"
+]
+defines = []
+tags = [
+	"core",
+	"allocator"
+]
+controls = []
+
+[processor]
+path = "processor"
+publicHeaders = "processor/processor.h"
+privateHeaders = ""
+dependencies = []
+defines = []
+tags = [
+	"core",
+	"header-only"
+]
+controls = [
+	"processor/controls"
+]
+
+[random]
+path = "random"
+publicHeaders = "random.h"
+privateHeaders = ""
+dependencies = [
+	"standards",
+	"math",
+	"memory"
+]
+defines = []
+tags = [
+	"utility"
+]
+controls = []
+
+[times]
+path = "times"
+publicHeaders = "times.h"
+privateHeaders = ""
+dependencies = [
+	"standards"
+]
+defines = []
+tags = [
+	"utility"
+]
+controls = []
+
+[files]
+path = "files"
+publicHeaders = "files.h"
+privateHeaders = ""
+dependencies = [
+	"standards",
+	"json",
+	"toml"
+]
+defines = []
+tags = [
+	"files",
+	"umbrella"
+]
+controls = []
+
+[json]
+path = "files/json"
+publicHeaders = "files/json.h"
+privateHeaders = "files/json/_internal_/_json.h"
+dependencies = [
+	"standards",
+	"memory",
+	"processor"
+]
+defines = []
+tags = [
+	"files",
+	"parser"
+]
+controls = [
+	"files/json/controls"
+]
+
+[toml]
+path = "files/toml"
+publicHeaders = "files/toml.h"
+privateHeaders = "files/toml/_internal_/_toml.h"
+dependencies = [
+	"standards",
+	"memory",
+	"processor"
+]
+defines = []
+tags = [
+	"files",
+	"parser"
+]
+controls = [
+	"files/toml/controls"
+]
+
+[csv]
+path = "files/csv"
+publicHeaders = "files/csv.h"
+privateHeaders = "files/csv/_internal_/_csv.h"
+dependencies = [
+	"standards",
+	"memory"
+]
+defines = []
+tags = [
+	"files",
+	"parser"
+]
+controls = []
+
+[interface]
+path = "interface"
+publicHeaders = "interface.h"
+privateHeaders = ""
+dependencies = [
+	"standards",
+	"log",
+	"args",
+	"dotenv"
+]
+defines = []
+tags = [
+	"interface",
+	"umbrella"
+]
+controls = []
+
+[log]
+path = "interface/log"
+publicHeaders = "interface/log.h"
+privateHeaders = "interface/log/_internal_/_log.h"
+dependencies = [
+	"standards",
+	"memory"
+]
+defines = []
+tags = [
+	"interface",
+	"logging"
+]
+controls = [
+	"interface/log/controls"
+]
+
+[args]
+path = "interface/args"
+publicHeaders = "interface/args.h"
+privateHeaders = "interface/args/_internal_/_args.h"
+dependencies = [
+	"standards",
+	"memory",
+	"processor",
+	"internal"
+]
+defines = []
+tags = [
+	"interface",
+	"cli"
+]
+controls = [
+	"interface/args/controls"
+]
+
+[dotenv]
+path = "interface/dotenv"
+publicHeaders = "interface/dotenv.h"
+privateHeaders = "interface/dotenv/_internal_/_dotenv.h"
+dependencies = [
+	"standards",
+	"memory"
+]
+defines = []
+tags = [
+	"interface",
+	"environment"
+]
+controls = []
+
+[io]
+path = "interface/io"
+publicHeaders = "interface/io/io.h"
+privateHeaders = "interface/io/_internal_/_io.h"
+dependencies = [
+	"standards"
+]
+defines = []
+tags = [
+	"interface",
+	"io"
+]
+controls = []
+
+[network]
+path = "network"
+publicHeaders = "network.h"
+privateHeaders = ""
+dependencies = [
+	"standards",
+	"communication",
+	"protocols"
+]
+defines = []
+tags = [
+	"network",
+	"umbrella"
+]
+controls = []
+
+[communication]
+path = "network/communication"
+publicHeaders = "network/communication.h"
+privateHeaders = "network/communication/_internal_/_network.h"
+dependencies = [
+	"standards",
+	"log"
+]
+defines = []
+tags = [
+	"network",
+	"socket"
+]
+controls = []
+
+[protocols]
+path = "network/protocols"
+publicHeaders = "network/protocols.h"
+privateHeaders = ""
+dependencies = [
+	"standards",
+	"HTTP"
+]
+defines = []
+tags = [
+	"network",
+	"protocol"
+]
+controls = []
+
+[HTTP]
+path = "network/protocols/HTTP"
+publicHeaders = "network/protocols/HTTP.h"
+privateHeaders = "network/protocols/HTTP/_internal_/_HTTP.h"
+dependencies = [
+	"standards",
+	"memory"
+]
+defines = []
+tags = [
+	"network",
+	"protocol",
+	"http"
+]
+controls = [
+	"network/protocols/HTTP/controls"
+]

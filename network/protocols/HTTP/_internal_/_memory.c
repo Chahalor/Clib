@@ -61,7 +61,7 @@ t_http	*_http_new(
 	result = _g_net_prot_http_allocator.alloc(sizeof(t_http));
 	if (unlikely(!result))
 	{
-		g_net_prot_http_settings.errno = error_alloc_fail;
+		g_net_prot_http_settings.errnum = error_alloc_fail;
 		return (NULL);
 	}
 
@@ -70,7 +70,7 @@ t_http	*_http_new(
 	result->path = _g_net_prot_http_allocator.alloc(sizeof(char) * (strlen(path) + 1));
 	if (unlikely(!result->path))
 	{
-		g_net_prot_http_settings.errno = error_alloc_fail;
+		g_net_prot_http_settings.errnum = error_alloc_fail;
 		_g_net_prot_http_allocator.free(result);
 		return (NULL);
 	}
@@ -144,7 +144,7 @@ t_http_header	*_http_new_header(
 	result = _g_net_prot_http_allocator.alloc(alloc_size);
 	if (unlikely(!result))
 	{
-		g_net_prot_http_settings.errno = HTTP_ERROR_SYSCALL;
+		g_net_prot_http_settings.errnum = HTTP_ERROR_SYSCALL;
 		return (NULL);
 	}
 
@@ -152,7 +152,7 @@ t_http_header	*_http_new_header(
 	if (unlikely(!result->value))
 	{
 		_g_net_prot_http_allocator.free(result);
-		g_net_prot_http_settings.errno = HTTP_ERROR_SYSCALL;
+		g_net_prot_http_settings.errnum = HTTP_ERROR_SYSCALL;
 		return (NULL);
 	}
 	result->key = (char *)(result + 1);
@@ -177,7 +177,7 @@ int	_http_setup_header_list(
 	map = _g_net_prot_http_allocator.alloc(sizeof(t_http_header *) * capacity);
 	if (unlikely(!map))
 	{
-		g_net_prot_http_settings.errno = HTTP_ERROR_SYSCALL;
+		g_net_prot_http_settings.errnum = HTTP_ERROR_SYSCALL;
 		return (error_alloc_fail);
 	}
 	list->capacity = capacity;

@@ -5,6 +5,7 @@
 #include <unistd.h>
 
 #include "../../toml.h"
+#include "../_internal_/_toml.h"
 #include "../setting.h"
 #include "../../../standards/formating.h"
 
@@ -149,6 +150,15 @@ static int	test_toml_load_str_cases(void)
 	EXPECT_NOT_NULL(toml);
 	EXPECT_STREQ((const char *)toml_get(toml, "id"), "7");
 	EXPECT_STREQ((const char *)toml_get(toml, "name"), "alice");
+	EXPECT_EQ_INT(toml_unload(toml), error_none);
+
+	toml = toml_load_str("%s",
+			"privateHeaders = \"\"\n"
+			"array = [\"\", \"value\"]\n");
+	EXPECT_NOT_NULL(toml);
+	EXPECT_STREQ((const char *)toml_get(toml, "privateHeaders"), "");
+	EXPECT_STREQ((const char *)toml_get(toml, "array.0"), "");
+	EXPECT_STREQ((const char *)toml_get(toml, "array.1"), "value");
 	EXPECT_EQ_INT(toml_unload(toml), error_none);
 
 	EXPECT_NULL(toml_load_str(NULL));
@@ -345,6 +355,44 @@ static int	test_toml_type_foreach_cases(void)
 	return (0);
 }
 
+// manual testing tkt
+// static int	test_toml_error(void)
+// {
+// 	toml_perror("bob");
+
+// 	_toml_error_set("var = \"unfinished string", "file.toml", 12, 23, 0);
+// 	toml_error_dump(stderr);
+
+// 	return (0);
+// }
+
+static int	test_toml_parse_error_cases(void)
+{
+	TOML	*toml;
+
+	EXPECT_NULL(toml_load_str("%s", "ok = 1\n\nbad line\n"));
+	EXPECT_EQ_INT(toml_errno(), TOML_ERROR_UNEXPECTED_TOKEN);
+	EXPECT_STREQ(toml_strerror(), "Unexpected TOML token");
+	EXPECT_NULL(toml_load_str("%s", "name = \"unterminated\n"));
+	EXPECT_EQ_INT(toml_errno(), TOML_ERROR_UNTERMINATED_STRING);
+	EXPECT_NULL(toml_load_str("%s", "arr = [1,,2]\n"));
+	EXPECT_EQ_INT(toml_errno(), TOML_ERROR_INVALID_ARRAY);
+	EXPECT_NULL(toml_load_str("%s", "name = \"a\"\nname = \"b\"\n"));
+	EXPECT_EQ_INT(toml_errno(), TOML_ERROR_DUPLICATE_KEY);
+	EXPECT_NULL(toml_load_str("%s", "bad = \"\\q\"\n"));
+	EXPECT_EQ_INT(toml_errno(), TOML_ERROR_INVALID_ESCAPE);
+	toml = toml_load_str("%s", "array = [\nvalue,\n\"second value\"\n]");
+	EXPECT_NOT_NULL(toml);
+	EXPECT_STREQ((const char *)toml_get(toml, "array.0"), "value");
+	EXPECT_STREQ((const char *)toml_get(toml, "array.1"), "second value");
+	EXPECT_EQ_INT(toml_unload(toml), error_none);
+	toml = toml_load_str("%s", "array = [[bob,f = [tkt]],hello]");
+	EXPECT_NOT_NULL(toml);
+	// sould be a nested array
+
+	return (0);
+}
+
 int	main(void)
 {
 	char	*color_total;
@@ -360,6 +408,8 @@ int	main(void)
 	run_test("toml_unset_remove_cases", test_toml_unset_remove_cases);
 	run_test("toml_stringify_dump_cases", test_toml_stringify_dump_cases);
 	run_test("toml_type_foreach_cases", test_toml_type_foreach_cases);
+	// run_test("toml_errors", test_toml_error);
+	run_test("toml_parse_error_cases", test_toml_parse_error_cases);
 
 	if (g_tests_failed == 0)
 		color_total = GREEN;
