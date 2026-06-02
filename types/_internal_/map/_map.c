@@ -71,6 +71,8 @@ void	_hash_map_remove(
 	char *const			key
 )
 {
+	if (!_entry_find(map, key))
+		return ;
 	_hash_map_free(map, key, false);
 	map->length--;
 }
@@ -109,15 +111,18 @@ int	_hash_map_resize(
 {
 	t_hash_map_entry	**back = map->map;
 	const size_t		old_capacity = map->capacity;
+	const size_t		old_length = map->length;
 
 	map->map = setting->alloc(sizeof(t_hash_map_entry *) * (size));
 	if (unlikely(!map->map))
 		return_error(-errno, NULL, -errno);
 
+	memset(map->map, 0, sizeof(t_hash_map_entry *) * (size));
 	map->capacity = size;
+	map->length = 0;
 	for (size_t i = 0; i < old_capacity; i++)
 	{
-		t_hash_map_entry	*this = map->map[i];
+		t_hash_map_entry	*this = back[i];
 
 		if (!this)
 			continue ;
@@ -131,6 +136,9 @@ int	_hash_map_resize(
 			this = next;
 		}
 	}
+	setting->free(back);
+	if (map->length != old_length)
+		return (-1);
 
 	return (error_none);
 }

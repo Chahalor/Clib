@@ -26,12 +26,7 @@
 /*                                 Macros                                     */
 /* ************************************************************************** */
 
-# define	_POS(map, key)									\
-	__builtin_choose_expr(									\
-		IS_TYPE(key, size_t),									\
-		(size_t)(key % map->capacity),						\
-		(size_t)(setting->hash_string(key) % map->capacity)	\
-	)
+# define	_POS(map, hash) ((size_t)((hash) % (map)->capacity))
 
 
 /* ************************************************************************** */
@@ -55,6 +50,11 @@ void	_hash_map_free(
 t_hash_map_entry	*_entry_find(
 	const t_hash_map *const	map,
 	const char *const		key
+);
+
+t_hash_map_entry	*_entry_find_prev(
+	t_hash_map *const	map,
+	const char *const	key
 );
 
 int	_hash_map_add(

@@ -50,19 +50,19 @@ t_hash_map_entry	*_entry_find_prev(
 	const size_t		hash = setting->hash_string(key);
 	const size_t		pos = _POS(map, hash);
 	t_hash_map_entry	*this = map->map[pos];
-	t_hash_map_entry	*prev = map->map[pos];
+	t_hash_map_entry	*prev = NULL;
 
 	while (this)
 	{
 		if (this->hash == hash)
 		{
 			if (!strcmp(this->key, key))
-				break ;
+				return (prev);
 		}
 
 		prev = this;
 		this = this->next;
 	}
 
-	return (prev);
+	return (NULL);
 }

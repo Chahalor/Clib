@@ -75,6 +75,7 @@ void	hash_map_remove(
 	{
 		setting->error.errnum = error_invalid_arg;
 		setting->error.key = key;
+		return ;
 	}
 
 	return (_hash_map_remove(map, key));

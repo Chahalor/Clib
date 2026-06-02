@@ -34,6 +34,9 @@ t_hash_map_entry	*_hash_map_entry_new(
 	}
 	result->key = (char *)(result + 1);
 	strcpy(result->key, key);
+	result->value = NULL;
+	result->next = NULL;
+	result->hash = setting->hash_string(key);
 
 	return (result);
 }
@@ -47,6 +50,8 @@ void	_hash_map_add_entry(
 	const size_t		pos = _POS(map, hash);
 	t_hash_map_entry	*this = map->map[pos];
 
+	entry->hash = hash;
+	entry->next = NULL;
 	while (this && this->next)
 		this = this->next;
 
@@ -55,7 +60,6 @@ void	_hash_map_add_entry(
 	else
 		this->next = entry;
 
-	this->hash = hash;
 	map->length++;
 }
 
@@ -65,7 +69,6 @@ void	_hash_map_free(
 	const bool			should_free
 )
 {
-	const size_t		pos = setting->hash_string(key) % map->capacity;
 	t_hash_map_entry	*this = _entry_find(map, key);
 	t_hash_map_entry	*prev = _entry_find_prev(map, key);
 
@@ -74,6 +77,8 @@ void	_hash_map_free(
 
 	if (prev)
 		prev->next = this->next;
+	else
+		map->map[_POS(map, this->hash)] = this->next;
 
 	if (should_free)
 		setting->free(this->value);
