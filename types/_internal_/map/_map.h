@@ -1,8 +1,8 @@
 /**
  * 
 */
-#ifndef CLIB_TYPE_H
-# define CLIB_TYPE_H
+#ifndef TYPES_INTERNAL_MAP_H
+# define TYPES_INTERNAL_MAP_H
 # pragma once
 
 /* ************************************************************************** */
@@ -17,62 +17,53 @@
 # include "lib_standards.h"
 
 /* -----| Internals |----- */
-# include "types/types.h"
+# include "../_types.h"
 
 /* -----| Modules   |----- */
-# include "processor/processor.h"
+#include "processor/processor.h"
 
 /* ************************************************************************** */
 /*                                 Macros                                     */
 /* ************************************************************************** */
 
-#define	ARRAY_ACCESS(type, array, index)									\
-	__builtin_choose_expr(													\
-		IS_TYPE(typeof(array), t_array),									\
-		(*(type *)((char *)(array).data + (array).elt_size * (index))),		\
-		(*(type *)((char *)(array)->data + (array)->elt_size * (index)))	\
+# define	_POS(map, key)									\
+	__builtin_choose_expr(									\
+		IS_TYPE(key, size_t),									\
+		(size_t)(key % map->capacity),						\
+		(size_t)(setting->hash_string(key) % map->capacity)	\
 	)
 
-#define hash_map_foreach (var, map) \
-for (uint __i = 0; __i < HASH_MAP_BUCKET_SIZE; __i++)	\
-// {														\
-// 	struct s_hash_map_entry	*__this = &map->map[__i];	\
-// 	if (!__this->)
-// }
 
 /* ************************************************************************** */
 /*                                 Prototypes                                 */
 /* ************************************************************************** */
 
-#pragma region Array
-int	array_alloc(
-	t_array *const	array,
-	const size_t	capacity
+t_hash_map_entry	*_hash_map_entry_new(
+	const char *const key
 );
 
-void	array_free(
-	t_array *const	array
+void	_hash_map_add_entry(
+	t_hash_map			*const	map,
+	t_hash_map_entry	*const	entry
+);
+void	_hash_map_free(
+	t_hash_map *const	map,
+	const char *const	key,
+	const bool			should_free
 );
 
-int		array_append(
-	t_array *const	array,
-	void *const		data
+t_hash_map_entry	*_entry_find(
+	const t_hash_map *const	map,
+	const char *const		key
 );
 
-void	array_pop(
-	t_array *const	array,
-	const bool		free
-);
-
-#pragma region Hash Map
-
-int	hash_map_add(
+int	_hash_map_add(
 	t_hash_map *const	map,
 	char *const			key,
 	void *const			value
 );
 
-void	*hash_map_find(
+void	*_hash_map_find(
 	t_hash_map *const	map,
 	char *const			key
 );
@@ -80,22 +71,22 @@ void	*hash_map_find(
 /**
  * @brief	return a pointer to the value at the key index
 */
-void	**hash_map_find_ptr(
+void	**_hash_map_find_ptr(
 	t_hash_map *const	map,
 	char *const			key
 );
 
-void	hash_map_remove(
+void	_hash_map_remove(
 	t_hash_map *const	map,
 	char *const			key
 );
 
-bool	hash_map_contains(
+bool	_hash_map_contains(
 	const t_hash_map *const	map,
 	const char *const		key
 );
 
-int hash_map_replace(
+int	_hash_map_replace(
 	t_hash_map *const	map,
 	const char *const	key,
 	void *const			value
@@ -105,9 +96,8 @@ int hash_map_replace(
  * this function will have multiple known bucket size that reduce colition,
  * if `size` == -1, it will use the new bigger bucket size has the new size
 */
-int	hash_map_resize(
+int	_hash_map_resize(
 	t_hash_map *const	map,
 	const ssize_t		size
 );
-
-#endif	// CLIB_TYPE_H
+#endif	// TYPES_INTERNAL_MAP_H

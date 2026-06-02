@@ -18,6 +18,7 @@ add_subdirectory(memory)
 add_subdirectory(network)
 add_subdirectory(random)
 add_subdirectory(times)
+add_subdirectory(types)
 
 target_link_libraries(clib PRIVATE
 	clib_internal

@@ -18,7 +18,7 @@
 #include "lib_standards.h"
 
 /* -----| Internals |----- */
-	//...
+#include "setting.h"
 
 /* -----| Modules   |----- */
 	//...
@@ -39,12 +39,18 @@ typedef unsigned char	uchar;
 
 /* -----| Structs   |----- */
 
-typedef struct s_array	t_array;
+typedef struct s_array			t_array;
+typedef struct s_hash_map_entry	t_hash_map_entry;
+typedef struct s_hash_map		t_hash_map;
 
 /* ************************************************************************** */
 /*                                 Enums                                      */
 /* ************************************************************************** */
-	//...
+
+enum e_types_errors
+{
+	TYPES_ERROR_NONE = error_none,
+};
 
 /* ************************************************************************** */
 /*                                 Unions                                     */
@@ -64,6 +70,24 @@ struct s_array
 	size_t	length;		// number of element currently in this array
 	size_t	capacity;	// number of elements of size `elt_size` allocated for this arra
 	uint	elt_size;	// size of each element of the array
+};
+
+struct s_hash_map_entry
+{
+	char					*key;
+	void					*value;
+	struct s_hash_map_entry	*next;
+	size_t					hash;
+};
+
+/**
+ * 
+*/
+struct s_hash_map
+{
+	struct s_hash_map_entry	**map;
+	uint					length;
+	size_t					capacity;
 };
 
 #endif	// TYPES_TYPES_H
