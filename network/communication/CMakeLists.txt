@@ -1,6 +1,7 @@
 file(GLOB_RECURSE COMM_SRC
 	*.c
 )
+list(FILTER COMM_SRC EXCLUDE REGEX "/controls/")
 
 add_library(clib_comm OBJECT ${COMM_SRC})
 

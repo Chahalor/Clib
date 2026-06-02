@@ -1,6 +1,7 @@
 file(GLOB_RECURSE DOTENV_SRC
 	*.c
 )
+list(FILTER DOTENV_SRC EXCLUDE REGEX "/controls/")
 
 add_library(clib_interface_dotenv OBJECT ${DOTENV_SRC})
 

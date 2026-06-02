@@ -26,3 +26,10 @@ cmake --build build
 cc tests/test_args.c  build/libclib.a -Ifiles -Iinterface -I./
 # cc .dev/main.c ./build/libclib.a -I./standards -I./ -Iinterface -g3
 ```
+
+## Controls
+```bash
+cmake -S . -B build -DCLIB_ENABLE_CONTROLS=ON
+cmake --build build --target controls_<module>
+cmake --build build --target controls
+```
