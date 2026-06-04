@@ -87,7 +87,7 @@ void	_hash_map_free(
 }
 
 int	_hash_map_setup(
-	t_hash_map *const map
+	t_hash_map *const	map
 )
 {
 	if (map->map)

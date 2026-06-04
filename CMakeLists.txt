@@ -97,6 +97,7 @@ target_link_libraries(clib PRIVATE
 	clib_memory
 	clib_random
 	clib_times
+	clib_types
 )
 
 target_include_directories(clib PUBLIC

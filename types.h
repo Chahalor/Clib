@@ -26,12 +26,12 @@
 /*                                 Macros                                     */
 /* ************************************************************************** */
 
-#define	ARRAY_ACCESS(type, array, index)									\
-	__builtin_choose_expr(													\
-		IS_TYPE(typeof(array), t_array),									\
-		(*(type *)((char *)(array).data + (array).elt_size * (index))),		\
-		(*(type *)((char *)(array)->data + (array)->elt_size * (index)))	\
-	)
+// #define	ARRAY_ACCESS(type, array, index)									\
+// 	__builtin_choose_expr(													\
+// 		IS_TYPE(typeof(array), t_array),									\
+// 		(*(type *)((char *)(array).data + (array).elt_size * (index))),		\
+// 		(*(type *)((char *)(array)->data + (array)->elt_size * (index)))	\
+// 	)
 
 #define hash_map_foreach (var, map) \
 for (uint __i = 0; __i < HASH_MAP_BUCKET_SIZE; __i++)	\
@@ -45,29 +45,34 @@ for (uint __i = 0; __i < HASH_MAP_BUCKET_SIZE; __i++)	\
 /* ************************************************************************** */
 
 #pragma region Array
-int	array_alloc(
-	t_array *const	array,
-	const size_t	capacity
-);
+// int	array_alloc(
+// 	t_array *const	array,
+// 	const size_t	capacity
+// );
 
-void	array_free(
-	t_array *const	array
-);
+// void	array_free(
+// 	t_array *const	array
+// );
 
-int		array_append(
-	t_array *const	array,
-	void *const		data
-);
+// int		array_append(
+// 	t_array *const	array,
+// 	void *const		data
+// );
 
-void	array_pop(
-	t_array *const	array,
-	const bool		free
-);
+// void	array_pop(
+// 	t_array *const	array,
+// 	const bool		free
+// );
 
 #pragma region Hash Map
 
+size_t	hash_fnv1a(
+	const char *str
+);
+
 int	hash_map_setup(
-	t_hash_map *const map
+	t_hash_map *const	map,
+	const size_t		size
 );
 
 int	hash_map_destroy(
