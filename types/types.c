@@ -26,8 +26,42 @@ t_types_settings	g_types_settings = {
 	.realloc = mem_realloc,
 	.free = mem_free,
 	.dup = mem_dup,
-	.hash_string = NULL	// TODO: add an string hashing function
+	.hash_string = hash_fnv1a
 };
+
+size_t	hash_fnv1a(
+	const char *str
+)
+{
+	size_t	hash = 14695981039346656037ULL;
+
+	while (*str)
+	{
+		hash ^= (unsigned char)*str++;
+		hash *= 1099511628211ULL;
+	}
+	return (hash);
+}
+
+int	hash_map_setup(
+	t_hash_map *const map
+)
+{
+	if (unlikely(!map))
+		return_error(error_invalid_arg, NULL, error_invalid_arg);
+
+	return (_hash_map_setup(map));
+}
+
+int	hash_map_destroy(
+	t_hash_map *const map
+)
+{
+	if (unlikely(!map))
+		return_error(error_invalid_arg, NULL, error_invalid_arg);
+
+	return (_hash_map_destroy(map));
+}
 
 int	hash_map_add(
 	t_hash_map *const	map,

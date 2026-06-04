@@ -47,6 +47,14 @@ void	_hash_map_free(
 	const bool			should_free
 );
 
+int	_hash_map_setup(
+	t_hash_map *const map
+);
+
+int	_hash_map_destroy(
+	t_hash_map *const map
+);
+
 t_hash_map_entry	*_entry_find(
 	const t_hash_map *const	map,
 	const char *const		key

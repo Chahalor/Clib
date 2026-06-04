@@ -85,3 +85,41 @@ void	_hash_map_free(
 
 	setting->free(this);
 }
+
+int	_hash_map_setup(
+	t_hash_map *const map
+)
+{
+	if (map->map)
+		setting->free(map->map);
+
+	map->map = setting->alloc(sizeof(t_hash_map_entry *) * map->capacity);
+	if (unlikely(!map->map))
+		return_error(-errno, NULL, -errno);
+
+	return (error_none);
+}
+
+int	_hash_map_destroy(
+	t_hash_map *const map
+)
+{
+	for (size_t i = 0; i < map->capacity; i++)
+	{
+		t_hash_map_entry	*this = map->map[i];
+		t_hash_map_entry	*next;
+
+		if (!this)
+			continue ;
+
+		next = this;
+		do
+		{
+			this = next;
+			next = next->next;
+			setting->free(this);
+		} while (next);
+	}
+
+	return (error_none);
+}
