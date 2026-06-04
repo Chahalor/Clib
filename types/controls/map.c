@@ -15,7 +15,7 @@ int	check_colitions(
 	{
 		t_hash_map	map;
 
-		
+		if (unlikely(_hash_map_setup))
 	}
 	
 }

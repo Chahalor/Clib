@@ -66,6 +66,14 @@ void	array_pop(
 
 #pragma region Hash Map
 
+int	hash_map_setup(
+	t_hash_map *const map
+);
+
+int	hash_map_destroy(
+	t_hash_map *const map
+);
+
 int	hash_map_add(
 	t_hash_map *const	map,
 	char *const			key,
