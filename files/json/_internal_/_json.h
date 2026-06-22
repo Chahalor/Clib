@@ -215,37 +215,37 @@ int		_json_tool_is_sep(
 	const char _c
 );
 
-inline
+extern inline
 int		_json_is_type_array(
 	const int _type
 );
 
-inline
+extern inline
 int		_json_is_type_obj(
 	const int _type
 );
 
-inline
+extern inline
 int		_json_is_type_complex(
 	const int _type
 );
 
-inline
+extern inline
 int		_json_is_type_nbr(
 	const int _type
 );
 
-inline
+extern inline
 int		_json_is_type_str(
 	const int _type
 );
 
-inline
+extern inline
 int		_json_is_type_bool(
 	const int _type
 );
 
-inline
+extern inline
 int		_json_is_type_null(
 	const int _type
 );
