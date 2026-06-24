@@ -14,7 +14,8 @@
 # include "../../../standards/lib_standards.h"
 
 /* -----| Internals |----- */
-# include "_types.h"
+# include "./_types.h"
+# include "../types.h"
 # include "../../json.h"
 # include "edit/_json_edit.h"
 
@@ -211,44 +212,74 @@ char	*_json_stringify(
 /* -----| tools  |----- */
 #pragma region Tools
 
+// int		_json_tool_is_sep(
+// 	const char _c
+// );
+
+
+static inline
 int		_json_tool_is_sep(
 	const char _c
-);
+)
+{
+	return (_c == '.' || _c == '/');
+}
 
-extern inline
+static inline
 int		_json_is_type_array(
 	const int _type
-);
+)
+{
+	return (_type & json_tok_array);
+}
 
-extern inline
+static inline
 int		_json_is_type_obj(
 	const int _type
-);
+)
+{
+	return (_type & json_tok_obj);
+}
 
-extern inline
+static inline
 int		_json_is_type_complex(
 	const int _type
-);
+)
+{
+	return (_json_is_type_array(_type) || _json_is_type_obj(_type));
+}
 
-extern inline
+static inline
 int		_json_is_type_nbr(
 	const int _type
-);
+)
+{
+	return (_type & json_tok_nbr);
+}
 
-extern inline
+static inline
 int		_json_is_type_str(
 	const int _type
-);
+)
+{
+	return (_type & json_tok_str);
+}
 
-extern inline
+static inline
 int		_json_is_type_bool(
 	const int _type
-);
+)
+{
+	return (_type & json_tok_bool);
+}
 
-extern inline
+static inline
 int		_json_is_type_null(
 	const int _type
-);
+)
+{
+	return (_type & json_tok_null);
+}
 
 int		_json_tool_count_field(
 			const char *const restrict _str
