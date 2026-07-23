@@ -139,7 +139,7 @@ size_t	_json_access_len(
 	size_t	count;
 	t_json	*cur;
 
-	if (unlikely(!_json || !_json->data))
+	if (unlikely(!_json))
 		return (0);
 
 	if (_json->type != json_tok_array &&

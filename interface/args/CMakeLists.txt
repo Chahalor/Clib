@@ -3,7 +3,7 @@
 @brief CMake rules for the `interface/args` module.
 ]]
 
-file(GLOB_RECURSE ARGS_SRC
+file(GLOB_RECURSE ARGS_SRC CONFIGURE_DEPENDS
 	*.c
 )
 list(FILTER ARGS_SRC EXCLUDE REGEX "/controls/")

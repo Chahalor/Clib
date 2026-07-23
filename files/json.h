@@ -7,7 +7,8 @@
  *
  * @ingroup json
  */
-
+#ifndef CLIB_FILES_JSON_H
+# define CLIB_FILES_JSON_H
 # pragma once
 
 /* ************************************************************************** */
@@ -429,3 +430,5 @@ int		json_assert_type(
 int		json_get_type(
 			const JSON *const _node
 			);
+
+#endif //!CLIB_FILES_JSON_H

@@ -218,17 +218,22 @@ static int	test_json_len_cases(void)
 {
 	JSON	*json = fixture_json();
 	JSON	*arr = NULL;
+	JSON	*nonempty = json_load_str("{\"arr\":[1,2,3],\"obj\":{\"a\":1,\"b\":2}}");
 
 	EXPECT_NOT_NULL(json);
 
 	arr = (JSON *)json_get(json, "arr");
 	EXPECT_NOT_NULL(arr);
-	EXPECT_EQ_SIZE(json_len(arr), 0);
+	EXPECT_EQ_SIZE(json_len(arr), 2);
+	EXPECT_NOT_NULL(nonempty);
+	EXPECT_EQ_SIZE(json_len((JSON *)json_get(nonempty, "arr")), 3);
+	EXPECT_EQ_SIZE(json_len((JSON *)json_get(nonempty, "obj")), 2);
 
 	EXPECT_EQ_SIZE(json_len((JSON *)json_get(json, "missing")), 0);
 	EXPECT_EQ_SIZE(json_len(NULL), 0);
 
 	EXPECT_EQ_INT(json_unload(json), error_none);
+	EXPECT_EQ_INT(json_unload(nonempty), error_none);
 	return (0);
 }
 

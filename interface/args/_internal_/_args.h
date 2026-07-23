@@ -214,6 +214,11 @@ _t_args_output	*_args_parse(
 	const char *const *const _argv
 );
 
+/** */
+t_args_parser	*_args_parser_json(
+	JSON	*const	json
+);
+
 /* -----| Editions   |----- */
 #pragma region Editions
 
@@ -260,6 +265,12 @@ int	_args_param_set_desc(
 int	_args_option_set_desc(
 	_t_args_option *const _target,
 	const char *const _desc
+);
+
+/** */
+void	_args_add_sub(
+	t_args_parser	*const	_parent,
+	t_args_parser	*const	new
 );
 
 /** */
@@ -586,4 +597,10 @@ int	_args_builtin_help(
 
 const char	*_args_error_str(
 	const int _errnum
+);
+
+#pragma region Debug
+
+void	_dump_parser(
+	t_args_parser	*const	parser
 );

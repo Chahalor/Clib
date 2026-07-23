@@ -23,18 +23,15 @@
 
 /* ----| Public     |----- */
 
-t_args_parser	*_args_parser_add_sub(
-	t_args_parser *const _parent,
-	const char *const _name,
-	const char *const _desc
+void	_args_add_sub(
+	t_args_parser	*const	_parent,
+	t_args_parser	*const	new
 )
 {
 	t_args_parser	*_last = NULL;
-	t_args_parser	*new = NULL;
 
-	new = _args_mem_new_parser(_name, _desc);
-	if (unlikely(!new))
-		goto error;
+	if (unlikely(!_parent || !new))
+		return ;
 
 	for (t_args_parser	*_this = _parent->sub_parsers;
 		_this;
@@ -48,6 +45,22 @@ t_args_parser	*_args_parser_add_sub(
 		_parent->sub_parsers = new;
 	else
 		_last->next = new;
+}
+
+t_args_parser	*_args_parser_add_sub(
+	t_args_parser *const _parent,
+	const char *const _name,
+	const char *const _desc
+)
+{
+	t_args_parser	*_last = NULL;
+	t_args_parser	*new = NULL;
+
+	new = _args_mem_new_parser(_name, _desc);
+	if (unlikely(!new))
+		goto error;
+
+	_args_add_sub(_parent, new);
 
 error:
 	return (new);

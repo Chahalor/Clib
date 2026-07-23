@@ -819,6 +819,85 @@ static void	_test_non_short_options(void)
 	);
 }
 
+static void	_test_json_parser(void)
+{
+	const char			*definition =
+		"{"
+		"\"name\":\"json-demo\","
+		"\"description\":\"parser loaded from JSON\","
+		"\"parameters\":[{"
+			"\"name\":\"input\",\"dsc\":\"input file\","
+			"\"type\":\"file\",\"specs\":[\"requiered\"]}],"
+		"\"options\":["
+			"{\"long\":\"config\",\"short\":\"c\","
+			"\"description\":\"configuration file\",\"params\":[{"
+				"\"name\":\"path\",\"type\":\"file\","
+				"\"specs\":[\"require\"]}]},"
+			"{\"long-name\":\"verbose\",\"short-name\":\"v\"}],"
+		"\"sub-parser\":[{"
+			"\"name\":\"run\",\"desc\":\"run a target\","
+			"\"params\":[{\"name\":\"target\",\"type\":\"string\","
+				"\"specs\":[\"required\"]}],"
+			"\"opts\":[{\"long\":\"force\",\"short\":\"f\"}]}]"
+		"}";
+	const char			*argv[] = {
+		"json-demo", "--config", "settings.json", "source.txt",
+		"run", "project", "--force"
+	};
+	JSON				*json;
+	t_args_parser		*parser;
+	t_args_parser		*sub;
+	t_args_option		*config;
+	t_args_param		*input;
+	t_args_output		*out;
+
+	json = json_load_str(definition);
+	CHECK(json != NULL, "JSON args definition should load");
+	if (!json)
+		return ;
+	parser = args_parser_json(json);
+	CHECK(parser != NULL, "JSON args definition should build a parser");
+	if (!parser)
+	{
+		json_unload(json);
+		return ;
+	}
+	config = _args_parser_get_option(parser, "config");
+	input = _args_parser_get_param(parser, "input");
+	sub = parser->sub_parsers;
+	CHECK(parser->name && !strcmp(parser->name, "json-demo"),
+		"JSON parser name should be copied");
+	CHECK(config && config->short_name == 'c' && config->params,
+		"JSON option and its parameter should be built");
+	CHECK(input && input->desc && !strcmp(input->desc, "input file")
+		&& input->type == param_type_file
+		&& (input->specs & args_param_specs_require),
+		"JSON parameter type and required spec should be decoded");
+	CHECK(sub && sub->name && !strcmp(sub->name, "run")
+		&& _args_parser_get_option(sub, "force"),
+		"JSON subcommand and nested option should be built");
+
+	puts("\nJSON parser generated successfully:");
+	_dump_parser(parser);
+	putchar('\n');
+	out = args_parse(parser, (int)(sizeof(argv) / sizeof(argv[0])), argv);
+	CHECK(out && args_error(out) == args_error_none,
+		"parser generated from JSON should parse argv");
+	CHECK(out && args_has_option(out, "config"),
+		"JSON-generated config option should be present");
+	CHECK(out && args_has_sub(out, "run"),
+		"JSON-generated run subcommand should be active");
+	args_output_free(out);
+	args_parser_free(parser);
+	json_unload(json);
+
+	json = json_load_str("{\"params\":\"not-an-array\"}");
+	parser = args_parser_json(json);
+	CHECK(parser == NULL, "invalid JSON args field types should be rejected");
+	args_parser_free(parser);
+	json_unload(json);
+}
+
 int	main(int argc, const char *argv[])
 {
 	_test_public_api_basic();
@@ -828,6 +907,7 @@ int	main(int argc, const char *argv[])
 	_test_basic_parsing_controls();
 	_test_inline_option_value_controls();
 	_test_non_short_options();
+	_test_json_parser();
 
 	if (argc > 1)
 		_test_manual(argc, argv);

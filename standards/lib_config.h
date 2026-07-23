@@ -51,9 +51,13 @@ enum e_error_standard	// TODO: remove after checking it compile
 	error_syscall_fail,
 	error_connection_fail
 };
+
 /* ************************************************************************** */
-/*                                 Prototypes                                 */
+/*                                 Configs                                    */
 /* ************************************************************************** */
-	//...
+
+# ifndef INTERFACE_ARGS_USE_JSON
+#  define	INTERFACE_ARGS_USE_JSON	1
+# endif	// !INTERFACE_ARGS_USE_JSON
 
 #endif	// !CONFIG_H

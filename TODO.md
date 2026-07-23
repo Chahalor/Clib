@@ -2,8 +2,13 @@
 
 ## interface
 ### args
+ - [ ] this module DA should become CLI
+ - [ ] add controls with controller
 
 ## files
+### JSON
+ - [] empty array/object should represented has closed bracer/braket ([] and {})
+ 
 ### filesystem
 this module would:
  - functions/types to manage path easly

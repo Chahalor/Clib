@@ -40,6 +40,9 @@
 
 /* -----| Modules   |----- */
 # include "../processor/processor.h"
+# ifdef INTERFACE_ARGS_USE_JSON
+#  include "../files/json.h"
+# endif
 
 /* ************************************************************************** */
 /*                                 Prototypes                                 */
@@ -56,6 +59,17 @@
  * @return New parser instance, or `NULL` on allocation failure.
  */
 t_args_parser	*args_parser_new(void);
+
+# ifdef INTERFACE_ARGS_USE_JSON
+
+/**
+ * @brief	load the differents args for teh CLI parsing from a json file
+*/
+t_args_parser	*args_parser_json(
+	JSON	*const	json
+);
+
+# endif
 
 /**
  * @brief Free a parser definition tree.

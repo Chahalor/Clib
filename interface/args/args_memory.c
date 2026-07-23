@@ -28,6 +28,20 @@ t_args_parser	*args_parser_new(void)
 	return (_args_mem_new_parser(NULL, NULL));
 }
 
+# ifdef INTERFACE_ARGS_USE_JSON
+
+t_args_parser	*args_parser_json(
+	JSON	*const	json
+)
+{
+	if (unlikely(!json))
+		return (NULL);
+
+	return (_args_parser_json(json));
+}
+
+# endif
+
 #pragma region Sub-parsers
 
 /** */
